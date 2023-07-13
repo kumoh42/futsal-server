@@ -82,7 +82,7 @@ DATABASE_NAME= 디비 스키마 이름
 ```
 아래 명령어를 통해 3306 포트에 mysql을 설정합니다.
 
-docker run -p 3306:3306 --name kumoh42 -e MYSQL_ROOT_PASSWORD='원하는 비밀번호' -d mysql:8.0 
+docker run -p 3306:3306 --name kumoh42 -e MYSQL_ROOT_PASSWORD='원하는 비밀번호' -e MYSQL_DATABASE=futsal -d mysql:8.0 
 ```
 
 ### 프로젝트 시작
