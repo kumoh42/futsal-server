@@ -10,7 +10,7 @@ export class Xe_ReservationEntity{
      * PK, NN, AI
      */    
     @PrimaryGeneratedColumn()
-    reservation_srl : number
+    reservation_srl : number;
     
 
     /**
@@ -20,7 +20,7 @@ export class Xe_ReservationEntity{
      * Default - NULL
      */
     @Column({length: 20})
-    member_id : number
+    member_id : number;
     
     /**
      * xe_reservation - place_srl
@@ -29,7 +29,7 @@ export class Xe_ReservationEntity{
      * Default - NULL
      */
     @Column({length: 20}) 
-    place_srl : number
+    place_srl : number;
 
 
     /**
@@ -37,7 +37,7 @@ export class Xe_ReservationEntity{
      * @description 예약자 동아리를 의미합니다. 한글 문자열으로 입력되어 있습니다.
      */    
     @Column({length: 20})
-    circle : string
+    circle : string;
     
 
     /**
@@ -47,7 +47,7 @@ export class Xe_ReservationEntity{
      * Default - NULL
      */
     @Column({length: 10})
-    major : string
+    major : string;
 
     /**
      * xe_reservation - date
@@ -56,7 +56,7 @@ export class Xe_ReservationEntity{
      * NN
      */
     @Column({length: 11})
-    date : string
+    date : string;
 
 
     @Column({length: 20})
@@ -66,7 +66,7 @@ export class Xe_ReservationEntity{
      *              
      * NN
      */
-    time : number
+    time : number;
     
 
     /**
@@ -78,7 +78,7 @@ export class Xe_ReservationEntity{
      * Default - 'N'
      */
     @Column({length: 1})
-    is_able : string
+    is_able : string;
 
 
     /**
@@ -90,7 +90,7 @@ export class Xe_ReservationEntity{
      * Default - 'N' 
      */
     @Column({length: 1})
-    is_holyday : string
+    is_holyday : string;
 
 
     /**
@@ -102,8 +102,7 @@ export class Xe_ReservationEntity{
      * Default - CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP()
      */
     @Column({length: 40})
-    regdatge : string
-
+    regdatge : string;
 
 
 }

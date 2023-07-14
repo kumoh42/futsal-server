@@ -10,7 +10,7 @@ export class Xe_Reservation_PreEntity{
      * PK, NN, AI
      */    
     @PrimaryGeneratedColumn()
-    reservation_srl : number
+    reservation_srl : number;
     
 
     /**
@@ -20,7 +20,7 @@ export class Xe_Reservation_PreEntity{
      * Default - NULL
      */
     @Column({length: 20})
-    member_id : number
+    member_id : number;
     
     /**
      * xe_reservation_pre - place_srl
@@ -29,7 +29,7 @@ export class Xe_Reservation_PreEntity{
      * Default - NULL
      */
     @Column({length: 20}) 
-    place_srl : number
+    place_srl : number;
 
 
     /**
@@ -37,7 +37,7 @@ export class Xe_Reservation_PreEntity{
      * @description 예약자 동아리를 의미합니다. 한글 문자열으로 입력되어 있습니다.
      */    
     @Column({length: 20})
-    circle : string
+    circle : string;
     
 
     /**
@@ -47,7 +47,7 @@ export class Xe_Reservation_PreEntity{
      * Default - NULL
      */
     @Column({length: 10})
-    major : string
+    major : string;
 
     /**
      * xe_reservation_pre - date
@@ -56,7 +56,7 @@ export class Xe_Reservation_PreEntity{
      * NN
      */
     @Column({length: 11})
-    date : string
+    date : string;
 
 
     @Column({length: 20})
