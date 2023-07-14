@@ -79,7 +79,7 @@ export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || pr
 
 
 ##### 3. nvm for window
-[nvm github](https://github.com/coreybutler/nvm-windows/releases)
+[nvm github](https://github.com/coreybutler/nvm-windows/releases)</br>
 상단 url을 통해 nvm-setup.exe를 설치하여 실행합니다.
 
 완료하면 명시한 명령어를 차레대로 입력하시면 됩니다.
