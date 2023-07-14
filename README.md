@@ -78,6 +78,23 @@ export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || pr
 위 명령어를 입력하면 .nvmrc를 읽어서 v18.16.1버전으로 변경합니다.
 
 
+##### 3. nvm for window
+[nvm github](https://github.com/coreybutler/nvm-windows/releases)
+상단 url을 통해 nvm-setup.exe를 설치하여 실행합니다.
+
+완료하면 명시한 명령어를 차레대로 입력하시면 됩니다.
+```
+nvm list //현재 nodejs 버전을 보여줍니다.
+nvm install 18.16.1 //해당 버전을 설치합니다.
+nvm use 18.16.1 //설치한 버전을 사용합니다.
+
+nvm list //설치된 버전을 사용하고 있는지 확인합니다!
+```
+
+>윈도우에서 현재 .nvmrc 를 사용한 nvm install || nvm use 명령어가 사용되지 않습니다.(인자가 부족하다고 함.) 따라서 명시되어있는 버전을 일일이 확인한 후 직접 cli command를 입력해야 합니다.
+
+
+
 #### .env 설정 
 
 프로젝트 루트 폴더에 아래 정보를 가진 .env 파일을 만들어주세요.
