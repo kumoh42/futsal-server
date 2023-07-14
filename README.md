@@ -32,17 +32,18 @@
 + 추후 재작성하겠습니다.
 
     
-## How to Run
+## ⚙️How to Run
+
 
 ### 0 프로젝트 세팅
 
 ```
 node version : v18.16.1
 ```
-
+ 
 #### nvm 사용 방법
 
-##### 1. nvm 설치 방법
+##### 1-1. nvm 설치 방법 for Mac
 ```
 1. curl을 사용해서 nvm 설치를 진행합니다.
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
@@ -52,7 +53,8 @@ export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || pr
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
 ```
 
-##### 2. nvm 사용 방법
+
+##### 2. nvm 사용 방법 for Mac
 - 해당 버전 설치 </br>
 ```nvm install 만약 본인의 nvm에 해당 버전이 없다면 실행 ``` </br>
 위 명령어를 입력하면 .nvmrc를 읽어서 v18.16.1을 설치합니다.
@@ -63,8 +65,31 @@ export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || pr
 ```nvm use // 필수 실행 ``` </br>
 위 명령어를 입력하면 .nvmrc를 읽어서 v18.16.1버전으로 변경합니다.
 
+##### 3. nvm 설치, 실행 방법 for Window
 
-#### .env 설정
+[nvm 설치 url](https://github.com/coreybutler/nvm-windows/releases)
+</br>
+이 링크로 들어가 nvm-setup.exe 를 설치하고 실행합니다.
+
+```
+nvm 기본 정보 cli commnad
+nvm -v //nvm 버전 확인
+nvm ls //현재 node.js 버전 확인
+nvm ls available //사용 가능한 node.js 버전 확인
+```
+
+하단은 node.js의 버전을 변경해주는 명령어 입니다.
+
+```
+nvm install 18.16.1 // 해당 node 버전 설치
+nvm use 18.16.1 // 해당 node 버전으로 변경
+```
+
+>현재 윈도우에서는 .nvmrc를 nvm이 인식하지 못 하는 것 같습니다. 번거롭겠지만 버전을 확인하고 일일이 커맨드를 칩시다.
+
+
+
+#### .env 설정 
 
 프로젝트 루트 폴더에 아래 정보를 가진 .env 파일을 만들어주세요
 
