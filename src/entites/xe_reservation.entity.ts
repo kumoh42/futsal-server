@@ -19,7 +19,7 @@ export class Xe_ReservationEntity{
      *              
      * Default - NULL
      */
-    @Column({length: 20})
+    @Column()
     member_id : number;
     
     /**
@@ -28,7 +28,7 @@ export class Xe_ReservationEntity{
      *              
      * Default - NULL
      */
-    @Column({length: 20}) 
+    @Column() 
     place_srl : number;
 
 
@@ -59,7 +59,7 @@ export class Xe_ReservationEntity{
     date : string;
 
 
-    @Column({length: 20})
+    @Column()
     /**
      * xe_reservation - time
      * @description 사용 시간을 의미합니다.

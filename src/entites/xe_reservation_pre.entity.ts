@@ -19,8 +19,8 @@ export class Xe_Reservation_PreEntity{
      *              
      * Default - NULL
      */
-    @Column({length: 20})
-    member_id : number;
+    @Column()
+    member_srl : number;
     
     /**
      * xe_reservation_pre - place_srl
@@ -28,7 +28,7 @@ export class Xe_Reservation_PreEntity{
      *              
      * Default - NULL
      */
-    @Column({length: 20}) 
+    @Column() 
     place_srl : number;
 
 
@@ -59,7 +59,7 @@ export class Xe_Reservation_PreEntity{
     date : string;
 
 
-    @Column({length: 20})
+    @Column()
     /**
      * xe_reservation_pre - time
      * @description 사용 시간을 의미합니다.
