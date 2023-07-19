@@ -19,7 +19,7 @@ export class Xe_Reservation_MemberEntity{
      * @description major pk입니다. xe_reservation_major pk와 value가 동일합니다.
      * 
      */    
-    @Column({length: 20})
+    @Column()
     major_srl : number;
 
 
@@ -29,7 +29,7 @@ export class Xe_Reservation_MemberEntity{
      * 
      * Default - NULL
      */    
-    @Column({length: 20})
+    @Column()
     circle_srl : number;
 
 
