@@ -1,0 +1,81 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches: ["main"]
+  #pull_request:
+    #branches: ["main"]
+
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up nodejs
+      uses: actions/setup-node@v3
+      with:
+        node-version: $(cat .nvmrc)
+        cache: 'npm'
+
+    - name: Install Dependencies
+      run: npm install
+
+    # Prettify
+    - name: Format
+      run: npm run format
+
+    - name: Lint
+      run: npm run lint
+
+    # 테스트 실행 (꼭 필요한가에 대하여.. 궁금)
+    - name: Test run
+      run: npm run start:dev
+
+
+  # 도커 이미지 빌드
+  # test가 완료되어야 build로 넘어옴
+  build and deploy:
+    needs: test
+    runs-on: ubuntu-latest
+
+    env:
+      ECR_REGISTRY: # 여기에 ~~~~ ${ecr} 경로를 입력
+      IMAGE_TAG: latest
+      EC2_HOST: ${{ secrets.EC2_HOST }}
+      EC2_USERNAME: ${{ secrets.EC2_USERNAME }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Build Docker image
+      run: docker build -t $ECR_REGISTRY/futsal-server:$IMAGE_TAG .
+
+
+    # ECR에 로그인할 때 필요한 임시 비밀번호를 생성한 후 이를 통해 ECR에 로그인함
+    - name: Login to AWS ECR
+      id: login-ecr
+      run: echo "Logging in to Amazon ECR..."
+        && aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin $ECR_REGISTRY
+
+    - name: Push Docker image to ECR
+      run: docker push $ECR_REGISTRY/futsal-server:$IMAGE_TAG
+
+    - name: SSH into EC2 and deploy
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ env.EC2_HOST }}
+        username: ${{ env.EC2_USERNAME }}
+        key: ${{ env.SSH_PRIVATE_KEY }}
+        script: |
+          # Pull and run the Docker image on EC2
+          docker pull $ECR_REGISTRY/futsal-server:$IMAGE_TAG
+          docker stop futsal-server || true
+          docker rm futsal-server || true
+          docker run -d --name futsal-server -p 3000:3000 $ECR_REGISTRY/futsal-server:$IMAGE_TAG
