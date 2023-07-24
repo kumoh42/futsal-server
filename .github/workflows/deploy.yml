@@ -46,7 +46,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      ECR_REGISTRY: # 여기에 ~~~~ ${ecr} 경로를 입력
+      ECR_REGISTRY: ${{ secrets.ECR_PATH }}
       IMAGE_TAG: latest
       EC2_HOST: ${{ secrets.EC2_HOST }}
       EC2_USERNAME: ${{ secrets.EC2_USERNAME }}
