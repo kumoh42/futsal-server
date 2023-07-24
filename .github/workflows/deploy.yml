@@ -63,7 +63,6 @@ jobs:
 
     # ECR에 로그인할 때 필요한 임시 비밀번호를 생성한 후 이를 통해 ECR에 로그인함
     - name: Login to AWS ECR
-      uses: actions/setup-aws-cli
       id: login-ecr
       run: echo "Logging in to Amazon ECR..."
         && aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin $ECR_REGISTRY
