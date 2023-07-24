@@ -33,12 +33,12 @@ jobs:
 
     # 테스트 실행 (꼭 필요한가에 대하여.. 궁금)
     - name: Test run
-      run: npm run start:dev
+      run: npm run test
 
 
   # 도커 이미지 빌드
   # test가 완료되어야 build로 넘어옴
-  build and deploy:
+  build_and_deploy:
     needs: test
     runs-on: ubuntu-latest
 
