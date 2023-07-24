@@ -72,8 +72,6 @@ jobs:
       run: echo "Logging in to Amazon ECR..."
         && aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin $ECR_REGISTRY
 
-    - name: 
-
     - name: Push Docker image to ECR
       run: docker push $ECR_REGISTRY/futsal-server:$IMAGE_TAG
 
