@@ -23,15 +23,6 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: '${{ steps.nvm.outputs.NVMRC }}'
-
-    - name: Create .env file
-      run: |
-        echo "DATABASE_TYPE=${{ secrets.DATABASE_TYPE }}" >> .env
-        echo "DATABASE_PORT=${{ secrets.DATABASE_PORT }}" >> .env
-        echo "DATABASE_HOST=${{ secrets.DATABASE_HOST }}" >> .env
-        echo "DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }}" >> .env
-        echo "DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}" >> .env
-        echo "DATABASE_NAME=${{ secrets.DATABASE_NAME }}" >> .env
         
     - name: Install Dependencies
       run: npm install
@@ -67,6 +58,15 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
+
+    - name: Create .env file
+      run: |
+        echo "DATABASE_TYPE=${{ secrets.DATABASE_TYPE }}" >> .env
+        echo "DATABASE_PORT=${{ secrets.DATABASE_PORT }}" >> .env
+        echo "DATABASE_HOST=${{ secrets.DATABASE_HOST }}" >> .env
+        echo "DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }}" >> .env
+        echo "DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}" >> .env
+        echo "DATABASE_NAME=${{ secrets.DATABASE_NAME }}" >> .env
 
     - name: Build Docker image
       run: docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
