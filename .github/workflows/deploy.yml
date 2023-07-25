@@ -81,8 +81,8 @@ jobs:
         key: ${{ env.SSH_PRIVATE_KEY }}
         script: |
           # Pull and run the Docker image on EC2
-          echo "${{env.ECR_REGISTRY}}/${{env.ECR_REPOSITORY}}:${{env.IMAGE_TAG}}"
-          docker pull ${{env.ECR_REGISTRY}}/${{env.ECR_REPOSITORY}}:${{env.IMAGE_TAG}}
-          docker stop ${{env.ECR_REGISTRY}} || true
-          docker rm ${{env.ECR_REGISTRY}} || true
-          docker run -d --name ${{env.ECR_REGISTRY}} -p 3000:3000 ${{env.ECR_REGISTRY}}/${{env.ECR_REPOSITORY}}:${{env.IMAGE_TAG}}
+          echo "${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}"
+          docker pull ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+          docker stop ${{ env.ECR_REGISTRY }} || true
+          docker rm ${{ env.ECR_REGISTRY }} || true
+          docker run -d --name ${{ env.ECR_REGISTRY }} -p 3000:3000 ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
