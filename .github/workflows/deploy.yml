@@ -81,6 +81,7 @@ jobs:
         key: ${{ env.SSH_PRIVATE_KEY }}
         script: |
           # Pull and run the Docker image on EC2
+          echo "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
           docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker stop $ECR_REPOSITORY || true
           docker rm $ECR_REPOSITORY || true
