@@ -79,11 +79,10 @@ jobs:
         host: ${{ env.EC2_HOST }}
         username: ${{ env.EC2_USERNAME }}
         key: ${{ env.SSH_PRIVATE_KEY }}
-        envs: ECR_REGISTRY, ECR_REPOSITORY, IMAGE_TAG
         script: |
           # Pull and run the Docker image on EC2
-          echo "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
-          docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          docker stop $ECR_REPOSITORY || true
-          docker rm $ECR_REPOSITORY || true
-          docker run -d --name $ECR_REPOSITORY -p 3000:3000 $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          echo "${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}"
+          docker pull ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+          docker stop ${{ env.ECR_REPOSITORY }} || true
+          docker rm ${{ env.ECR_REPOSITORY }} || true
+          docker run -d --name ${{ env.ECR_REPOSITORY }} -p 3000:3000 ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
