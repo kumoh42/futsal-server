@@ -5,6 +5,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { LoginModule } from './login/login.module';
 import { RtCacheModule } from './cache/cache.module';
+import { UserModule } from './user/user.module';
+
 
 @Module({
   imports: [
@@ -22,6 +24,7 @@ import { RtCacheModule } from './cache/cache.module';
       synchronize: false,
     }),
     LoginModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [AppService],

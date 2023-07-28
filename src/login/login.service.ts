@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Xe_Member_FutsalEntity } from 'src/entites/xe_member.futsal.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -12,7 +12,7 @@ export class LoginService {
 
   constructor(
     private jwtService: JwtService,
-  private refreshService: RefreshService,
+    private refreshService: RefreshService,
     @InjectRepository(Xe_Member_FutsalEntity) private userRepository: Repository<Xe_Member_FutsalEntity>,  
   ) {}
 
@@ -95,8 +95,12 @@ export class LoginService {
       return [new_accessToken, new_refreshToken];
   }
 
-
-
+  async decodeAccessToken(accessToken: string): Promise< any > {
+      const [bearer, new_access_token] = accessToken.split(' ');
+      const decodedToken = await this.jwtService.decode(new_access_token, { json: true });
+      if(decodedToken === null){throw new UnauthorizedException();}
+      return decodedToken;
+  }
 }
 
 

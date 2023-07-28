@@ -43,9 +43,6 @@ export class LoginController {
         }
         catch(error){
           throw new UnauthorizedException(error);
-        }
-        
+        }  
       }
-
-
 }
