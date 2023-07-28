@@ -3,6 +3,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { LoginModule } from './login/login.module';
+import { RtCacheModule } from './cache/cache.module';
 
 @Module({
   imports: [
@@ -18,9 +20,11 @@ import { ConfigModule } from '@nestjs/config';
       database: process.env.DATABASE_NAME,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: false,
-    })
+    }),
+    LoginModule,
   ],
   controllers: [AppController],
   providers: [AppService],
+  
 })
 export class AppModule {}
