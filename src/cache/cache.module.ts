@@ -1,5 +1,5 @@
 import { Module, CacheModule } from '@nestjs/common';
-import { RefreshService } from './cache.service';
+import { CacheService } from './cache.service';
 
 @Module({
   imports: [
@@ -8,7 +8,7 @@ import { RefreshService } from './cache.service';
       max: Number(process.env.CACHE_MAX), // 캐시 최대 갯수
     }),
   ],
-  providers: [RefreshService],
-  exports: [RefreshService],
+  providers: [CacheService],
+  exports: [CacheService],
 })
-export class RtCacheModule {}
+export class CachesModule {}

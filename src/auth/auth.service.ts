@@ -3,8 +3,8 @@ import { JwtService } from '@nestjs/jwt';
 import { Xe_Member_FutsalEntity } from 'src/entites/xe_member.futsal.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { hash, compare } from 'bcrypt';
-import { RefreshService } from 'src/cache/cache.service';
+import { compare } from 'bcrypt';
+import { CacheService } from 'src/cache/cache.service';
 import { Payload } from './jwt/jwt.payload';
 
 @Injectable()
@@ -19,7 +19,7 @@ export class AuthService {
 
   constructor(
     private jwtService: JwtService,
-    private refreshService: RefreshService,
+    private cacheService: CacheService,
     @InjectRepository(Xe_Member_FutsalEntity)
     private userRepository: Repository<Xe_Member_FutsalEntity>,
   ) {}
@@ -69,7 +69,7 @@ export class AuthService {
   }
 
   async refreshAccessToken(refreshToken: string): Promise<string[] | null> {
-    const userId = await this.refreshService.getRefreshToken(refreshToken);
+    const userId = await this.cacheService.getByKey<string>(refreshToken);
 
     const user = await this.userRepository.findOne({
       where: { user_id: userId },
@@ -81,7 +81,6 @@ export class AuthService {
       this.generateRefreshToken(payload),
     ]);
 
-    await this.refreshService.deleteRefreshToken(refreshToken);
     await this.updateRefreshToken(newRefreshToken, userId);
 
     return [newAccessToken, newRefreshToken];
@@ -105,6 +104,7 @@ export class AuthService {
     refreshToken: string,
     userId: string,
   ): Promise<void> {
-    this.refreshService.saveRefreshToken(refreshToken, userId);
+    await this.cacheService.delete(refreshToken);
+    await this.cacheService.save(refreshToken, userId);
   }
 }

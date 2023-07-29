@@ -3,7 +3,6 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
-import { RtCacheModule } from './cache/cache.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 
