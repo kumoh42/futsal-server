@@ -37,9 +37,6 @@ jobs:
     - name: Test run
       run: npm run test
 
-
-  # 도커 이미지 빌드
-  # test가 완료되어야 build로 넘어옴
   build_and_deploy:
     needs: test
     runs-on: ubuntu-latest
@@ -67,9 +64,6 @@ jobs:
         echo "DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }}" >> .env
         echo "DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}" >> .env
         echo "DATABASE_NAME=${{ secrets.DATABASE_NAME }}" >> .env
-
-    - name: Build Docker image
-      run: docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
     
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
@@ -78,23 +72,7 @@ jobs:
         aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ env.AWS_REGION }}
 
-    - name: Login to Amazon ECR
-      id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v1
-
-    - name: Push Docker image to ECR
-      run: docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-
-    - name: SSH into EC2 and deploy
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ env.EC2_HOST }}
-        username: ${{ env.EC2_USERNAME }}
-        key: ${{ env.SSH_PRIVATE_KEY }}
-        script: |
-          # Pull and run the Docker image on EC2
-          echo "${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}"
-          docker pull ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
-          docker stop ${{ env.ECR_REPOSITORY }} || true
-          docker rm ${{ env.ECR_REPOSITORY }} || true
-          docker run -d --name ${{ env.ECR_REPOSITORY }} -p 3000:3000 ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+    - name: Zip and Deploy to AWS
+      run: |
+        zip -j futsal-server-lambda.zip ./lambda/index.js
+        aws lambda update-function-code --function-name=futsal-serverl-dev-main --zip-file=fileb://${{ secrets.S3_BUCKET_NAME }}.zip
