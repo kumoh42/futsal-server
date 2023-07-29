@@ -1,4 +1,4 @@
-import { Module, CacheModule, } from '@nestjs/common';
+import { Module, CacheModule } from '@nestjs/common';
 import { RefreshService } from './cache.service';
 
 @Module({

@@ -6,25 +6,21 @@ import { RefreshService } from 'src/cache/cache.service';
 
 @Injectable()
 export class UserService {
-    constructor(
-        private refreshService: RefreshService,
-        @InjectRepository(Xe_Member_FutsalEntity) private userRepository: Repository<Xe_Member_FutsalEntity>,  
-      ) {}
+  constructor(
+    private refreshService: RefreshService,
+    @InjectRepository(Xe_Member_FutsalEntity)
+    private userRepository: Repository<Xe_Member_FutsalEntity>,
+  ) {}
 
+  async getUserInfo(user_info: any): Promise<any> {
+    const user_id = user_info['user_id'];
+    const user = await this.userRepository.findOne({ where: { user_id } });
 
-      async getUserInfo(user_info: any ): Promise< any >{
-        const user_id = user_info['user_id'];
-        const user = await this.userRepository.findOne({ where: { user_id } });
-        
-        if (!user || !user.password) {
-          throw new HttpException('wrong', HttpStatus.BAD_REQUEST);
-        }
+    if (!user || !user.password) {
+      throw new HttpException('wrong', HttpStatus.BAD_REQUEST);
+    }
 
-        const { password, ...userInfoWithoutPassword } = user;
-        return userInfoWithoutPassword;
-      }
-
-
+    const { password, ...userInfoWithoutPassword } = user;
+    return userInfoWithoutPassword;
+  }
 }
-
-

@@ -3,10 +3,9 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
-import { LoginModule } from './login/login.module';
 import { RtCacheModule } from './cache/cache.module';
 import { UserModule } from './user/user.module';
-
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -23,11 +22,10 @@ import { UserModule } from './user/user.module';
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: false,
     }),
-    LoginModule,
+    AuthModule,
     UserModule,
   ],
   controllers: [AppController],
   providers: [AppService],
-  
 })
 export class AppModule {}

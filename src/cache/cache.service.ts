@@ -5,8 +5,8 @@ import { Cache } from 'cache-manager';
 export class RefreshService {
   constructor(@Inject(CACHE_MANAGER) private readonly cache: Cache) {}
 
-  async saveRefreshToken(RT: string,user_id: string): Promise<void> {
-    await this.cache.store.set( RT, user_id );
+  async saveRefreshToken(RT: string, user_id: string): Promise<void> {
+    await this.cache.store.set(RT, user_id);
   }
 
   async getRefreshToken(RT: string): Promise<string | undefined> {
@@ -15,13 +15,10 @@ export class RefreshService {
   }
 
   async deleteRefreshToken(user_id: string): Promise<void> {
-      await this.cache.store.del(user_id);
-    }
-
-  async getAllKeys(): Promise<string[] | null>{
-    return await this.cache.store.keys();
+    await this.cache.store.del(user_id);
   }
 
+  async getAllKeys(): Promise<string[] | null> {
+    return await this.cache.store.keys();
+  }
 }
-
-
