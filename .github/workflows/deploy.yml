@@ -74,5 +74,5 @@ jobs:
 
     - name: Zip and Deploy to AWS
       run: |
-        zip -j futsal-server-lambda.zip ./lambda/index.js
+        zip -j ${{ secrets.S3_BUCKET_NAME }}.zip ./lambda/index.js
         aws lambda update-function-code --function-name=futsal-serverl-dev-main --zip-file=fileb://${{ secrets.S3_BUCKET_NAME }}.zip
