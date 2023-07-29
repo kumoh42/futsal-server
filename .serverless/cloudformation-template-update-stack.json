@@ -74,7 +74,7 @@
     "MainLogGroup": {
       "Type": "AWS::Logs::LogGroup",
       "Properties": {
-        "LogGroupName": "/aws/lambda/futsal-server-dev-main"
+        "LogGroupName": "/aws/lambda/futsal-server-lambda-dev-main"
       }
     },
     "IamRoleLambdaExecution": {
@@ -102,7 +102,7 @@
               "Fn::Join": [
                 "-",
                 [
-                  "futsal-server",
+                  "futsal-server-lambda",
                   "dev",
                   "lambda"
                 ]
@@ -120,7 +120,7 @@
                   ],
                   "Resource": [
                     {
-                      "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/futsal-server-dev*:*"
+                      "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/futsal-server-lambda-dev*:*"
                     }
                   ]
                 },
@@ -131,7 +131,7 @@
                   ],
                   "Resource": [
                     {
-                      "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/futsal-server-dev*:*:*"
+                      "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/futsal-server-lambda-dev*:*:*"
                     }
                   ]
                 }
@@ -144,7 +144,7 @@
           "Fn::Join": [
             "-",
             [
-              "futsal-server",
+              "futsal-server-lambda",
               "dev",
               {
                 "Ref": "AWS::Region"
@@ -162,16 +162,22 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/futsal-server/dev/1690635055801-2023-07-29T12:50:55.801Z/futsal-server.zip"
+          "S3Key": "serverless/futsal-server-lambda/dev/1690649446682-2023-07-29T16:50:46.682Z/futsal-server-lambda.zip"
         },
         "Handler": "dist/serverless.handler",
         "Runtime": "nodejs18.x",
-        "FunctionName": "futsal-server-dev-main",
+        "FunctionName": "futsal-server-lambda-dev-main",
         "MemorySize": 1024,
         "Timeout": 6,
         "Environment": {
           "Variables": {
-            "SERVERLESS_EXPRESS_PLATFORM": "aws"
+            "SERVERLESS_EXPRESS_PLATFORM": "aws",
+            "DATABASE_TYPE": "mysql",
+            "DATABASE_PORT": "3306",
+            "DATABASE_HOST": "database-1.ctfthgy5wmxb.ap-northeast-2.rds.amazonaws.com",
+            "DATABASE_USERNAME": "admin",
+            "DATABASE_PASSWORD": "emm05235",
+            "DATABASE_NAME": "xe_home"
           }
         },
         "Role": {
@@ -185,20 +191,20 @@
         "MainLogGroup"
       ]
     },
-    "MainLambdaVersionNduvtASEpnFamBc7jtSmJdnJJjBQgfai29cy3IHGc": {
+    "MainLambdaVersionwyNsg4XmvzOsck8jmDYqZelTswk9gixzzpSXxoh2Kco": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "MainLambdaFunction"
         },
-        "CodeSha256": "lZu0DrAvS2axDJCxq36hLhqzl/KeM7BGCqAuRzpih6M="
+        "CodeSha256": "rnlJqgTH9uWkEmWeqMpMbuuBA4W1+1YOBAhvVfIOnr0="
       }
     },
     "ApiGatewayRestApi": {
       "Type": "AWS::ApiGateway::RestApi",
       "Properties": {
-        "Name": "dev-futsal-server",
+        "Name": "dev-futsal-server-lambda",
         "EndpointConfiguration": {
           "Types": [
             "EDGE"
@@ -221,6 +227,55 @@
           "Ref": "ApiGatewayRestApi"
         }
       }
+    },
+    "ApiGatewayMethodAny": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "HttpMethod": "ANY",
+        "RequestParameters": {},
+        "ResourceId": {
+          "Fn::GetAtt": [
+            "ApiGatewayRestApi",
+            "RootResourceId"
+          ]
+        },
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "ApiKeyRequired": false,
+        "AuthorizationType": "NONE",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "MainLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "/invocations"
+              ]
+            ]
+          }
+        },
+        "MethodResponses": []
+      },
+      "DependsOn": [
+        "MainLambdaPermissionApiGateway"
+      ]
     },
     "ApiGatewayMethodProxyVarAny": {
       "Type": "AWS::ApiGateway::Method",
@@ -268,7 +323,7 @@
         "MainLambdaPermissionApiGateway"
       ]
     },
-    "ApiGatewayDeployment1690635045207": {
+    "ApiGatewayDeployment1690649436551": {
       "Type": "AWS::ApiGateway::Deployment",
       "Properties": {
         "RestApiId": {
@@ -277,6 +332,7 @@
         "StageName": "dev"
       },
       "DependsOn": [
+        "ApiGatewayMethodAny",
         "ApiGatewayMethodProxyVarAny"
       ]
     },
@@ -324,16 +380,16 @@
         "Ref": "ServerlessDeploymentBucket"
       },
       "Export": {
-        "Name": "sls-futsal-server-dev-ServerlessDeploymentBucketName"
+        "Name": "sls-futsal-server-lambda-dev-ServerlessDeploymentBucketName"
       }
     },
     "MainLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "MainLambdaVersionNduvtASEpnFamBc7jtSmJdnJJjBQgfai29cy3IHGc"
+        "Ref": "MainLambdaVersionwyNsg4XmvzOsck8jmDYqZelTswk9gixzzpSXxoh2Kco"
       },
       "Export": {
-        "Name": "sls-futsal-server-dev-MainLambdaFunctionQualifiedArn"
+        "Name": "sls-futsal-server-lambda-dev-MainLambdaFunctionQualifiedArn"
       }
     },
     "ServiceEndpoint": {
@@ -359,7 +415,7 @@
         ]
       },
       "Export": {
-        "Name": "sls-futsal-server-dev-ServiceEndpoint"
+        "Name": "sls-futsal-server-lambda-dev-ServiceEndpoint"
       }
     }
   }

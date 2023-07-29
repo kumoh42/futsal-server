@@ -72,6 +72,7 @@ jobs:
         aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ env.AWS_REGION }}
 
+    # 여기서 그냥 바로 deploy 때려버리고 싶다. . . . sls deploy . . .
     - name: Zip and Deploy to AWS
       run: |
         zip -j futsal-server-lambda.zip ./dist/*
