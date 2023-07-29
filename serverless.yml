@@ -1,0 +1,29 @@
+service: futsal-server
+
+useDotenv: true
+
+plugins:
+  - serverless-offline
+  - serverless-express
+
+#AWS 설정
+provider:
+  name: aws
+  region: ap-northeast-2
+  runtime: nodejs18.x
+  environment:
+    # DATABASE_TYPE= ${{ secrets.DATABASE_TYPE }}
+    # DATABASE_PORT= ${{ secrets.DATABASE_PORT }}
+    # DATABASE_HOST= ${{ secrets.DATABASE_HOST }}
+    # DATABASE_USERNAME= ${{ secrets.DATABASE_USERNAME }}
+    # DATABASE_PASSWORD= ${{ secrets.DATABASE_PASSWORD }}
+    # DATABASE_NAME= ${{ secrets.DATABASE_NAME }}
+    
+#Lambda 함수 설정
+functions:
+  main:
+    handler: dist/serverless.handler
+    events:
+      - http:
+          method: any
+          path: /{proxy+}
