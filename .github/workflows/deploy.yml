@@ -64,7 +64,7 @@ jobs:
         echo "DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }}" >> .env
         echo "DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}" >> .env
         echo "DATABASE_NAME=${{ secrets.DATABASE_NAME }}" >> .env
-    
+
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
@@ -74,5 +74,5 @@ jobs:
 
     - name: Zip and Deploy to AWS
       run: |
-        zip -j ${{ secrets.S3_BUCKET_NAME }}.zip ./lambda/index.js
-        aws lambda update-function-code --function-name=futsal-serverl-dev-main --zip-file=fileb://${{ secrets.S3_BUCKET_NAME }}.zip
+        zip -j futsal-server-lambda.zip ./dist/*
+        aws lambda update-function-code --function-name=futsal-server-dev-main --zip-file=fileb://futsal-server-lambda.zip
