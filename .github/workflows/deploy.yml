@@ -1,4 +1,4 @@
-name: Deploy to EC2
+name: Deploy Nestjs on lambda
 
 on:
   push:
@@ -56,24 +56,20 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Create .env file
-      run: |
-        echo "DATABASE_TYPE=${{ secrets.DATABASE_TYPE }}" >> .env
-        echo "DATABASE_PORT=${{ secrets.DATABASE_PORT }}" >> .env
-        echo "DATABASE_HOST=${{ secrets.DATABASE_HOST }}" >> .env
-        echo "DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }}" >> .env
-        echo "DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}" >> .env
-        echo "DATABASE_NAME=${{ secrets.DATABASE_NAME }}" >> .env
+    # - name: Create .env file
+    #   run: |
+    #     echo "DATABASE_TYPE=${{ secrets.DATABASE_TYPE }}" >> .env
+    #     echo "DATABASE_PORT=${{ secrets.DATABASE_PORT }}" >> .env
+    #     echo "DATABASE_HOST=${{ secrets.DATABASE_HOST }}" >> .env
+    #     echo "DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }}" >> .env
+    #     echo "DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}" >> .env
+    #     echo "DATABASE_NAME=${{ secrets.DATABASE_NAME }}" >> .env
 
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ env.AWS_REGION }}
+    - name: Install serverless globally
+      run: npm install -g serverless
 
-    # 여기서 그냥 바로 deploy 때려버리고 싶다. . . . sls deploy . . .
-    - name: Zip and Deploy to AWS
-      run: |
-        zip -j futsal-server-lambda.zip ./dist/*
-        aws lambda update-function-code --function-name=futsal-server-dev-main --zip-file=fileb://futsal-server-lambda.zip
+    - name: nest build
+      run: npm run build
+    
+    - name: Deploy lambda function
+      run: sls deploy
