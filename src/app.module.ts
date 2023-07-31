@@ -1,8 +1,7 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { ReservationModule } from './reservation/reservation.module';
 
 @Module({
   imports: [
@@ -18,9 +17,8 @@ import { ConfigModule } from '@nestjs/config';
       database: process.env.DATABASE_NAME,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: false,
-    })
+    }),
+    ReservationModule
   ],
-  controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}

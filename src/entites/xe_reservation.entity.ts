@@ -20,7 +20,7 @@ export class Xe_ReservationEntity{
      * Default - NULL
      */
     @Column()
-    member_id : number;
+    member_srl : number;
     
     /**
      * xe_reservation - place_srl
@@ -90,7 +90,7 @@ export class Xe_ReservationEntity{
      * Default - 'N' 
      */
     @Column({length: 1})
-    is_holyday : string;
+    is_holiday : string;
 
 
     /**
@@ -102,7 +102,7 @@ export class Xe_ReservationEntity{
      * Default - CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP()
      */
     @Column({length: 40})
-    regdatge : string;
+    regdate : string;
 
 
 }
