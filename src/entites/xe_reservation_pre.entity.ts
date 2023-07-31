@@ -90,7 +90,7 @@ export class Xe_Reservation_PreEntity{
      * Default - 'N' 
      */
     @Column({length: 1})
-    is_holyday : string
+    is_holiday : string
 
 
     /**
@@ -102,7 +102,7 @@ export class Xe_Reservation_PreEntity{
      * Default - CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP()
      */
     @Column({length: 40})
-    regdatge : string
+    regdate : string
 
 
 
