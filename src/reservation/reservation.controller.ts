@@ -3,12 +3,21 @@ import { ReservationService } from './reservation.service';
 
 @Controller('reservation')
 export class ReservationController {
-    constructor(private resrvationService: ReservationService
+    constructor(private reservationService: ReservationService
     ) { }
 
-    @Post('/start') // 사전 or 정식
-    async reservationStart() {
-        await this.resrvationService.openPreReservation()
+    @Post('/pre/start')
+    async reservationPreStart() {
+        await this.reservationService.openPreReservation()
     }
 
+    @Post('/pre/close')
+    async reservationPreClose() {
+        await this.reservationService.closePreReservation()
+    }
+
+    @Post('/start')
+    async reservationStart() {
+        await this.reservationService.openReservation()
+    }
 }

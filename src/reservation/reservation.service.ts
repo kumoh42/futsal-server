@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Like, Repository } from 'typeorm';
 import { Xe_ReservationEntity } from 'src/entites/xe_reservation.entity';
@@ -20,6 +20,12 @@ export class ReservationService {
   ) { }
 
   async openPreReservation() {
+    let reservationSlot = await this.preRepository.find({ where: { date: Like(`${this.nextMonth.format('YYYY-MM')}%`) }});
+
+    if(reservationSlot.length > 0){
+      throw new BadRequestException("이미 사전예약 진행 중입니다.")
+    }
+
     this.builder.setDays(this.today, this.nextMonth)
     const preResservationSlot = this.builder.buildSlots()
     await this.preRepository.clear();
@@ -34,7 +40,7 @@ export class ReservationService {
     const list = await this.reservationRepository.find({ where: { date: Like(`${this.nextMonth.format('YYYY-MM')}%`) } });
 
     if (list.length > 0) {
-      return
+      throw new BadRequestException("이미 예약 진행 중입니다.")
     }
 
     let reservationSlot = await this.preRepository.find({ where: { date: Like(`${this.nextMonth.format('YYYY-MM')}%`) }});
