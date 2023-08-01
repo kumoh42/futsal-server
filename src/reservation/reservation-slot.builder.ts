@@ -18,12 +18,7 @@ export class ReservationSlotBuilder {
     const dateStrings = this.createDateStrings(days)
     return dateStrings.map(date => this.createPreReservationSlot(date)).flat()
   }
-
-  // 휴일 지정
-  private async getHoilday() {
-    return
-  }
-
+  
   private createPreReservationSlot(date){
     const result:any [] = []
 
@@ -33,7 +28,7 @@ export class ReservationSlotBuilder {
         date: date,
         time: hour,
         is_able: 'Y',
-        is_hoilday
+        is_hoilday: is_hoilday
       };
       result.push(slot)
     }
