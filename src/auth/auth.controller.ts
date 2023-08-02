@@ -5,24 +5,30 @@ import {
   Req,
   Res,
   Headers,
-  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { Request, Response } from 'express';
-import { error } from 'console';
+import { Response } from 'express';
 import { JwtAuthGuard } from './jwt/jwt.guard';
+import { UserLoginAccount } from './auth.decorator';
+
+
+type userInputAccount = {
+  user_id: string,
+  user_password: string,
+}
+
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+
   @Post()
-  async login(@Req() request: Request, @Res() response: Response) {
-    const { user_id, user_password } = request.body;
+  async login(@UserLoginAccount() userInput: userInputAccount, @Res() response: Response) {
     const [access_token, refresh_token] = await this.authService.login(
-      user_id,
-      user_password,
+      userInput.user_id,
+      userInput.user_password,
     );
     response
       .header('access_token', `Bearer ${access_token}`)
