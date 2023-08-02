@@ -1,18 +1,17 @@
-import { Controller, Post } from '@nestjs/common';
+import { Controller, Post, Put } from '@nestjs/common';
 import { ReservationService } from './reservation.service';
-import { Cron } from '@nestjs/schedule';
 
 @Controller('reservation')
 export class ReservationController {
     constructor(private reservationService: ReservationService
     ) { }
 
-    @Post('/pre/start')
+    @Put('/pre/start')
     async reservationPreStart() {
         await this.reservationService.openPreReservation()
     }
 
-    @Post('/pre/close')
+    @Put('/pre/close')
     async reservationPreClose() {
         await this.reservationService.closePreReservation()
     }
