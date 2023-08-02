@@ -15,9 +15,4 @@ export class ReservationController {
     async reservationPreClose() {
         await this.reservationService.closePreReservation()
     }
-
-    @Post('/start')
-    async reservationStart() {
-        await this.reservationService.openReservation()
-    }
 }
