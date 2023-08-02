@@ -13,14 +13,14 @@ export class Xe_ReservationEntity{
     reservation_srl : number;
     
 
-    /**
-     * xe_reservation - member_id
-     * @description 예약자. xe_member 테이블의 member_srl 값입니다. 그러나 fk는 아닙니다.
-     *              
-     * Default - NULL
-     */
-    @Column()
-    member_id : number;
+    // /**
+    //  * xe_reservation - member_id
+    //  * @description 예약자. xe_member 테이블의 member_srl 값입니다. 그러나 fk는 아닙니다.
+    //  *              
+    //  * Default - NULL
+    //  */
+    // @Column()
+    // member_id : number;
     
     /**
      * xe_reservation - place_srl
@@ -90,7 +90,7 @@ export class Xe_ReservationEntity{
      * Default - 'N' 
      */
     @Column({length: 1})
-    is_holyday : string;
+    is_holiday : string;
 
 
     /**
@@ -102,7 +102,7 @@ export class Xe_ReservationEntity{
      * Default - CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP()
      */
     @Column({length: 40})
-    regdatge : string;
+    regdate : string;
 
 
 }
