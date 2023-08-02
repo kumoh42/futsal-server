@@ -1,5 +1,6 @@
 import { Controller, Post } from '@nestjs/common';
 import { ReservationService } from './reservation.service';
+import { Cron } from '@nestjs/schedule';
 
 @Controller('reservation')
 export class ReservationController {

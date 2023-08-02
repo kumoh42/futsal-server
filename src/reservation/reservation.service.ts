@@ -5,6 +5,7 @@ import { Xe_ReservationEntity } from 'src/entites/xe_reservation.entity';
 import { Xe_Reservation_PreEntity } from 'src/entites/xe_reservation_pre.entity';
 import dayjs from 'dayjs';
 import { ReservationSlotBuilder } from 'src/reservation/reservation-slot.builder';
+import { Cron } from '@nestjs/schedule';
 
 @Injectable()
 export class ReservationService {
@@ -36,6 +37,7 @@ export class ReservationService {
     await this.preRepository.clear()
   }
 
+  @Cron('0 0 0 1 * *')
   async openReservation() {
     const list = await this.reservationRepository.find({ where: { date: Like(`${this.nextMonth.format('YYYY-MM')}%`) } });
 
