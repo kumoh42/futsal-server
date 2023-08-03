@@ -2,7 +2,7 @@ name: Deploy Nestjs on lambda
 
 on:
   push:
-    branches: ["main", "KUM-**"]
+    branches: ["main"]
 
 jobs:
   test:
@@ -62,13 +62,13 @@ jobs:
         echo "DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}" >> .env
         echo "DATABASE_NAME=${{ secrets.DATABASE_NAME }}" >> .env
 
-        # echo "JWT_ACCESS_SECRET_KEY=${{ secrets.JWT_ACCESS_SECRET_KEY }}" >> .env
-        # echo "JWT_ACCESS_EXPIRATION_TIME=${{ secrets.JWT_ACCESS_EXPIRATION_TIME }}" >> .env
+        echo "JWT_ACCESS_SECRET_KEY=${{ secrets.JWT_ACCESS_SECRET_KEY }}" >> .env
+        echo "JWT_ACCESS_EXPIRATION_TIME=${{ secrets.JWT_ACCESS_EXPIRATION_TIME }}" >> .env
 
-        # echo "JWT_REFRESH_SECRET_KEY=${{ secrets.JWT_REFRESH_SECRET_KEY }}" >> .env
-        # echo "JWT_REFRESH_EXPIRATION_TIME=${{ secrets.JWT_REFRESH_EXPIRATION_TIME }}" >> .env
-        # echo "CACHE_TTL=${{ secrets.CACHE_TTL }}" >> .env
-        # echo "CACHE_MAX=${{ secrets.CACHE_MAX }}" >> .env
+        echo "JWT_REFRESH_SECRET_KEY=${{ secrets.JWT_REFRESH_SECRET_KEY }}" >> .env
+        echo "JWT_REFRESH_EXPIRATION_TIME=${{ secrets.JWT_REFRESH_EXPIRATION_TIME }}" >> .env
+        echo "CACHE_TTL=${{ secrets.CACHE_TTL }}" >> .env
+        echo "CACHE_MAX=${{ secrets.CACHE_MAX }}" >> .env
 
 
     - name: Install serverless globally
