@@ -104,7 +104,12 @@ export class AuthService {
     refreshToken: string,
     userId: string,
   ): Promise<void> {
-    await this.cacheService.delete(refreshToken);
-    await this.cacheService.save(refreshToken, userId);
+    try{
+        await this.cacheService.delete(refreshToken);
+        await this.cacheService.save(refreshToken, userId);
+    }catch(error){
+      throw new UnauthorizedException('올바르지 않은 토큰입니다.');
+    }
+    
   }
 }
