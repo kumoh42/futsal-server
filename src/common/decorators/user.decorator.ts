@@ -9,7 +9,10 @@ export type User = {
 export const User = createParamDecorator(
   (data: unknown,
    ctx: ExecutionContext) => {
-    const {userId, userName} = ctx.switchToHttp().getRequest().user.userId
+    const {userId, userName} = ctx.
+                              switchToHttp().
+                              getRequest().
+                              user;
     return {userId, userName};
   },
 );

@@ -2,7 +2,6 @@ import {
   Controller,
   Get,
   Post,
-  Req,
   Res,
   Headers,
   UseGuards,
@@ -27,6 +26,7 @@ export class AuthController {
       body.user_id,
       body.user_password,
     );
+    
     response
       .header('access_token', `Bearer ${access_token}`)
       .header('refresh_token', `Bearer ${refresh_token}`)
@@ -39,7 +39,7 @@ export class AuthController {
     return user;
   }
 
-  @Get('/auth/refresh')
+  @Get('/refresh')
   async refreshRToken(
     @Headers('Authorization') refresh_token: string,
     @Res() response: Response,
@@ -60,6 +60,4 @@ export class AuthController {
       
   }
 }
-
 // 토큰 발급
-// 
