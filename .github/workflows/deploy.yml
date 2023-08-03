@@ -2,7 +2,7 @@ name: Deploy Nestjs on lambda
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "KUM-**"]
 
 jobs:
   test:
