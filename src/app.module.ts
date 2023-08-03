@@ -18,7 +18,7 @@ import { ConfigModule } from '@nestjs/config';
       database: process.env.DATABASE_NAME,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: false,
-    })
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],
