@@ -5,13 +5,18 @@ import {
   Param,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { ReservationService } from './reservation.service';
 import { Xe_ReservationEntity } from 'src/entites/xe_reservation.entity';
+import { JwtAuthGuard } from 'src/auth/jwt/jwt.guard';
+
 
 @Controller('reservation')
+@UseGuards(JwtAuthGuard)
 export class ReservationController {
-  constructor(private reservationService: ReservationService) {}
+  constructor(private reservationService: ReservationService,
+    ) {}
 
   @Get('/:date')
   async getMemberInfo(
