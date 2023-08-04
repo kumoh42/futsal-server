@@ -12,15 +12,15 @@ export class Xe_ReservationEntity{
     @PrimaryGeneratedColumn()
     reservation_srl : number;
     
+    /**
+     * xe_reservation - member_id
+     * @description 예약자. xe_member 테이블의 member_srl 값입니다. 그러나 fk는 아닙니다.
+     *              
+     * Default - NULL
+     */
+    @Column()
+    member_srl : number;
 
-    // /**
-    //  * xe_reservation - member_id
-    //  * @description 예약자. xe_member 테이블의 member_srl 값입니다. 그러나 fk는 아닙니다.
-    //  *              
-    //  * Default - NULL
-    //  */
-    // @Column()
-    // member_id : number;
     
     /**
      * xe_reservation - place_srl

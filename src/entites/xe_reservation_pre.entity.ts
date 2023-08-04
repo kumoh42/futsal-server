@@ -68,7 +68,7 @@ export class Xe_Reservation_PreEntity{
      */
     time : number
     
-
+  
     /**
      * xe_reservation_pre - is_able
      * @description  ???
@@ -103,8 +103,5 @@ export class Xe_Reservation_PreEntity{
      */
     @Column({length: 40})
     regdate : string
-
-
-
 }
 

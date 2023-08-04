@@ -9,5 +9,6 @@ export class ReservationController {
     @Get('/:date')
     async getMemberInfo(@Param('date') date: string): Promise<Xe_ReservationEntity[]> {
         return await this.reservationService.getMemberInfo(date)
+
     }
 }

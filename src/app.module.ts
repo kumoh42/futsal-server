@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { UserModule } from './user/user.module';
+import { AuthModule } from './auth/auth.module';
 import { ReservationModule } from './reservation/reservation.module';
 import { ScheduleModule } from '@nestjs/schedule';
 
@@ -20,9 +22,10 @@ import { ScheduleModule } from '@nestjs/schedule';
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: false,
     }),
+    AuthModule,
+    UserModule,
     ReservationModule
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  
 })
 export class AppModule {}
