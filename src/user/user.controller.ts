@@ -11,6 +11,6 @@ export class UserController {
 
   @Get()
   async getUserInfo(@User() user: User) {
-    return this.userService.getUserInfo(user.userId);
+    return await this.userService.getUserInfo(user.userId);
   }
 }
