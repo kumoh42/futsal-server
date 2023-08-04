@@ -1,13 +1,14 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
+import { ReservationModule } from './reservation/reservation.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
     }),
@@ -23,8 +24,11 @@ import { AuthModule } from './auth/auth.module';
     }),
     AuthModule,
     UserModule,
+<<<<<<< HEAD
+=======
+    ReservationModule
+>>>>>>> 9dfb0bf55cbe5d1162e067776670d62f129250fa
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  
 })
 export class AppModule {}
