@@ -68,30 +68,7 @@ export class Xe_Reservation_PreEntity{
      */
     time : number
     
-
-<<<<<<< HEAD
-  /**
-   * xe_reservation_pre - is_holyday
-   * @description 예약날의 주말 여부를 의미합니다.
-   *
-   * NN
-   *
-   * Default - 'N'
-   */
-  @Column({ length: 1 })
-  is_holiday: string;
-
-  /**
-   * xe_reservation_pre - regdate
-   * @description ???2
-   *
-   * NN
-   *
-   * Default - CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP()
-   */
-  @Column({ length: 40 })
-  regdate: string;
-=======
+  
     /**
      * xe_reservation_pre - is_able
      * @description  ???
@@ -126,6 +103,5 @@ export class Xe_Reservation_PreEntity{
      */
     @Column({length: 40})
     regdate : string
->>>>>>> 9dfb0bf55cbe5d1162e067776670d62f129250fa
 }
 

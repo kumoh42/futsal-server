@@ -2,19 +2,24 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
+
 import { ValidationPipe } from '@nestjs/common';
+
 
 dotenv.config({
   path: path.resolve('.env'),
 });
 
-async function bootstrap() {
+
+ async function bootstrap() {
+  console.log(process.env);
   const app = await NestFactory.create(AppModule, { cors: true });
   app.enableCors({
     origin: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
   });
+
   app.useGlobalPipes(new ValidationPipe({
     transform: true
   }))

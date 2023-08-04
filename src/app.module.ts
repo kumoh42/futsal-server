@@ -24,10 +24,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     }),
     AuthModule,
     UserModule,
-<<<<<<< HEAD
-=======
     ReservationModule
->>>>>>> 9dfb0bf55cbe5d1162e067776670d62f129250fa
   ],
   
 })

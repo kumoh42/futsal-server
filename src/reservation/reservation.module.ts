@@ -5,7 +5,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Xe_Reservation_ConfigEntity } from 'src/entites/xe_reservation_config.entity';
 import { Xe_ReservationEntity } from 'src/entites/xe_reservation.entity';
 import { Xe_Reservation_PreEntity } from 'src/entites/xe_reservation_pre.entity';
-import { ReservationSlotBuilder } from './reservation-slot.builder';
 import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
@@ -18,6 +17,6 @@ import { ScheduleModule } from '@nestjs/schedule';
     ]),
     ],
   controllers: [ReservationController],
-  providers: [ReservationService, ReservationSlotBuilder]
+  providers: [ReservationService]
 })
 export class ReservationModule {}
