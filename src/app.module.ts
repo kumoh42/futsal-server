@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { UserModule } from './user/user.module';
+import { AuthModule } from './auth/auth.module';
 import { ReservationModule } from './reservation/reservation.module';
 import { ScheduleModule } from '@nestjs/schedule';
 
@@ -20,7 +22,12 @@ import { ScheduleModule } from '@nestjs/schedule';
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: false,
     }),
+    AuthModule,
+    UserModule,
+<<<<<<< HEAD
+=======
     ReservationModule
+>>>>>>> 9dfb0bf55cbe5d1162e067776670d62f129250fa
   ],
   
 })
