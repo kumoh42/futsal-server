@@ -23,7 +23,7 @@ export class ReservationSlotBuilder {
     const result:any [] = []
 
     for (let hour = 8; hour <= 21; hour += 2) {
-      let is_hoilday = 'N'; // 공휴일 체크
+      let is_hoilday = 'N';
       const slot = {
         date: date,
         time: hour,
