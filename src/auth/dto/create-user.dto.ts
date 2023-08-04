@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, Matches, Validate, ValidationArguments, ValidationError, ValidatorConstraint, ValidatorConstraintInterface } from "class-validator";
+import { IsNotEmpty, IsString, Matches, Validate, ValidationArguments, ValidatorConstraint, ValidatorConstraintInterface } from "class-validator";
 
 @ValidatorConstraint({ name: 'notContainsValue', async: false })
 export class NotContainsValueConstraint implements ValidatorConstraintInterface {

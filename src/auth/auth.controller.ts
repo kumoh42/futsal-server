@@ -12,7 +12,7 @@ import { AuthService } from './auth.service';
 import { Response } from 'express';
 import { JwtAuthGuard } from './jwt/jwt.guard';
 import { User } from 'src/common/decorators/user.decorator';
-import { CreateUserDto } from './dto/cleate-user.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 
 
 @Controller('auth')

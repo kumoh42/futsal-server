@@ -1,0 +1,99 @@
+name: Deploy Nestjs on lambda
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Read .nvmrc
+      run: echo ::set-output name=NVMRC::$(cat .nvmrc)
+      id: nvm
+
+    - name: Setup node
+      uses: actions/setup-node@v1
+      with:
+        node-version: '${{ steps.nvm.outputs.NVMRC }}'
+        
+    - name: Install Dependencies
+      run: npm install
+
+    # Prettify
+    - name: Format
+      run: npm run format
+
+    - name: Lint
+      run: npm run lint
+
+    - name: Test run
+      run: npm run test
+
+  build_and_deploy:
+    needs: test
+    runs-on: ubuntu-latest
+
+    env:
+      ECR_REGISTRY: ${{ secrets.ECR_PATH }}
+      ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+      IMAGE_TAG: latest
+      EC2_HOST: ${{ secrets.EC2_HOST }}
+      EC2_USERNAME: ${{ secrets.EC2_USERNAME }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Create .env file
+      run: |
+        echo "DATABASE_TYPE=${{ secrets.DATABASE_TYPE }}" >> .env
+        echo "DATABASE_PORT=${{ secrets.DATABASE_PORT }}" >> .env
+        echo "DATABASE_HOST=${{ secrets.DATABASE_HOST }}" >> .env
+        echo "DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }}" >> .env
+        echo "DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}" >> .env
+        echo "DATABASE_NAME=${{ secrets.DATABASE_NAME }}" >> .env
+
+        echo "JWT_ACCESS_SECRET_KEY=${{ secrets.JWT_ACCESS_SECRET_KEY }}" >> .env
+        echo "JWT_ACCESS_EXPIRATION_TIME=${{ secrets.JWT_ACCESS_EXPIRATION_TIME }}" >> .env
+
+        echo "JWT_REFRESH_SECRET_KEY=${{ secrets.JWT_REFRESH_SECRET_KEY }}" >> .env
+        echo "JWT_REFRESH_EXPIRATION_TIME=${{ secrets.JWT_REFRESH_EXPIRATION_TIME }}" >> .env
+        echo "CACHE_TTL=${{ secrets.CACHE_TTL }}" >> .env
+        echo "CACHE_MAX=${{ secrets.CACHE_MAX }}" >> .env
+
+
+    - name: Install serverless globally
+      run: npm install -g serverless
+
+    - name: Cache node modules
+      id: cache-nodemodules
+      uses: actions/cache@v2
+      env:
+        cache-name: cache-node-modules
+      with:
+        # caching node_modules
+        path: node_modules
+        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-build-${{ env.cache-name }}-
+          ${{ runner.os }}-build-
+          ${{ runner.os }}-
+
+    - name: Install npm Dependencies
+      if: steps.cache-nodemodules.outputs.cache-hit != 'true'
+      run: npm ci
+
+    - name: nest build
+      run: npm run build
+    
+    - name: Deploy lambda function
+      run: sls deploy
