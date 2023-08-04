@@ -6,8 +6,6 @@ import { JwtModule } from '@nestjs/jwt/dist';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Xe_Member_FutsalEntity } from 'src/entites/xe_member.futsal.entity';
 import { CachesModule } from 'src/cache/cache.module';
-import { APP_GUARD } from '@nestjs/core';
-import { JwtAuthGuard } from './jwt/jwt.guard';
 
 @Module({
   imports: [

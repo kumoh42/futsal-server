@@ -1,4 +1,7 @@
-import { Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Xe_Member_FutsalEntity } from 'src/entites/xe_member.futsal.entity';
 import { Repository } from 'typeorm';
@@ -16,9 +19,9 @@ export class UserService {
     });
 
     if (!user) {
-      throw new UnauthorizedException(
-        ['해당 토큰을 발급한 유저를 찾을 수 없습니다'],
-      );
+      throw new UnauthorizedException([
+        '해당 토큰을 발급한 유저를 찾을 수 없습니다',
+      ]);
     }
 
     const { password, ...userInfoWithoutPassword } = user;

@@ -12,10 +12,10 @@ import { ReservationSlotBuilder } from './reservation-slot.builder';
     TypeOrmModule.forFeature([
       Xe_Reservation_ConfigEntity,
       Xe_ReservationEntity,
-      Xe_Reservation_PreEntity
+      Xe_Reservation_PreEntity,
     ]),
-    ],
+  ],
   controllers: [ReservationController],
-  providers: [ReservationService, ReservationSlotBuilder]
+  providers: [ReservationService, ReservationSlotBuilder],
 })
 export class ReservationModule {}

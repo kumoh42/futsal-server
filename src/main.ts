@@ -5,13 +5,11 @@ import * as path from 'path';
 
 import { ValidationPipe } from '@nestjs/common';
 
-
 dotenv.config({
   path: path.resolve('.env'),
 });
 
-
- async function bootstrap() {
+async function bootstrap() {
   console.log(process.env);
   const app = await NestFactory.create(AppModule, { cors: true });
   app.enableCors({
@@ -20,9 +18,11 @@ dotenv.config({
     credentials: true,
   });
 
-  app.useGlobalPipes(new ValidationPipe({
-    transform: true
-  }))
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+    }),
+  );
   await app.listen(3000);
 }
 bootstrap();
