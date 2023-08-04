@@ -5,12 +5,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Xe_Reservation_ConfigEntity } from 'src/entites/xe_reservation_config.entity';
 import { Xe_ReservationEntity } from 'src/entites/xe_reservation.entity';
 import { Xe_Reservation_PreEntity } from 'src/entites/xe_reservation_pre.entity';
-import { ScheduleModule } from '@nestjs/schedule';
 import { ReservationSlotBuilder } from './reservation-slot.builder';
 
 @Module({
   imports: [
-    ScheduleModule.forRoot(),
     TypeOrmModule.forFeature([
       Xe_Reservation_ConfigEntity,
       Xe_ReservationEntity,
