@@ -6,6 +6,7 @@ import { Xe_Reservation_ConfigEntity } from 'src/entites/xe_reservation_config.e
 import { Xe_ReservationEntity } from 'src/entites/xe_reservation.entity';
 import { Xe_Reservation_PreEntity } from 'src/entites/xe_reservation_pre.entity';
 import { ScheduleModule } from '@nestjs/schedule';
+import { ReservationSlotBuilder } from './reservation-slot.builder';
 
 @Module({
   imports: [
@@ -17,6 +18,6 @@ import { ScheduleModule } from '@nestjs/schedule';
     ]),
     ],
   controllers: [ReservationController],
-  providers: [ReservationService]
+  providers: [ReservationService, ReservationSlotBuilder]
 })
 export class ReservationModule {}
