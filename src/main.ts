@@ -2,13 +2,12 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as dotenv from "dotenv"
 import * as path from "path"
-import { DateTime } from 'luxon' 
 
 dotenv.config({
   path: path.resolve('.env')
  })
 
-async function bootstrap() {
+ async function bootstrap() {
   console.log(process.env);
   const app = await NestFactory.create(AppModule, { cors: true });
   app.enableCors({
