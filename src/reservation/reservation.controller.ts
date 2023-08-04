@@ -1,4 +1,4 @@
-import { Controller, Post, Put } from '@nestjs/common';
+import { BadRequestException, Controller, Post, Put, Query } from '@nestjs/common';
 import { ReservationService } from './reservation.service';
 
 @Controller('reservation')
@@ -6,13 +6,12 @@ export class ReservationController {
     constructor(private reservationService: ReservationService
     ) { }
 
-    @Put('/pre/start')
-    async reservationPreStart() {
-        await this.reservationService.openPreReservation()
-    }
-
-    @Put('/pre/close')
-    async reservationPreClose() {
-        await this.reservationService.closePreReservation()
+    @Put('/pre')
+    async reservationPreStart(@Query('state') state: string) {
+        if ( state == 'open' )
+            await this.reservationService.openPreReservation()
+        if ( state == 'close')
+            await this.reservationService.closePreReservation() 
+        throw new BadRequestException("state는 open과 close만 가능합니다.")
     }
 }
