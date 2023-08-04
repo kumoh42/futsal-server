@@ -22,5 +22,6 @@ import { ScheduleModule } from '@nestjs/schedule';
     }),
     ReservationModule
   ],
+  
 })
 export class AppModule {}
