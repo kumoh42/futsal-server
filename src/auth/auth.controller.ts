@@ -30,7 +30,7 @@ export class AuthController {
     response
       .header('access_token', `Bearer ${access_token}`)
       .header('refresh_token', `Bearer ${refresh_token}`)
-      .json({ message: '로그인 성공' });
+      .json({ message: ['로그인 성공'] });
   }
 
   @Get('/testToken')
@@ -53,9 +53,9 @@ export class AuthController {
         return response
           .header('access_token', `Bearer ${new_AT}`)
           .header('refresh_token', `Bearer ${new_RT}`)
-          .json({ message: '리프레시' });
+          .json({ message: ['리프레시'] });
       }catch(error){
-        throw new BadRequestException('올바르지 않은 요청입니다.');
+        throw new BadRequestException(['올바르지 않은 요청입니다.']);
       }
       
   }

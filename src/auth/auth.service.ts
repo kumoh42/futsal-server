@@ -37,13 +37,13 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new UnauthorizedException('사용자를 찾을 수 없습니다.');
+      throw new BadRequestException(['아이디가 존재하지 않습니다.']);
     }
 
     const passwordCompareResult = await compare(userPassword, user.password);
 
     if (!passwordCompareResult) {
-      throw new UnauthorizedException('사용자를 찾을 수 없습니다.');
+      throw new BadRequestException(['사용자를 찾을 수 없습니다.']);
     }
 
     const payload = { userId: user.user_id, userName: user.user_name };
@@ -60,7 +60,7 @@ export class AuthService {
         secret: this.ACCESS_TOKEN_SECRET_KEY,
       });
     } catch (error) {
-      throw new UnauthorizedException('토큰 검증에 실패했습니다.');
+      throw new UnauthorizedException(['토큰 검증에 실패했습니다.']);
     }
   }
 
@@ -70,7 +70,7 @@ export class AuthService {
         secret: this.REFRESH_TOKEN_SECRET_KEY,
       });
     } catch (error) {
-      throw new UnauthorizedException('토큰 검증에 실패했습니다.');
+      throw new UnauthorizedException(['토큰 검증에 실패했습니다.']);
     }
   }
 
@@ -120,7 +120,7 @@ export class AuthService {
     try{
         await this.cacheService.save(refreshToken, userId);
     }catch(error){
-      throw new UnauthorizedException('올바르지 않은 토큰입니다.');
+      throw new UnauthorizedException(['올바르지 않은 토큰입니다.']);
     }  
   }
 
@@ -133,7 +133,7 @@ export class AuthService {
         await this.cacheService.delete(oldRefreshToken);
         await this.cacheService.save(refreshToken, userId);
     }catch(error){
-      throw new UnauthorizedException('올바르지 않은 토큰입니다.');
+      throw new UnauthorizedException(['올바르지 않은 토큰입니다.']);
     }  
   }
 

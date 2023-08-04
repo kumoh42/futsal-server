@@ -111,7 +111,7 @@ DATABASE_NAME= 데이터베이스 스키마 이름
 JWT_ACCESS_SECRET_KEY= AT 시크릿 키
 JWT_ACCESS_EXPIRATION_TIME= AT 유효기간
 
-JWT_REFRESH_SECRET_KEY= R T 시크릿 키
+JWT_REFRESH_SECRET_KEY= RT 시크릿 키
 JWT_REFRESH_EXPIRATION_TIME= RT 유효기간
 CACHE_TTL=캐시 유효기간
 CACHE_MAX=캐시 최대갯수
@@ -161,3 +161,5 @@ npm run start
 + 배열 보단 명시적으로 변수 두 개를 만드는 것이 좋다.</br>
 + typescript에서는 _는 사용하지 않는 변수라는 것을 의미한다.</br>
 + 가능한 promise를 반환하는 것들은 모두 await를 붙인다.</br>
++ 예외처리할 때 던져주는 message는 배열로 반환한다.</br>
+
