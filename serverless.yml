@@ -1,0 +1,27 @@
+service: futsal-server-lambda
+
+useDotenv: true
+
+plugins:
+  - serverless-offline
+  - serverless-express
+  - serverless-dotenv-plugin
+
+#AWS 설정
+provider:
+  name: aws
+  region: ap-northeast-2
+  runtime: nodejs18.x
+  environment:
+    
+#Lambda 함수 설정
+functions:
+  main:
+    handler: dist/serverless.handler
+    events:
+      - http:
+          method: ANY
+          path: /
+      - http:
+          method: ANY
+          path: '{proxy+}'
