@@ -3,39 +3,13 @@ name: Deploy Nestjs on lambda
 on:
   push:
     branches: ["main"]
+  workflow_run:
+    workflows: ["Test"]
+    types:
+      - completed
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
-
-    - name: Read .nvmrc
-      run: echo ::set-output name=NVMRC::$(cat .nvmrc)
-      id: nvm
-
-    - name: Setup node
-      uses: actions/setup-node@v1
-      with:
-        node-version: '${{ steps.nvm.outputs.NVMRC }}'
-        
-    - name: Install Dependencies
-      run: npm install
-
-    # Prettify
-    - name: Format
-      run: npm run format
-
-    - name: Lint
-      run: npm run lint
-
-    - name: Test run
-      run: npm run test
-
   build_and_deploy:
-    needs: test
     runs-on: ubuntu-latest
 
     env:
