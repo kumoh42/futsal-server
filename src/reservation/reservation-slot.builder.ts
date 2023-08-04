@@ -23,12 +23,12 @@ export class ReservationSlotBuilder {
     const result:any [] = []
 
     for (let hour = 8; hour <= 21; hour += 2) {
-      let is_hoilday = 'N';
+      let is_holiday = 'N';
       const slot = {
         date: date,
         time: hour,
         is_able: 'Y',
-        is_hoilday: is_hoilday
+        is_holiday: is_holiday
       };
       result.push(slot)
     }
