@@ -85,6 +85,7 @@ export class Xe_Reservation_PreEntity {
   @Column({ length: 1 })
   is_holiday: string;
 
+
   /**
    * xe_reservation_pre - regdate
    * @description ???2
