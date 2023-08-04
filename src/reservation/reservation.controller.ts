@@ -8,10 +8,11 @@ export class ReservationController {
 
     @Put('/pre')
     async reservationPreStart(@Query('state') state: string) {
-        if ( state == 'open' )
+        if ( state === 'open' )
             await this.reservationService.openPreReservation()
-        if ( state == 'close')
-            await this.reservationService.closePreReservation() 
-        throw new BadRequestException("state는 open과 close만 가능합니다.")
+        else if ( state === 'close')
+            await this.reservationService.closePreReservation()
+        else
+            throw new BadRequestException("state는 open과 close만 가능합니다.")
     }
 }
