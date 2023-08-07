@@ -8,7 +8,7 @@ import { ValidationPipe } from '@nestjs/common';
 let server: Handler;
 
 async function bootstrap(): Promise<Handler> {
-  const app = await NestFactory.create(AppModule, { cors: true });
+  const app = await NestFactory.create(AppModule);
 
   app.enableCors({
     origin: '*',
@@ -23,7 +23,7 @@ async function bootstrap(): Promise<Handler> {
       transform: true,
     }),
   );
-  
+
   await app.init();
 
   const expressApp = app.getHttpAdapter().getInstance();
