@@ -13,7 +13,6 @@ async function bootstrap(): Promise<Handler> {
   app.enableCors({
     origin: '*',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    credentials: true,
     allowedHeaders: ['Access_token, Refresh_token'],
     exposedHeaders: ['Access_token, Refresh_token']
   });
