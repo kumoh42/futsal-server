@@ -8,14 +8,22 @@ import { ValidationPipe } from '@nestjs/common';
 let server: Handler;
 
 async function bootstrap(): Promise<Handler> {
-  const app = await NestFactory.create(AppModule, { cors: true });
+  const app = await NestFactory.create(AppModule);
 
+  app.enableCors({
+    origin: true,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true,
+    allowedHeaders: ['Access_token, Refresh_token'],
+    exposedHeaders: ['Access_token, Refresh_token']
+  });
+  
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
     }),
   );
-  
+
   await app.init();
 
   const expressApp = app.getHttpAdapter().getInstance();
