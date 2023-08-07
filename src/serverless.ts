@@ -10,6 +10,14 @@ let server: Handler;
 async function bootstrap(): Promise<Handler> {
   const app = await NestFactory.create(AppModule, { cors: true });
 
+  app.enableCors({
+    origin: '*',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true,
+    allowedHeaders: ['Access_token, Refresh_token'],
+    exposedHeaders: ['Access_token, Refresh_token']
+  });
+  
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
