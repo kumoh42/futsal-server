@@ -5,7 +5,6 @@ import {
   Res,
   Headers,
   UseGuards,
-  BadRequestException,
   Body,
   UnauthorizedException,
 } from '@nestjs/common';

@@ -37,7 +37,8 @@ jobs:
         echo "JWT_REFRESH_EXPIRATION_TIME=${{ secrets.JWT_REFRESH_EXPIRATION_TIME }}" >> .env
         echo "CACHE_TTL=${{ secrets.CACHE_TTL }}" >> .env
         echo "CACHE_MAX=${{ secrets.CACHE_MAX }}" >> .env
-
+        echo "SLACK_URL=${{ secrets.SALCK_URL }}" >> .env
+ 
 
     - name: Install serverless globally
       run: npm install -g serverless
