@@ -8,9 +8,9 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
  */
 export function setupSwagger(app: INestApplication): void {
   const options = new DocumentBuilder()
-    .setTitle('Futsal Server api Docs') // Document의 제목
-    .setDescription('Futsal Server에 사용되는 API들이 기재된 문서입니다.') // 제목 하단에 기재될 설명
-    .setVersion('1.0.0') // 버전 (개발 -> 0)
+    .setTitle('Futsal Server api Docs')
+    .setDescription('Futsal Server에 사용되는 api를 기재하는 문서입니다.')
+    .setVersion('1.0.0')
     .build();
 
   const document = SwaggerModule.createDocument(app, options);
