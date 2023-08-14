@@ -27,7 +27,7 @@ export class ReservationController {
     description: '조회하고 싶은 날짜입니다.',
   })
   async getMemberInfo(@Param('date') date: string): Promise<Xe_ReservationEntity[]> {
-    return await this.reservationService.getMemberInfo(date);
+    return await this.reservationService.getReservationInfo(date);
   }
 
   @Put('/pre')
