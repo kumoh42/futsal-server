@@ -21,8 +21,8 @@ import { ApiBody, ApiHeader, ApiOperation, ApiTags } from '@nestjs/swagger';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @ApiBody({ type: [CreateUserDto] })
   @Post()
+  @ApiBody({ type: [CreateUserDto] })
   @ApiOperation({ description: '로그인' })
   async login(@Body() body: CreateUserDto, @Res() response: Response) {
     const [access_token, refresh_token] = await this.authService.login(
