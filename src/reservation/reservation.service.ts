@@ -22,9 +22,19 @@ export class ReservationService {
 
   async getReservationInfo(date: string) {
     const monthInfo = date.slice(0, 7);
-    return await this.reservationRepository.find({
+    const reservationSlot = await this.reservationRepository.find({
       where: { date: Like(`${monthInfo}%`) },
     });
+
+    if (reservationSlot.length == 0) {
+      const preReservationSlot = this.preRepository.find({
+        where: { date: Like(`${monthInfo}%`) },
+      })
+      return preReservationSlot
+    }
+    else {
+      return reservationSlot
+    }
   }
 
   async openPreReservation() {
