@@ -5,10 +5,12 @@ import dayjs from 'dayjs';
 @Injectable()
 export class InquriyService {
     private readonly SLACK_URL = process.env.SLACK_URL;
+    private SLACK_MESSAGE_TEMPLETE = process.env.SLACK_MESSAGE_TEMPLETE;
 
   constructor(
               private httpService: HttpService
     ) {}
+
 
     async sendSlackMessage(
         name: string, 
@@ -17,10 +19,15 @@ export class InquriyService {
         text: string): Promise< string >{
 
         let nowTime = dayjs().format("YYYY.MM.DD HH:mm:ss");
-                                    
+                      
         await this.httpService.post(this.SLACK_URL, {
             text: 
-            `----------\n이름 : ${name}\n아이디 : ${user_id}\nemail : ${email}\n내용: ${text}\n시간: ${nowTime}\n----------`
+            this.SLACK_MESSAGE_TEMPLETE
+            .replace("name", name)
+            .replace("user_id", user_id)
+            .replace("user_email", email)
+            .replace("text", text)
+            .replace("nowTime",nowTime)
         }).toPromise();
 
         return '전달 완료'
