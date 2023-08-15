@@ -18,7 +18,7 @@ export class InquriyService {
         email: string, 
         text: string): Promise< string >{
 
-        let nowTime = dayjs().format("YYYY.MM.DD HH:mm:ss");
+        const nowTime = dayjs().format("YYYY.MM.DD HH:mm:ss");
                       
         await this.httpService.post(this.SLACK_URL, {
             text: 

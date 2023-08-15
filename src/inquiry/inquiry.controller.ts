@@ -17,11 +17,18 @@ import { User } from 'src/common/decorators/user.decorator';
     @Post()
     @UseGuards(JwtAuthGuard)
     @HttpCode(200)
-    async postSlackMessage(@Body() inquriyMessageDto: InquiryMessageDto, @User() user: User) {
-      await this.inquiryService.sendSlackMessage(user.userName, user.userId,  inquriyMessageDto.email, inquriyMessageDto.text, );
-      return {
-        message: ['send 성공']
-      };
+    async postSlackMessage(
+      @Body() inquriyMessageDto: InquiryMessageDto, 
+      @User() user: User
+      ) {
+
+          const{email, text} = inquriyMessageDto;
+          const{userName, userId} = user;
+
+          await this.inquiryService.sendSlackMessage(userName, userId, email, text, );
+          return {
+            message: ['send 성공']
+          };
       
     }
     
