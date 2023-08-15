@@ -2,10 +2,14 @@ import {
     Controller,
     Post,
     Body,
-    Res,
+    HttpCode,
+    UseGuards,
   } from '@nestjs/common';
-import { Response } from 'express';
 import { InquriyService } from './inquiry.service';
+import { InquiryMessageDto } from 'src/auth/dto/inquiry-message.dto';
+import { JwtAuthGuard } from 'src/auth/jwt/jwt.guard';
+import { User } from 'src/common/decorators/user.decorator';
+import { userInfo } from 'os';
   
 
   @Controller('inquiry')
@@ -13,12 +17,14 @@ import { InquriyService } from './inquiry.service';
     constructor(private readonly inquiryService: InquriyService) {}
   
     @Post()
-    async temp(@Body() body: { name: string, text: string }, @Res() response: Response) {
-      await this.inquiryService.sendSlackMessage(body.name, body.text);
+    @UseGuards(JwtAuthGuard)
+    @HttpCode(200)
+    async temp(@Body() inquriyMessageDto: InquiryMessageDto, @User() user: User) {
+      await this.inquiryService.sendSlackMessage(user.userName, user.userId,  inquriyMessageDto.email, inquriyMessageDto.text, );
+      return {
+        message: ['send 성공']
+      };
       
-      response.status(200).json({ message: ['send 성공'] });
-  
-
     }
     
   

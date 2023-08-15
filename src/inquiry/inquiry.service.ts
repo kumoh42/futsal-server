@@ -1,30 +1,26 @@
 import { HttpService } from '@nestjs/axios';
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { format } from 'date-fns';
+import { Injectable } from '@nestjs/common';
+import dayjs from 'dayjs';
 
 @Injectable()
 export class InquriyService {
-    private readonly slcakWebhookUrl = process.env.SLACK_URL;
+    private readonly SLACK_URL = process.env.SLACK_URL;
 
   constructor(
               private httpService: HttpService
     ) {}
 
-    async sendSlackMessage(name: string, text: string): Promise< string >{
+    async sendSlackMessage(
+        name: string, 
+        user_id: string, 
+        email: string, 
+        text: string): Promise< string >{
 
-        if (   name === undefined 
-            || name.trim() === ''
-            || text === undefined 
-            || text.trim() === '' ) {
-                                      throw new BadRequestException(['이름과 텍스트 중 하나가 공백이거나 모두 공백입니다.']);
-                                    }
-        
-
-        const nowTime = format(new Date(), 'yyyy-MM-dd HH:MM:SS');
-                            
-        await this.httpService.post(this.slcakWebhookUrl, {
+        let nowTime = dayjs().format("YYYY.MM.DD HH:mm:ss");
+                                    
+        await this.httpService.post(this.SLACK_URL, {
             text: 
-            `----------\n사용자 : ${name}\n내용: ${text}\n시간: ${nowTime}\n----------`
+            `----------\n이름 : ${name}\n아이디 : ${user_id}\nemail : ${email}\n내용: ${text}\n시간: ${nowTime}\n----------`
         }).toPromise();
 
         return '전달 완료'

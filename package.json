@@ -36,7 +36,6 @@
     "cache-manager": "^5.2.3",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
-    "date-fns": "^2.30.0",
     "dayjs": "1.11.7",
     "dotenv": "^16.3.1",
     "luxon": "^3.3.0",

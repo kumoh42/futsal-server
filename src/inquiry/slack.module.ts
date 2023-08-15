@@ -9,6 +9,5 @@ import { HttpModule } from '@nestjs/axios';
   ],
   controllers: [InquiryController],
   providers: [InquriyService],
-  exports: [InquriyService],
 })
-export class InquriyModule {}
+export class SlackModule {}
