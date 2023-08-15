@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { setupSwagger } from 'src/global/util/swagger.config'
 import * as dotenv from 'dotenv';
 import * as path from 'path';
 
@@ -23,6 +24,8 @@ async function bootstrap() {
       transform: true,
     }),
   );
+
+  setupSwagger(app);
   await app.listen(3000);
 }
 bootstrap();

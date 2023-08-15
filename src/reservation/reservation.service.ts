@@ -20,7 +20,7 @@ export class ReservationService {
     @Inject(ReservationSlotBuilder) private builder: ReservationSlotBuilder,
   ) {}
 
-  async getMemberInfo(date: string) {
+  async getReservationInfo(date: string) {
     const monthInfo = date.slice(0, 7);
     return await this.reservationRepository.find({
       where: { date: Like(`${monthInfo}%`) },
