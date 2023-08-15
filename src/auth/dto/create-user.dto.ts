@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
   IsNotEmpty,
   IsString,
@@ -29,6 +30,7 @@ export class NotContainsValueConstraint
 export class CreateUserDto {
   @IsString()
   @IsNotEmpty()
+  @ApiProperty()
   user_id: string;
 
   @Validate(NotContainsValueConstraint)
@@ -37,6 +39,7 @@ export class CreateUserDto {
     message:
       '비밀번호는 8자 이상 20자 이내의 길이여야 하며 영어, 숫자, 특수문자 이외 다른 문자는 삽입될 수 없습니다.',
   })
+  @ApiProperty()
   user_password: string;
 }
 
