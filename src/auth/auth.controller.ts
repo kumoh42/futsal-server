@@ -5,7 +5,6 @@ import {
   Res,
   Headers,
   UseGuards,
-  BadRequestException,
   Body,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -24,17 +23,21 @@ export class AuthController {
   @Post()
   @ApiBody({ type: [CreateUserDto] })
   @ApiOperation({ description: '로그인' })
-  async login(@Body() body: CreateUserDto, @Res() response: Response) {
-    const [access_token, refresh_token] = await this.authService.login(
-      body.user_id,
-      body.user_password,
-    );
+  async login(
+    @Body() body: CreateUserDto,
+    @Res() response: Response
+    ) {
+        const [access_token, refresh_token] = await this.authService.login(
+          body.user_id,
+          body.user_password,
+        );
 
-    response.status(200)
-      .header('access_token', `Bearer ${access_token}`)
-      .header('refresh_token', `Bearer ${refresh_token}`)
-      .json({ message: ['로그인 성공'] });
-  }
+        response.status(200)
+          .header('access_token', `Bearer ${access_token}`)
+          .header('refresh_token', `Bearer ${refresh_token}`)
+          .json({ message: ['로그인 성공'] });
+    }
+
 
   @Get('/testToken')
   @ApiOperation({ description: '현재 가지고 있는 Access Token의 유효성 검사' })
@@ -42,6 +45,7 @@ export class AuthController {
   async testToken(@User() user: User): Promise<User> {
     return user;
   } 
+
 
   @Get('/refresh')
   @ApiOperation({ description: '클라이언트가 가지고 있는 만료된 Access Token을 refresh한 Access Token과 Refresh Token 발급' })
