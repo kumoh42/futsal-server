@@ -21,6 +21,4 @@ import { CachesModule } from 'src/cache/cache.module';
   providers: [AuthService],
   exports: [AuthService],
 })
-export class AuthModule {
-  
-}
+export class AuthModule {}

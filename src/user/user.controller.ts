@@ -1,8 +1,4 @@
-import { 
-  Controller, 
-  Get, 
-  UseGuards 
-} from '@nestjs/common';
+import { Controller, Get, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from 'src/auth/jwt/jwt.guard';
 import { User } from 'src/common/decorators/user.decorator';
@@ -17,7 +13,7 @@ export class UserController {
   @Get()
   @ApiOperation({ description: '로그인한 유저의 정보를 조회' })
   async getUserInfo(@User() user: User) {
-    const {userId} = user;
+    const { userId } = user;
     return await this.userService.getUserInfo(userId);
   }
 }

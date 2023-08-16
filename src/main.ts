@@ -26,7 +26,7 @@ export async function bootstrap() {
   );
 
   setupSwagger(app);
-  
+
   return app;
 }
 

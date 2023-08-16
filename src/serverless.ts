@@ -1,6 +1,6 @@
 import serverlessExpress from '@vendia/serverless-express';
 import { Callback, Context, Handler } from 'aws-lambda';
-import { bootstrap } from './main';  // main.ts의 bootstrap 가져오기
+import { bootstrap } from './main'; // main.ts의 bootstrap 가져오기
 
 let server: Handler;
 

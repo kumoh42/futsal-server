@@ -30,6 +30,3 @@ import { SlackModule } from './inquiry/slack.module';
   ],
 })
 export class AppModule {}
-
-
-
