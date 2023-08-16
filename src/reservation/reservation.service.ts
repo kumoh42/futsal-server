@@ -6,6 +6,8 @@ import { Like, Repository } from 'typeorm';
 import { ReservationSlotBuilder } from './reservation-slot.builder';
 import dayjs from 'dayjs';
 import { Cron } from '@nestjs/schedule';
+import { Xe_Reservation_ConfigEntity } from 'src/entites/xe_reservation_config.entity';
+import { ReservationConfigService } from './reservation-setting.service';
 
 @Injectable()
 export class ReservationService {
@@ -18,6 +20,7 @@ export class ReservationService {
     @InjectRepository(Xe_Reservation_PreEntity)
     private preRepository: Repository<Xe_Reservation_PreEntity>,
     @Inject(ReservationSlotBuilder) private builder: ReservationSlotBuilder,
+    @Inject(ReservationConfigService) private configSvc: ReservationConfigService,
   ) {}
 
   async getReservationInfo(date: string) {
@@ -49,11 +52,13 @@ export class ReservationService {
     this.builder.setDays(this.today, this.nextMonth);
     const preResservationSlot = this.builder.buildSlots();
     await this.preRepository.clear();
+    await this.configSvc.setPreReservationOpenSettings();
     await this.preRepository.save(preResservationSlot);
   }
 
   async closePreReservation() {
     await this.preRepository.clear();
+    await this.configSvc.setPreReservationCloseSettings();
   }
 
   @Cron('0 0 0 1 * *')
