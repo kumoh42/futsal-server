@@ -9,7 +9,13 @@ import { InquriyService } from './inquiry.service';
 import { InquiryMessageDto } from 'src/auth/dto/inquiry-message.dto';
 import { JwtAuthGuard } from 'src/auth/jwt/jwt.guard';
 import { User } from 'src/common/decorators/user.decorator';  
+import { 
+  ApiBody, 
+  ApiOperation, 
+  ApiTags
+} from '@nestjs/swagger';
 
+  @ApiTags('slack api 연동')
   @Controller('inquiry')
   export class InquiryController {
     constructor(private readonly inquiryService: InquriyService) {}
@@ -17,6 +23,11 @@ import { User } from 'src/common/decorators/user.decorator';
     @Post()
     @UseGuards(JwtAuthGuard)
     @HttpCode(200)
+    @ApiBody({ 
+      type: [InquiryMessageDto],
+      description: '슬랙 메세지 DTO입니다.',
+    })
+    @ApiOperation({ description: 'slack 메세지 전송 라우터입니다' })
     async postSlackMessage(
       @Body() inquriyMessageDto: InquiryMessageDto, 
       @User() user: User

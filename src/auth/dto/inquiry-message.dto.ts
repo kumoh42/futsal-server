@@ -1,3 +1,4 @@
+import { ApiProperty } from "@nestjs/swagger";
 import { Transform } from "class-transformer";
 import { 
     IsEmail,
@@ -12,11 +13,13 @@ export class InquiryMessageDto{
     @IsEmail()
     @Transform(({ value }) => value.trim())
     @IsNotEmpty()
+    @ApiProperty()
     email: string;
     
     
     @IsString()
     @Transform(({ value }) => value.trim())
     @IsNotEmpty()
+    @ApiProperty()
     text: string;
 }
