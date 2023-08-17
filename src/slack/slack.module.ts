@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { InquiryController } from './inquiry.controller';
-import { InquiryService } from './inquiry.service';
+import { InquiryController } from './slack.controller';
+import { InquiryService } from './slack.service';
 import { HttpModule } from '@nestjs/axios';
 
 @Module({

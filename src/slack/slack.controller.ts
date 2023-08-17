@@ -1,5 +1,5 @@
 import { Controller, Post, Body, HttpCode, UseGuards } from '@nestjs/common';
-import { InquiryService } from './inquiry.service';
+import { InquiryService } from './slack.service';
 import { InquiryMessageDto } from 'src/auth/dto/inquiry-message.dto';
 import { JwtAuthGuard } from 'src/auth/jwt/jwt.guard';
 import { User } from 'src/common/decorators/user.decorator';

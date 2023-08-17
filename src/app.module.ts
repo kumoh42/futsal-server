@@ -5,7 +5,7 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { ReservationModule } from './reservation/reservation.module';
 import { ScheduleModule } from '@nestjs/schedule';
-import { SlackModule } from './inquiry/slack.module';
+import { SlackModule } from './slack/slack.module';
 
 @Module({
   imports: [
