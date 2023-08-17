@@ -29,11 +29,10 @@ export class ReservationService {
     if (reservationSlot.length == 0) {
       const preReservationSlot = this.preRepository.find({
         where: { date: Like(`${monthInfo}%`) },
-      })
-      return preReservationSlot
-    }
-    else {
-      return reservationSlot
+      });
+      return preReservationSlot;
+    } else {
+      return reservationSlot;
     }
   }
 
