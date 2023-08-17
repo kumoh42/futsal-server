@@ -5,7 +5,6 @@ import {
   Res,
   Headers,
   UseGuards,
-  BadRequestException,
   Body,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -30,7 +29,8 @@ export class AuthController {
       body.user_password,
     );
 
-    response.status(200)
+    response
+      .status(200)
       .header('access_token', `Bearer ${access_token}`)
       .header('refresh_token', `Bearer ${refresh_token}`)
       .json({ message: ['로그인 성공'] });
@@ -41,10 +41,13 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   async testToken(@User() user: User): Promise<User> {
     return user;
-  } 
+  }
 
   @Get('/refresh')
-  @ApiOperation({ description: '클라이언트가 가지고 있는 만료된 Access Token을 refresh한 Access Token과 Refresh Token 발급' })
+  @ApiOperation({
+    description:
+      '클라이언트가 가지고 있는 만료된 Access Token을 refresh한 Access Token과 Refresh Token 발급',
+  })
   @ApiHeader({
     name: 'Authorization',
     description: 'refresh Token입니다.',
@@ -53,19 +56,19 @@ export class AuthController {
     @Headers('Authorization') refresh_token: string,
     @Res() response: Response,
   ) {
-    if(refresh_token === undefined){
+    if (refresh_token === undefined) {
       throw new UnauthorizedException(['토큰 검증에 실패했습니다.']);
     }
-      const [_, refreshToken] = refresh_token.split(' ');
-      await this.authService.verifyRefreshToken(refreshToken);
-      const [new_AT, new_RT] = await this.authService.refreshAccessToken(
-        refreshToken,)
+    const [_, refreshToken] = refresh_token.split(' ');
+    await this.authService.verifyRefreshToken(refreshToken);
+    const [new_AT, new_RT] = await this.authService.refreshAccessToken(
+      refreshToken,
+    );
 
-      return response
-        .header('access_token', `Bearer ${new_AT}`)
-        .header('refresh_token', `Bearer ${new_RT}`)
-        .json({ message: ['리프레시'] });
-
+    return response
+      .header('access_token', `Bearer ${new_AT}`)
+      .header('refresh_token', `Bearer ${new_RT}`)
+      .json({ message: ['리프레시'] });
   }
 }
 // 토큰 발급
