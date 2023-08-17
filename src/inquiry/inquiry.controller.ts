@@ -1,12 +1,14 @@
 import { Controller, Post, Body, HttpCode, UseGuards } from '@nestjs/common';
-import { InquriyService } from './inquiry.service';
+import { InquiryService } from './inquiry.service';
 import { InquiryMessageDto } from 'src/auth/dto/inquiry-message.dto';
 import { JwtAuthGuard } from 'src/auth/jwt/jwt.guard';
 import { User } from 'src/common/decorators/user.decorator';
+import { ApiBody, ApiOperation } from '@nestjs/swagger';
+
 
 @Controller('inquiry')
 export class InquiryController {
-  constructor(private readonly inquiryService: InquriyService) {}
+  constructor(private readonly inquiryService: InquiryService) {}
 
   @Post()
   @UseGuards(JwtAuthGuard)
