@@ -11,6 +11,11 @@ export class InquiryController {
   @Post()
   @UseGuards(JwtAuthGuard)
   @HttpCode(200)
+  @ApiBody({ 
+    type: [InquiryMessageDto],
+    description: '슬랙 메세지 DTO입니다.',
+  })
+  @ApiOperation({ description: 'slack 메세지 전송 라우터입니다' })
   async postSlackMessage(
     @Body() inquriyMessageDto: InquiryMessageDto,
     @User() user: User,

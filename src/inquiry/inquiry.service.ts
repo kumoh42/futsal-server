@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import dayjs from 'dayjs';
 
 @Injectable()
-export class InquriyService {
+export class InquiryService {
   private readonly SLACK_URL = process.env.SLACK_URL;
   private SLACK_MESSAGE_TEMPLETE = process.env.SLACK_MESSAGE_TEMPLETE;
 
