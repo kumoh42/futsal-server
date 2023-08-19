@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Param,
+  Patch,
   Put,
   Query,
   UseGuards,
@@ -30,6 +31,12 @@ export class ReservationController {
     return await this.reservationService.getReservationInfo(date);
   }
 
+  @Put('/:date')
+  async deleteMonthReservation(@Param('date') date: string){
+    return await this.reservationService.deleteMonthReservationHistory(date);  
+  }
+
+
   @Put('/pre')
   @ApiOperation({ description: '사전 예약 시작, 중지' })
   @ApiHeader({
@@ -42,4 +49,7 @@ export class ReservationController {
       await this.reservationService.closePreReservation();
     else throw new BadRequestException('state는 open과 close만 가능합니다.');
   }
+
+
+
 }
