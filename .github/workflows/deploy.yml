@@ -41,9 +41,9 @@ jobs:
       with:
         aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ env.AWS_REGION }}  # Change to your desired region
-
-    - name: Update Lambda function image
+        aws-region: ${{ env.AWS_REGION }}  # Change to your desired region    
+            
+    - name: Make Environment variables
       run: |
         aws lambda update-function-configuration \
           --function-name futsal-server \
@@ -63,4 +63,9 @@ jobs:
             \"CACHE_MAX\":\"${{ secrets.CACHE_MAX }}\",\
             \"SLACK_URL\":\"${{ secrets.SLACK_URL }}\",\
             \"SLACK_MESSAGE_TEMPLETE\":\"${{ secrets.SLACK_MESSAGE_TEMPLETE }}\"}"
-    
+
+    - name: Update Lambda function image
+      run: |
+        aws lambda update-function-code \
+          --function-name futsal-server \
+          --image-uri $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
