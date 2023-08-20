@@ -41,7 +41,7 @@ jobs:
         --build-arg CACHE_TTL=${{ secrets.CACHE_TTL }} \
         --build-arg CACHE_MAX=${{ secrets.CACHE_MAX }} \
         --build-arg SLACK_URL=${{ secrets.SLACK_URL }} \
-        --build-arg SLACK_MESSAGE_TEMPLETE=${{ secrets.SLACK_MESSAGE_TEMPLETE }} \
+        --build-arg SLACK_MESSAGE_TEMPLETE="${{ secrets.SLACK_MESSAGE_TEMPLETE }}" \
         -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
 
     - name: Login to Amazon ECR
