@@ -47,7 +47,6 @@ jobs:
       run: |
         aws lambda update-function-configuration \
           --function-name futsal-server \
-          --image-uri $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
           --environment Variables="\
             {\"DATABASE_TYPE\":\"${{ secrets.DATABASE_TYPE }}\",\
             \"DATABASE_PORT\":\"${{ secrets.DATABASE_PORT }}\",\
