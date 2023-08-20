@@ -12,10 +12,8 @@ export class ReservationConfigService {
   ) {}
 
   async setPreReservationOpenSettings() {
-    // 모든 설정 값을 가져온다.
     const allSettings = await this.configRepo.find();
 
-    // map을 사용하여 설정 값을 수정한다.
     const updatedSettings = allSettings.map((setting) => {
       switch (setting.key) {
         case 'is_pre_reservation_period':
@@ -36,26 +34,25 @@ export class ReservationConfigService {
       }
     });
 
-    // 변경된 설정 값을 다시 저장한다.
     await this.configRepo.save(updatedSettings);
   }
 
   async setPreReservationCloseSettings() {
-    // 모든 설정 값을 가져온다.
     const allSettings = await this.configRepo.find();
     console.log(allSettings);
 
-    // map을 사용하여 설정 값을 수정한다.
     const updatedSettings = allSettings.map((setting) => {
       switch (setting.key) {
-        case 'is_pre_reservation_period':
-          return { ...setting, value: 'N' };
+        case 'end_date':
+          return {
+            ...setting, value: dayjs().format('YYYY-MM-DD') };
+        case 'end_time':
+          return { ...setting, value: dayjs().format('HH') };
         default:
           return setting;
       }
     });
 
-    // 변경된 설정 값을 다시 저장한다.
     await this.configRepo.save(updatedSettings);
   }
 }

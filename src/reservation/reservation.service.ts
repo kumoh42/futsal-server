@@ -6,7 +6,6 @@ import { Like, Repository } from 'typeorm';
 import { ReservationSlotBuilder } from './reservation-slot.builder';
 import dayjs from 'dayjs';
 import { Cron } from '@nestjs/schedule';
-import { Xe_Reservation_ConfigEntity } from 'src/entites/xe_reservation_config.entity';
 import { ReservationConfigService } from './reservation-setting.service';
 
 @Injectable()
@@ -21,6 +20,7 @@ export class ReservationService {
     private preRepository: Repository<Xe_Reservation_PreEntity>,
     @Inject(ReservationSlotBuilder) private builder: ReservationSlotBuilder,
     @Inject(ReservationConfigService) private configSvc: ReservationConfigService,
+
   ) {}
 
   async getReservationInfo(date: string) {
@@ -66,24 +66,25 @@ export class ReservationService {
     const list = await this.reservationRepository.find({
       where: { date: Like(`${this.nextMonth.format('YYYY-MM')}%`) },
     });
-
+    
     if (list.length > 0) {
       throw new BadRequestException('이미 예약 진행 중입니다.');
     }
-
+    
     let reservationSlot = await this.preRepository.find({
       where: { date: Like(`${this.nextMonth.format('YYYY-MM')}%`) },
     });
-
+    
     if (reservationSlot.length == 0) {
       this.builder.setDays(this.today, this.nextMonth);
       reservationSlot = this.builder.buildSlots();
     }
-
+    
     await this.reservationRepository.update(
       { date: Like(`${this.today.format('YYYY-MM')}%`) },
       { is_able: 'N' },
     );
+
     await this.reservationRepository.save(reservationSlot);
     await this.preRepository.clear();
   }
