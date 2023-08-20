@@ -48,7 +48,7 @@ jobs:
       run: |
         aws lambda update-function-configuration \
         --function-name futsal-server \
-        --environment Variables='{"DATABASE_TYPE":"${{ secrets.DATABASE_TYPE }}","DATABASE_PORT":"${{ secrets.DATABASE_PORT }}","DATABASE_HOST":"${{ secrets.DATABASE_HOST }}","DATABASE_USERNAME":"${{ secrets.DATABASE_USERNAME }}","DATABASE_PASSWORD":"${{ secrets.DATABASE_PASSWORD }}","DATABASE_NAME":"${{ secrets.DATABASE_NAME }}","JWT_ACCESS_SECRET_KEY":"${{ secrets.JWT_ACCESS_SECRET_KEY }}","JWT_ACCESS_EXPIRATION_TIME":"${{ secrets.JWT_ACCESS_EXPIRATION_TIME }}","JWT_REFRESH_SECRET_KEY":"${{ secrets.JWT_REFRESH_SECRET_KEY }}","JWT_REFRESH_EXPIRATION_TIME":"${{ secrets.JWT_REFRESH_EXPIRATION_TIME }}","CACHE_TTL":"${{ secrets.CACHE_TTL }}","CACHE_MAX":"${{ secrets.CACHE_MAX }}","SLACK_URL":"${{ secrets.SLACK_URL }}","SLACK_MESSAGE_TEMPLETE":"${{ secrets.SLACK_MESSAGE_TEMPLETE }}"}'
+        --environment 'Variables={"DATABASE_TYPE":"${{ secrets.DATABASE_TYPE }}","DATABASE_PORT":"${{ secrets.DATABASE_PORT }}","DATABASE_HOST":"${{ secrets.DATABASE_HOST }}","DATABASE_USERNAME":"${{ secrets.DATABASE_USERNAME }}","DATABASE_PASSWORD":"${{ secrets.DATABASE_PASSWORD }}","DATABASE_NAME":"${{ secrets.DATABASE_NAME }}","JWT_ACCESS_SECRET_KEY":"${{ secrets.JWT_ACCESS_SECRET_KEY }}","JWT_ACCESS_EXPIRATION_TIME":"${{ secrets.JWT_ACCESS_EXPIRATION_TIME }}","JWT_REFRESH_SECRET_KEY":"${{ secrets.JWT_REFRESH_SECRET_KEY }}","JWT_REFRESH_EXPIRATION_TIME":"${{ secrets.JWT_REFRESH_EXPIRATION_TIME }}","CACHE_TTL":"${{ secrets.CACHE_TTL }}","CACHE_MAX":"${{ secrets.CACHE_MAX }}","SLACK_URL":"${{ secrets.SLACK_URL }}","SLACK_MESSAGE_TEMPLETE":"${{ secrets.SLACK_MESSAGE_TEMPLETE }}"}'
 
     - name: Update Lambda function image
       run: |
