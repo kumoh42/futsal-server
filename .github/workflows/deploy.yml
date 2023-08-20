@@ -20,6 +20,8 @@ jobs:
       AWS_REGION: ${{ secrets.AWS_REGION }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      DATABASE_TYPE: ${{ secrets.DATABASE_TYPE }}
+      DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
 
     steps:
     - name: Checkout repository
@@ -54,8 +56,8 @@ jobs:
         aws lambda update-function-configuration \
           --function-name futsal-server \
           --environment Variables={ \
-          "DATABASE_TYPE"="${{ secrets.DATABASE_TYPE }}", \
-          "DATABASE_PORT"="${{ secrets.DATABASE_PORT }}", \
+          "DATABASE_TYPE"="$DATABASE_TYPE", \
+          "DATABASE_PORT"="$DATABASE_PORT", \
           "DATABASE_HOST"="${{ secrets.DATABASE_HOST }}", \
           "DATABASE_USERNAME"="${{ secrets.DATABASE_USERNAME }}", \
           "DATABASE_PASSWORD"="${{ secrets.DATABASE_PASSWORD }}", \
