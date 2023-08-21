@@ -2,8 +2,7 @@ name: Deploy Nestjs on lambda
 
 on:
   push:
-    branches:
-      - KUM-67-docker-build-및-deploy
+    branches: ["main"]
   workflow_run:
     workflows: ["Test"]
     types:
@@ -41,7 +40,7 @@ jobs:
       with:
         aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ env.AWS_REGION }}  # Change to your desired region    
+        aws-region: ${{ env.AWS_REGION }}
             
     - name: Make Environment variables
       run: |
