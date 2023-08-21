@@ -54,6 +54,7 @@ export class ReservationService {
   async closePreReservation() {
     await this.preRepository.clear();
   }
+  
 
   @Cron('0 0 0 1 * *')
   async openReservation() {
@@ -83,24 +84,15 @@ export class ReservationService {
   }
 
 
-
-
-
-  //이게 사전예약인지 정식예약인지 어떻게 구분할 거냐 -> 레포에 하나 꺼내봐서 있으면 정식 ㅇ , 없으면 사전이거나 사전예약도 x 인 경우
-  // 쿼리문이 잘 작성되었느냐
-  // 뭐 등등..
-
-
-  async deleteMonthReservationHistory(date: string){
+  async deleteMonthReservationHistories(date: string){
     const expectedFormat = /^(\d{4})-(\d{2})-(\d{2})$/;
 
     if (!expectedFormat.test(date.toString().slice(0, 10))) { throw new BadRequestException(['올바르지 않은 경로변수 요청입니다.']); }
-
     const monthInfo = date.slice(0, 7); //e.g. 경로변수: 2023-08-11 ->monthInfo:  2023-08 
-    const runningCheckForReservation : boolean = await this.isRunningReservationtemp(monthInfo, this.reservationRepository);
+    const runningCheckForReservation : boolean = await this.isRunningReservation(monthInfo, this.reservationRepository);
     
     if(runningCheckForReservation){  //정식예약이 open되어 있는 경우 === 테이블에 해당 달 레코드가 존재하는 경우
-      const ReservationHistory : boolean = await this.checkReservaionHistorytemp(monthInfo, this.reservationRepository);
+      const ReservationHistory : boolean = await this.checkReservaionHistory(monthInfo, this.reservationRepository);
       
       if(ReservationHistory){  //예약 내역이 존재할 경우 === 해당 달에 member_srl 이 존재하는 레코드가 하나라도 존재하는 경우
         await this.reservationRepository
@@ -119,10 +111,10 @@ export class ReservationService {
         throw new BadRequestException(['정식예약내역이 존재하지 않습니다.'])
       }      
     }else{  //정식예약이 open되어지지 않은 경우
-      const runningCheckForPreReservation : boolean = await this.isRunningReservationtemp(monthInfo, this.preRepository);
+      const runningCheckForPreReservation : boolean = await this.isRunningReservation(monthInfo, this.preRepository);
       
       if(runningCheckForPreReservation){  //사전예약이 open된 경우
-        const preRepositoryHistory : boolean = await this.checkReservaionHistorytemp(monthInfo, this.preRepository);
+        const preRepositoryHistory : boolean = await this.checkReservaionHistory(monthInfo, this.preRepository);
         
         if(preRepositoryHistory){  //사전예약 내역이 존재하는 경우
           await this.preRepository.createQueryBuilder()
@@ -137,15 +129,82 @@ export class ReservationService {
           .execute();
           
           return ['사전예약 삭제완료'];
-
+        }else{
+          throw new BadRequestException(['사전 예약에 예약내역이 존재하지 않습니다.']);
         }
       }else{  //사전예약까지 open되지 않은 경우
         throw new BadRequestException(['예약이 오픈되지 않았거나 과거의 날짜를 입력하셨습니다.'])  
       }
     }
   }
-  
-  async isRunningReservationtemp( 
+
+
+  async deleteOneReservationHistory(date: string, time: string){
+    const expectedFormat = /^(\d{4})-(\d{2})-(\d{2})$/;
+    const monthInfo = date.slice(0, 7)
+    const timeForNumberType = Number(time);
+   
+    if (!expectedFormat.test(date.toString().slice(0, 10))) 
+    { throw new BadRequestException(['올바르지 않은 경로변수 요청입니다.']); }
+    
+    if(time.length !== 2  
+      || timeForNumberType % 2 !== 0
+      || timeForNumberType > 20
+      || timeForNumberType < 8) 
+      {throw new BadRequestException(['올바르지 않은 경로변수 요청입니다.']); }
+
+    const runningCheckForReservation : boolean = await this.isRunningReservation(monthInfo, this.reservationRepository);
+
+    if(runningCheckForReservation){
+          const temp = await this.reservationRepository
+          .createQueryBuilder()
+          .update(Xe_ReservationEntity)
+          .set({
+            member_srl:null,
+            place_srl:null,
+            circle:null,
+            major:null,})
+          .where("date LIKE :date", { date: `${date}%` })
+          .andWhere("time = :time", { time: `${timeForNumberType}` })
+          .andWhere("member_srl IS NOT NULL")
+          .execute();
+          if(temp.affected === 0){
+            throw new BadRequestException(['입력하신 시간대에 예약이 존재하지 않습니다.']);
+          }
+          if(temp.affected >= 2){
+            throw new BadRequestException(['올바르지 않은 입력입니다.']);
+          }
+
+          return (['예약 삭제완료']);
+      
+    }else if(await this.isRunningReservation(monthInfo, this.preRepository)){
+        const query = await this.preRepository.createQueryBuilder()
+        .update(Xe_Reservation_PreEntity)
+        .set({
+          member_srl:null,
+          place_srl:null,
+          circle:null,
+          major:null,})
+        .where("date LIKE :date", { date: `${date}%` })
+        .andWhere("time = :time", { time: `${timeForNumberType}` })
+        .andWhere("member_srl IS NOT NULL")
+        .execute();
+        
+        if(query.affected === 0){
+          throw new BadRequestException(['입력하신 시간대에 예약이 존재하지 않습니다.']);
+        }
+        if(query.affected >= 2){
+          throw new BadRequestException(['올바르지 않은 입력입니다.']);
+        }
+
+        return (['예약 삭제완료']);
+    }else{
+      throw new BadRequestException(['올바르지 않은 요청입니다.']);
+    }
+  }
+
+
+  async isRunningReservation( 
     monthInfo: string, 
     reservationRepo: Repository<Xe_ReservationEntity> | Repository<Xe_Reservation_PreEntity>
     ): Promise<boolean>{
@@ -154,12 +213,13 @@ export class ReservationService {
         date: Like(`${monthInfo}%`),
       },
     });
-    
+
     if(reservationRecord === null){ return false; }
     return true;    
   }
 
-  async checkReservaionHistorytemp( 
+
+  async checkReservaionHistory( 
     monthInfo: string,
     reservationRepo: Repository<Xe_ReservationEntity> | Repository<Xe_Reservation_PreEntity>
      ): Promise<boolean>{
@@ -173,7 +233,6 @@ export class ReservationService {
     if(reservationHistory === null){ return false; }
     return true;    
   }
-
 }
 
 
