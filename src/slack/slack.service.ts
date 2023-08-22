@@ -20,6 +20,7 @@ export class SlackService {
     await this.httpService
       .post(this.SLACK_URL, {
         text: this.SLACK_MESSAGE_TEMPLETE.replace('name', name)
+          .replace('\n', `\n`)
           .replace('user_id', user_id)
           .replace('user_email', email)
           .replace('text', text)
