@@ -25,6 +25,12 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run npm build
+      run: npm run build
+
     - name: Build Docker image
       run: docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
 
