@@ -1,4 +1,4 @@
-service: nest-lambda
+service: futsal-server
 
 plugins:
   - serverless-jetpack
@@ -11,14 +11,14 @@ provider:
   stage: dev
   ecr:
     images:
-      nest-lambda:
+      futsal-server:
         path: ./
         platform: linux/amd64
 
 functions:
   api:
     image:
-      name: nest-lambda
+      name: futsal-server
       command:
         - dist/serverless.handler
       entryPoint:
