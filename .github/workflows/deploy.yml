@@ -2,7 +2,7 @@ name: Deploy Nestjs on lambda
 
 on:
   push:
-    branches: ["main", "KUM-67-docker-build-및-deploy"]
+    branches: ["main"]
   workflow_run:
     workflows: ["Test"]
     types:
