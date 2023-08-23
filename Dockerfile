@@ -1,6 +1,4 @@
-# DEVELOPMENT
-FROM amazon/aws-lambda-nodejs:18 As development
-WORKDIR /usr/src/app
+FROM public.ecr.aws/lambda/nodejs:18
 
 COPY package*.json ./
 
@@ -8,21 +6,37 @@ RUN npm install
 
 COPY . .
 
-RUN npm run build
+EXPOSE 3000
+
+CMD ["dist/serverless.handler"]
+
+# # DEVELOPMENT
+# FROM amazon/aws-lambda-nodejs:18 As development
+# WORKDIR /usr/src/app
+
+# COPY package*.json ./
+
+# RUN npm install
+
+# COPY . .
+
+# RUN npm run build
 
 
 
-# PRODUCTION
-FROM amazon/aws-lambda-nodejs:18 As production
+# # PRODUCTION
+# FROM amazon/aws-lambda-nodejs:18 As production
 
-WORKDIR /usr/src/app
+# WORKDIR /usr/src/app
 
-COPY package*.json ./
+# COPY package*.json ./
 
-RUN npm ci --only=production
+# RUN npm ci --only=production
 
-COPY . .
+# COPY . .
 
-COPY --from=development /usr/src/app/dist ./dist
+# COPY --from=development /usr/src/app/dist ./dist
 
-CMD [ "node", "dist/serverlss.js" ]
+# EXPOSE 3000
+
+# CMD ["dist/serverless.handler" ]
