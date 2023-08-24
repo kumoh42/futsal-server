@@ -71,6 +71,8 @@ export class ReservationService {
       throw new BadRequestException('이미 예약 진행 중입니다.');
     }
     
+    await this.configSvc.setReservationSettings();
+
     let reservationSlot = await this.preRepository.find({
       where: { date: Like(`${this.nextMonth.format('YYYY-MM')}%`) },
     });

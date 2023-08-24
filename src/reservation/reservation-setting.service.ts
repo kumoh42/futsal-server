@@ -39,7 +39,6 @@ export class ReservationConfigService {
 
   async setPreReservationCloseSettings() {
     const allSettings = await this.configRepo.find();
-    console.log(allSettings);
 
     const updatedSettings = allSettings.map((setting) => {
       switch (setting.key) {
@@ -48,6 +47,21 @@ export class ReservationConfigService {
             ...setting, value: dayjs().format('YYYY-MM-DD') };
         case 'end_time':
           return { ...setting, value: dayjs().format('HH') };
+        default:
+          return setting;
+      }
+    });
+
+    await this.configRepo.save(updatedSettings);
+  }
+
+  async setReservationSettings() {
+    const allSettings = await this.configRepo.find();
+
+    const updatedSettings = allSettings.map((setting) => {
+      switch (setting.key) {
+        case 'is_pre_reservation_period':
+          return { ...setting, value: 'N' };
         default:
           return setting;
       }
