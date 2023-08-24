@@ -11,7 +11,6 @@ import { ReservationService } from './reservation.service';
 import { Xe_ReservationEntity } from 'src/entites/xe_reservation.entity';
 import { JwtAuthGuard } from 'src/auth/jwt/jwt.guard';
 import { ApiHeader, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { ReservationConfigService } from './reservation-setting.service';
 
 @ApiTags('시설 예약')
 @Controller('reservation')
@@ -19,7 +18,6 @@ import { ReservationConfigService } from './reservation-setting.service';
 export class ReservationController {
   constructor(
     private reservationService: ReservationService,
-    private reservationSetting: ReservationConfigService
   ) { }
 
 
