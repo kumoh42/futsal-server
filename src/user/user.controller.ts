@@ -13,6 +13,7 @@ export class UserController {
   @Get()
   @ApiOperation({ description: '로그인한 유저의 정보를 조회' })
   async getUserInfo(@User() user: User) {
-    return await this.userService.getUserInfo(user.userId);
+    const { userId } = user;
+    return await this.userService.getUserInfo(userId);
   }
 }

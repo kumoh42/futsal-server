@@ -1,27 +1,29 @@
-service: futsal-server-lambda
-
-useDotenv: true
+service: futsal-server
 
 plugins:
+  - serverless-jetpack
   - serverless-offline
-  - serverless-express
-  - serverless-dotenv-plugin
 
-#AWS 설정
 provider:
   name: aws
-  region: ap-northeast-2
   runtime: nodejs18.x
-  environment:
-    
-#Lambda 함수 설정
+  region: ap-northeast-2
+  stage: dev
+  ecr:
+    images:
+      futsal-server:
+        path: ./
+        # platform: linux/amd64
+
 functions:
-  main:
-    handler: dist/serverless.handler
+  api:
+    image:
+      name: futsal-server
+      command:
+        - dist/serverless.handler
+      entryPoint:
+        - '/lambda-entrypoint.sh'
     events:
       - http:
-          method: ANY
-          path: /
-      - http:
-          method: ANY
-          path: '{proxy+}'
+          method: any
+          path: /{any+}

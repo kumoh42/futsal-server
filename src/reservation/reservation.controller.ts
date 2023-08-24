@@ -16,10 +16,7 @@ import { ApiHeader, ApiOperation, ApiTags } from '@nestjs/swagger';
 @Controller('reservation')
 @UseGuards(JwtAuthGuard)
 export class ReservationController {
-  constructor(
-    private reservationService: ReservationService,
-  ) { }
-
+  constructor(private reservationService: ReservationService) {}
 
   @Get('/:date')
   @ApiOperation({ description: '예약 현황 조회' })
@@ -27,7 +24,9 @@ export class ReservationController {
     name: 'date',
     description: '조회하고 싶은 날짜입니다.',
   })
-  async getMemberInfo(@Param('date') date: string): Promise<Xe_ReservationEntity[]> {
+  async getMemberInfo(
+    @Param('date') date: string,
+  ): Promise<Xe_ReservationEntity[]> {
     return await this.reservationService.getReservationInfo(date);
   }
 

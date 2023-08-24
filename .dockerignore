@@ -1,0 +1,6 @@
+.git
+Dockerfile
+.dockerignore
+node_modules
+.env.development
+npm-debug.lo
