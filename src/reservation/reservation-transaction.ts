@@ -14,7 +14,6 @@ export class ReservationTransaction{
         private preRepository: Repository<Xe_Reservation_PreEntity>,
       ) {}
 
-      
       async isRunningReservation( 
         date: string, 
         ): Promise<boolean>{

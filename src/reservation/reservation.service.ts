@@ -145,6 +145,7 @@ export class ReservationService {
       circle:null,
       major:null,})
     .where("date LIKE :date", { date: `${date}%` })
+    .andWhere("time = :time", { time: time }) 
     .andWhere("member_srl IS NOT NULL")
     .execute();
 
@@ -166,6 +167,7 @@ export class ReservationService {
       circle:null,
       major:null,})
     .where("date LIKE :date", { date: `${date}%` })
+    .andWhere("time = :time", { time: time })
     .andWhere("member_srl IS NOT NULL")
     .execute();
 
