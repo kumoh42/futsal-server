@@ -13,6 +13,8 @@ import { ReservationService } from './reservation.service';
 import { Xe_ReservationEntity } from 'src/entites/xe_reservation.entity';
 import { JwtAuthGuard } from 'src/auth/jwt/jwt.guard';
 import { ApiHeader, ApiOperation,  ApiTags } from '@nestjs/swagger';
+import { MonthReservationDeleteDto } from 'src/common/dto/reservation/month-reservation-delete.dto';
+import { OneReservationDeleteDto } from 'src/common/dto/reservation/one-reservation-delete.dto';
 
 @ApiTags('시설 예약')
 @Controller('reservation')
@@ -47,17 +49,23 @@ export class ReservationController {
 
   @ApiOperation({ description: '해당 월 전체 예약 삭제' })
   @Patch('/delete-month') 
-  async deleteMonthReservation(@Body('date') date: string){
-    return await this.reservationService.deleteMonthReservationHistories(date);  
-  }
+  async deleteMonthReservation(
+    @Body() body: MonthReservationDeleteDto
+    ){
+        const {date, isPre} = body;
+        if(isPre){ return await this.reservationService.deleteMonthPreReservationHistories(date); }
+
+        return await this.reservationService.deleteMonthReservationHistories(date);  
+     }
 
   @ApiOperation({ description: '해당하는 날짜의 특정 시간대 예약 삭제' })
   @Patch('/delete-one')
   async deleteOneReservation(
-    @Body('date') date: string, 
-    @Body('time') time: string
+    @Body() body: OneReservationDeleteDto
     ){
-    return await this.reservationService.deleteOneReservationHistory(date, time);  
-  }
-
+        const {date, time, isPre} = body;
+        if(isPre){ return await this.reservationService.deleteOnePreReservationHistory(date, time); }
+        
+        return await this.reservationService.deleteOneReservationHistory(date, time);
+      }
 }
