@@ -58,6 +58,18 @@ export class ReservationController {
         return await this.reservationService.deleteMonthReservationHistories(date);  
      }
 
+  @ApiOperation({ description: '해당 일 전체 예약 삭제' })
+  @Patch('/delete-day') 
+  async deleteDayReservation(
+    @Body() body: OneReservationDeleteDto
+    ){
+        const {date, isPre} = body;
+        if(isPre){ return await this.reservationService.deleteDayPreReservationHistory(date); }
+
+        return await this.reservationService.deleteDayReservationHistory(date);  
+    }
+   
+
   @ApiOperation({ description: '해당하는 날짜의 특정 시간대 예약 삭제' })
   @Patch('/delete-one')
   async deleteOneReservation(

@@ -5,8 +5,8 @@ on:
     branches: ["main"]
   workflow_run:
     workflows: ["Test"]
-    types:
-      - completed
+    types: [completed]
+    branches: ["main"]
 
 jobs:
   build_and_deploy:
@@ -16,6 +16,7 @@ jobs:
       ECR_REGISTRY: ${{ secrets.ECR_PATH }}
       ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
       IMAGE_TAG: latest
+      LAMBDA_NAME: ${{ secrets.LAMBDA_NAME }}
       AWS_REGION: ${{ secrets.AWS_REGION }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -24,13 +25,19 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run npm build
+      run: npm run build
+
     - name: Build Docker image
       run: docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
 
     - name: Login to Amazon ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
-      
+
     - name: Push Docker image to ECR
       run: docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
@@ -45,7 +52,7 @@ jobs:
     - name: Make Environment variables
       run: |
         aws lambda update-function-configuration \
-        --function-name futsal-server \
+        --function-name $LAMBDA_NAME \
         --environment 'Variables={DATABASE_TYPE=${{ secrets.DATABASE_TYPE }},DATABASE_PORT=${{ secrets.DATABASE_PORT }},DATABASE_HOST=${{ secrets.DATABASE_HOST }},DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }},DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }},DATABASE_NAME=${{ secrets.DATABASE_NAME }},JWT_ACCESS_SECRET_KEY=${{ secrets.JWT_ACCESS_SECRET_KEY }},JWT_ACCESS_EXPIRATION_TIME=${{ secrets.JWT_ACCESS_EXPIRATION_TIME }},JWT_REFRESH_SECRET_KEY=${{ secrets.JWT_REFRESH_SECRET_KEY }},JWT_REFRESH_EXPIRATION_TIME=${{ secrets.JWT_REFRESH_EXPIRATION_TIME }},CACHE_TTL=${{ secrets.CACHE_TTL }},CACHE_MAX=${{ secrets.CACHE_MAX }},SLACK_URL=${{ secrets.SLACK_URL }},SLACK_MESSAGE_TEMPLETE="${{ secrets.SLACK_MESSAGE_TEMPLETE }}"}'
   
     - name: Update Lambda function image
@@ -57,5 +64,5 @@ jobs:
         shell: bash
         command: |
           aws lambda update-function-code \
-            --function-name futsal-server \
+            --function-name $LAMBDA_NAME \
             --image-uri $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
