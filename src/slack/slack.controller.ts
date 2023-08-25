@@ -1,14 +1,14 @@
 import { Controller, Post, Body, HttpCode, UseGuards } from '@nestjs/common';
-import { InquiryService } from './slack.service';
-import { InquiryMessageDto } from 'src/auth/dto/inquiry-message.dto';
+import {SlackService } from './slack.service';
+import { InquiryMessageDto } from 'src/common/dto/inquiry-message.dto';
 import { JwtAuthGuard } from 'src/auth/jwt/jwt.guard';
 import { User } from 'src/common/decorators/user.decorator';
 import { ApiBody, ApiOperation } from '@nestjs/swagger';
 
 
 @Controller('inquiry')
-export class InquiryController {
-  constructor(private readonly inquiryService: InquiryService) {}
+export class SlackController {
+  constructor(private readonly slackService: SlackService) {}
 
   @Post()
   @UseGuards(JwtAuthGuard)
@@ -25,7 +25,7 @@ export class InquiryController {
     const { email, text } = inquriyMessageDto;
     const { userName, userId } = user;
 
-    await this.inquiryService.sendSlackMessage(userName, userId, email, text);
+    await this.slackService.sendSlackMessage(userName, userId, email, text);
     return {
       message: ['send 성공'],
     };

@@ -6,6 +6,7 @@ import { Xe_Reservation_ConfigEntity } from 'src/entites/xe_reservation_config.e
 import { Xe_ReservationEntity } from 'src/entites/xe_reservation.entity';
 import { Xe_Reservation_PreEntity } from 'src/entites/xe_reservation_pre.entity';
 import { ReservationSlotBuilder } from './reservation-slot.builder';
+import { ReservationTransaction } from './reservation-transaction';
 import { ReservationConfigService } from './reservation-setting.service';
 
 @Module({
@@ -17,6 +18,11 @@ import { ReservationConfigService } from './reservation-setting.service';
     ]),
   ],
   controllers: [ReservationController],
-  providers: [ReservationService, ReservationSlotBuilder, ReservationConfigService],
+  providers: [
+    ReservationService,
+    ReservationSlotBuilder,
+    ReservationTransaction,
+    ReservationConfigService
+    ],
 })
 export class ReservationModule {}
