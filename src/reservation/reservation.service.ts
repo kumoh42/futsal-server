@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Xe_ReservationEntity } from 'src/entites/xe_reservation.entity';
 import { Xe_Reservation_PreEntity } from 'src/entites/xe_reservation_pre.entity';
@@ -91,7 +91,7 @@ export class ReservationService {
     if(!runningCheckForReservation){ throw new BadRequestException(['정식예약 진행중이 아닙니다.']) }
 
     const ReservationHistory : boolean = await this.transaction.checkReservaionHistory(date);
-    if(!ReservationHistory){ throw new BadRequestException([' 예약 내역이 존재하지 않습니다. '])}
+    if(!ReservationHistory){ throw new NotFoundException([' 예약 내역이 존재하지 않습니다. '])}
 
     await this.reservationRepository
     .createQueryBuilder()
@@ -113,7 +113,7 @@ export class ReservationService {
     if(!runningCheckForReservation){ throw new BadRequestException(['사전예약 진행중이 아닙니다.']) }
 
     const ReservationHistory : boolean = await this.transaction.checkPreReservaionHistory(date);
-    if(!ReservationHistory){ throw new BadRequestException([' 예약 내역이 존재하지 않습니다. '])}
+    if(!ReservationHistory){ throw new NotFoundException([' 예약 내역이 존재하지 않습니다. '])}
 
     await this.preRepository.createQueryBuilder()
     .update(Xe_Reservation_PreEntity)
@@ -135,7 +135,7 @@ export class ReservationService {
     if(!runningCheckForReservation){ throw new BadRequestException(['정식예약 진행중이 아닙니다.']) }
 
     const ReservationHistory : boolean = await this.transaction.checkReservaionHistory(date, time);
-    if(!ReservationHistory){ throw new BadRequestException([' 해당 시간에 예약 내역이 존재하지 않습니다. '])}
+    if(!ReservationHistory){ throw new NotFoundException([' 해당 시간에 예약 내역이 존재하지 않습니다. '])}
 
     await this.reservationRepository.createQueryBuilder()
     .update(Xe_ReservationEntity)
@@ -157,7 +157,7 @@ export class ReservationService {
     if(!runningCheckForPreReservation){ throw new BadRequestException(['사전예약 진행중이 아닙니다.']) }
 
     const PreReservationHistory : boolean = await this.transaction.checkPreReservaionHistory(date, time);
-    if(!PreReservationHistory){ throw new BadRequestException([' 해당 시간에 예약 내역이 존재하지 않습니다. '])}
+    if(!PreReservationHistory){ throw new NotFoundException([' 해당 시간에 예약 내역이 존재하지 않습니다. '])}
 
     await this.preRepository.createQueryBuilder() 
     .update(Xe_Reservation_PreEntity)
