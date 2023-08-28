@@ -76,8 +76,6 @@ export class ReservationController {
     @Body() body: OneReservationDeleteDto
     ){
         const {date, times, isPre} = body;
-        console.log(times);
-        console.log(typeof times);
         if(isPre){ return await this.reservationService.deleteOnePreReservationHistory(date, times); }
         return await this.reservationService.deleteOneReservationHistory(date, times);
       }

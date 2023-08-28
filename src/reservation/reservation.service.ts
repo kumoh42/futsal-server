@@ -168,21 +168,6 @@ export class ReservationService {
 
     const PreReservationHistory : boolean = await this.transaction.checkPreReservaionHistory(date, times);
     if(!PreReservationHistory){ throw new NotFoundException([' 해당 시간에 예약 내역이 존재하지 않습니다. '])}
-
-    console.log(times) ;
-
-    // await this.preRepository.createQueryBuilder() 
-    // .update(Xe_Reservation_PreEntity)
-    // .set({
-    //   member_srl:null,
-    //   place_srl:null,
-    //   circle:null,
-    //   major:null,})
-    // .where("date LIKE :date", { date: `${date}%` })
-    // .andWhere("time = :time", { time: time })
-    // .andWhere("member_srl IS NOT NULL")
-    // .execute();
-
       for (const time of times) {
         await this.preRepository.createQueryBuilder() 
             .update(Xe_Reservation_PreEntity)
