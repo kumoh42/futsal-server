@@ -139,49 +139,66 @@ export class ReservationService {
 
   }
 
-  async deleteOneReservationHistory(date: string, time: number){
+  async deleteOneReservationHistory(date: string, times: number[]){
     const runningCheckForReservation : boolean = await this.transaction.isRunningReservation(date);
     if(!runningCheckForReservation){ throw new BadRequestException(['정식예약 진행중이 아닙니다.']) }
 
-    const ReservationHistory : boolean = await this.transaction.checkReservaionHistory(date, time);
-    if(!ReservationHistory){ throw new NotFoundException([' 해당 시간에 예약 내역이 존재하지 않습니다. '])}
+    const ReservationHistory : boolean = await this.transaction.checkReservaionHistory(date, times);
+    if(!ReservationHistory){ throw new NotFoundException([' 체크하신 부분의 예약이 존재하지 않습니다. '])}
 
-    await this.reservationRepository.createQueryBuilder()
-    .update(Xe_ReservationEntity)
-    .set({
-      member_srl:null,
-      place_srl:null,
-      circle:null,
-      major:null,})
-    .where("date LIKE :date", { date: `${date}%` })
-    .andWhere("time = :time", { time: time }) 
-    .andWhere("member_srl IS NOT NULL")
-    .execute();
-
+    for(const time of times){
+      await this.reservationRepository.createQueryBuilder()
+      .update(Xe_ReservationEntity)
+      .set({
+        member_srl:null,
+        place_srl:null,
+        circle:null,
+        major:null,})
+      .where("date LIKE :date", { date: `${date}%` })
+      .andWhere("time = :time", { time: time }) 
+      .andWhere("member_srl IS NOT NULL")
+      .execute();
+    }
     return '예약 삭제완료';
   }
 
-  async deleteOnePreReservationHistory(date: string, time: number){
+  async deleteOnePreReservationHistory(date: string, times: number[]){
     const runningCheckForPreReservation : boolean = await this.transaction.isRunningPreReservation(date);
     if(!runningCheckForPreReservation){ throw new BadRequestException(['사전예약 진행중이 아닙니다.']) }
 
-    const PreReservationHistory : boolean = await this.transaction.checkPreReservaionHistory(date, time);
+    const PreReservationHistory : boolean = await this.transaction.checkPreReservaionHistory(date, times);
     if(!PreReservationHistory){ throw new NotFoundException([' 해당 시간에 예약 내역이 존재하지 않습니다. '])}
 
-    await this.preRepository.createQueryBuilder() 
-    .update(Xe_Reservation_PreEntity)
-    .set({
-      member_srl:null,
-      place_srl:null,
-      circle:null,
-      major:null,})
-    .where("date LIKE :date", { date: `${date}%` })
-    .andWhere("time = :time", { time: time })
-    .andWhere("member_srl IS NOT NULL")
-    .execute();
+    console.log(times) ;
 
-    return '예약 삭제완료';
-  }
+    // await this.preRepository.createQueryBuilder() 
+    // .update(Xe_Reservation_PreEntity)
+    // .set({
+    //   member_srl:null,
+    //   place_srl:null,
+    //   circle:null,
+    //   major:null,})
+    // .where("date LIKE :date", { date: `${date}%` })
+    // .andWhere("time = :time", { time: time })
+    // .andWhere("member_srl IS NOT NULL")
+    // .execute();
+
+      for (const time of times) {
+        await this.preRepository.createQueryBuilder() 
+            .update(Xe_Reservation_PreEntity)
+            .set({
+                member_srl: null,
+                place_srl: null,
+                circle: null,
+                major: null,
+            })
+            .where("date LIKE :date", { date: `${date}%` })
+            .andWhere("time = :time", { time: time })
+            .andWhere("member_srl IS NOT NULL")
+            .execute();
+      }
+    return '예약 삭제완료';   
+    }
 
 
   async deleteDayReservationHistory(date: string){

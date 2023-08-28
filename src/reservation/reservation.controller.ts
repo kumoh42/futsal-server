@@ -75,9 +75,10 @@ export class ReservationController {
   async deleteOneReservation(
     @Body() body: OneReservationDeleteDto
     ){
-        const {date, time, isPre} = body;
-        if(isPre){ return await this.reservationService.deleteOnePreReservationHistory(date, time); }
-        
-        return await this.reservationService.deleteOneReservationHistory(date, time);
+        const {date, times, isPre} = body;
+        console.log(times);
+        console.log(typeof times);
+        if(isPre){ return await this.reservationService.deleteOnePreReservationHistory(date, times); }
+        return await this.reservationService.deleteOneReservationHistory(date, times);
       }
 }

@@ -40,17 +40,22 @@ export class ReservationTransaction{
     
       async checkReservaionHistory( 
         date: string,
-        time?: number,
-      ): Promise<boolean>{
+        times?: number[],
+      ): Promise<boolean>
+      {
         let reservationHistory: object | null;
-        if(time){
-          reservationHistory = await this.reservationRepository.findOne({
-            where: { 
-              date: Like(`${date}%`),
-              time: Equal(time),
-              member_srl: Not(IsNull()), // This adds the condition for a non-null value
-            },
-          });
+        if(times){
+          for(const time of times){
+            reservationHistory = await this.reservationRepository.findOne({
+              where: { 
+                date: Like(`${date}%`),
+                time: Equal(time),
+                member_srl: Not(IsNull()),
+              },
+            });
+            if(!reservationHistory){ return false; }
+          }  
+          return true;
         }else{
           reservationHistory = await this.reservationRepository.findOne({
             where: { 
@@ -58,26 +63,30 @@ export class ReservationTransaction{
               member_srl: Not(IsNull()), // This adds the condition for a non-null value
             },
           });
+          if(!reservationHistory){ return false; }
+          return true;     
         }
-        if(reservationHistory === null){ return false; }
-        return true;    
       }
     
       async checkPreReservaionHistory( 
         date: string,
-        time?: number,
-      ): Promise<boolean>{
-        
+        times?: number[],
+      ): Promise<boolean>
+      {      
         let reservationHistory: object | null;
-        
-        if(time){
-          reservationHistory = await this.preRepository.findOne({
-            where: { 
-              date: Like(`${date}%`),
-              time: Equal(time),
-              member_srl: Not(IsNull()), // This adds the condition for a non-null value
-            },
-          });  
+  
+        if(times){
+          for(const time of times){
+            reservationHistory = await this.preRepository.findOne({
+              where: { 
+                date: Like(`${date}%`),
+                time: Equal(time),
+                member_srl: Not(IsNull()), 
+              },
+            });
+            if (reservationHistory === null) { return false; }
+          }
+          return true;
         }else{
           reservationHistory = await this.preRepository.findOne({
             where: { 
@@ -85,9 +94,8 @@ export class ReservationTransaction{
               member_srl: Not(IsNull()), // This adds the condition for a non-null value
             },
           });
+          if(reservationHistory === null){ return false; }
+          return true;    
         }
-    
-        if(reservationHistory === null){ return false; }
-        return true;    
       }
 }

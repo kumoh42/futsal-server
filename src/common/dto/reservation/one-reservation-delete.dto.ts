@@ -1,4 +1,5 @@
 import { 
+    IsArray,
     IsBoolean,
     IsNotEmpty,
     IsNumber, 
@@ -14,14 +15,19 @@ import {
 class ValidationOfTime 
 implements ValidatorConstraintInterface
 {
-validate(value: number, args: ValidationArguments)
+    validate(value: number[], args: ValidationArguments)
     : boolean | Promise<boolean> 
     {
-       if(value % 2 !== 0
-        || value > 20
-        || value < 8) { return false; }
-
-       return true;
+        if(!Array.isArray(value)) return false;
+        for (const time of value) {
+            if (time % 2 !== 0
+                 || time > 20
+                  || time < 8)
+            {
+                return false;
+            }
+        }
+        return true;
    }
 
     defaultMessage(args: ValidationArguments ): string{
@@ -38,10 +44,10 @@ export class OneReservationDeleteDto {
     })
     date: string;
 
-    @Validate(ValidationOfTime)
-    @IsNumber()
+    @IsArray()
     @IsNotEmpty()
-    time: number;
+    @Validate(ValidationOfTime)
+    times: number[];
 
     @IsBoolean()
     @IsNotEmpty()
