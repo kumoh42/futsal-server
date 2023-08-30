@@ -1,10 +1,9 @@
 import { Controller, Post, Body, HttpCode, UseGuards } from '@nestjs/common';
-import {SlackService } from './slack.service';
+import { SlackService } from './slack.service';
 import { InquiryMessageDto } from 'src/common/dto/inquiry-message.dto';
 import { JwtAuthGuard } from 'src/auth/jwt/jwt.guard';
 import { User } from 'src/common/decorators/user.decorator';
 import { ApiBody, ApiOperation } from '@nestjs/swagger';
-
 
 @Controller('inquiry')
 export class SlackController {
@@ -13,7 +12,7 @@ export class SlackController {
   @Post()
   @UseGuards(JwtAuthGuard)
   @HttpCode(200)
-  @ApiBody({ 
+  @ApiBody({
     type: [InquiryMessageDto],
     description: '슬랙 메세지 DTO입니다.',
   })

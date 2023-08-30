@@ -44,7 +44,9 @@ export class ReservationConfigService {
       switch (setting.key) {
         case 'end_date':
           return {
-            ...setting, value: dayjs().format('YYYY-MM-DD') };
+            ...setting,
+            value: dayjs().format('YYYY-MM-DD'),
+          };
         case 'end_time':
           return { ...setting, value: dayjs().format('HH') };
         default:
