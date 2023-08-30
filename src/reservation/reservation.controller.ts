@@ -13,7 +13,6 @@ import { ReservationService } from './reservation.service';
 import { Xe_ReservationEntity } from 'src/entites/xe_reservation.entity';
 import { JwtAuthGuard } from 'src/auth/jwt/jwt.guard';
 import { ApiHeader, ApiOperation,  ApiTags } from '@nestjs/swagger';
-import { MonthReservationDeleteDto } from 'src/common/dto/reservation/month-reservation-delete.dto';
 import { OneReservationDeleteDto } from 'src/common/dto/reservation/one-reservation-delete.dto';
 
 @ApiTags('시설 예약')
@@ -47,16 +46,17 @@ export class ReservationController {
     else throw new BadRequestException('state는 open과 close만 가능합니다.');
   }
 
-  @ApiOperation({ description: '해당 월 전체 예약 삭제' })
-  @Patch('/delete-month') 
-  async deleteMonthReservation(
-    @Body() body: MonthReservationDeleteDto
-    ){
-        const {date, isPre} = body;
-        if(isPre){ return await this.reservationService.deleteMonthPreReservationHistories(date); }
+  // month delete 삭제, 
+  // @ApiOperation({ description: '해당 월 전체 예약 삭제' })
+  // @Patch('/delete-month') 
+  // async deleteMonthReservation(
+  //   @Body() body: MonthReservationDeleteDto
+  //   ){
+  //       const {date, isPre} = body;
+  //       if(isPre){ return await this.reservationService.deleteMonthPreReservationHistories(date); }
 
-        return await this.reservationService.deleteMonthReservationHistories(date);  
-     }
+  //       return await this.reservationService.deleteMonthReservationHistories(date);  
+  //    }
 
   @ApiOperation({ description: '해당 일 전체 예약 삭제' })
   @Patch('/delete-day') 

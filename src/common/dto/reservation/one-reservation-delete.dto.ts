@@ -2,7 +2,6 @@ import {
     IsArray,
     IsBoolean,
     IsNotEmpty,
-    IsNumber, 
     IsString, 
     Matches, 
     Validate, 
