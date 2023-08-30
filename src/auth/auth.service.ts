@@ -104,7 +104,6 @@ export class AuthService {
       expiresIn: this.ACCESS_TOKEN_EXPIRESIN,
     });
   }
-  
 
   private async generateRefreshToken(payload: any): Promise<string> {
     return this.jwtService.sign(payload, {

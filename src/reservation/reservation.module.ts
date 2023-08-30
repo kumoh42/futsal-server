@@ -22,7 +22,7 @@ import { ReservationConfigService } from './reservation-setting.service';
     ReservationService,
     ReservationSlotBuilder,
     ReservationTransaction,
-    ReservationConfigService
-    ],
+    ReservationConfigService,
+  ],
 })
 export class ReservationModule {}
