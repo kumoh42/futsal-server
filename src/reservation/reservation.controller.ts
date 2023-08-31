@@ -18,7 +18,6 @@ import { OneReservationDeleteDto } from 'src/common/dto/reservation/one-reservat
 
 @ApiTags('시설 예약')
 @Controller('reservation')
-@UseGuards(JwtAuthGuard)
 export class ReservationController {
   constructor(private reservationService: ReservationService) {}
 
@@ -28,6 +27,7 @@ export class ReservationController {
     name: 'date',
     description: '조회하고 싶은 날짜입니다.',
   })
+  @UseGuards(JwtAuthGuard)
   async getMemberInfo(
     @Param('date') date: string,
   ): Promise<Xe_ReservationEntity[]> {
@@ -40,6 +40,7 @@ export class ReservationController {
     name: 'state',
     description: '사전 예약 활성화 상태입니다. (open = 시작, close = 중지)',
   })
+  @UseGuards(JwtAuthGuard)
   async reservationPreStart(@Query('state') state: string) {
     if (state === 'open') await this.reservationService.openPreReservation();
     else if (state === 'close')
@@ -49,6 +50,7 @@ export class ReservationController {
 
   @ApiOperation({ description: '해당 일 전체 예약 삭제' })
   @Patch('/delete-day')
+  @UseGuards(JwtAuthGuard)
   async deleteDayReservation(@Body() body: OneReservationDeleteDto) {
     const { date, isPre } = body;
     if (isPre) {
@@ -60,6 +62,7 @@ export class ReservationController {
 
   @ApiOperation({ description: '해당하는 날짜의 특정 시간대 예약 삭제' })
   @Patch('/delete-one')
+  @UseGuards(JwtAuthGuard)
   async deleteOneReservation(@Body() body: OneReservationDeleteDto) {
     const { date, times, isPre } = body;
     if (isPre) {
