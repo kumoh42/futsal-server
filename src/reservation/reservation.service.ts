@@ -10,7 +10,6 @@ import { Xe_Reservation_PreEntity } from 'src/entites/xe_reservation_pre.entity'
 import { Like, Repository } from 'typeorm';
 import { ReservationSlotBuilder } from './reservation-slot.builder';
 import dayjs from 'dayjs';
-import { Cron } from '@nestjs/schedule';
 import { ReservationTransaction } from './reservation-transaction';
 import { ReservationConfigService } from './reservation-setting.service';
 
@@ -67,7 +66,6 @@ export class ReservationService {
     await this.configSvc.setPreReservationCloseSettings();
   }
 
-  @Cron('0 0 0 1 * *')
   async openReservation() {
     const list = await this.reservationRepository.find({
       where: { date: Like(`${this.nextMonth.format('YYYY-MM')}%`) },

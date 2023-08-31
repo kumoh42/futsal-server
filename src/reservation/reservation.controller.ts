@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Patch,
+  Post,
   Put,
   Query,
   UseGuards,
@@ -71,5 +72,17 @@ export class ReservationController {
       date,
       times,
     );
+  }
+
+  @Post()
+  @ApiOperation({ description: '예약 시작, 중지' })
+  @ApiHeader({
+    name: 'state',
+    description: '예약 활성화 상태입니다. (open = 시작, close = 중지)',
+  })
+  async reservationStart(@Query('state') state: string) {
+    if (state === 'open') await this.reservationService.openReservation();
+
+    throw new BadRequestException('예약은 현재 open만 가능합니다.');
   }
 }
