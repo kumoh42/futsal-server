@@ -20,7 +20,6 @@ import { ApiBody, ApiHeader, ApiOperation, ApiTags } from '@nestjs/swagger';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  
   @Post()
   @ApiBody({ type: [CreateUserDto] })
   @ApiOperation({ description: '로그인' })
