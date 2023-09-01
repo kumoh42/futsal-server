@@ -14,6 +14,8 @@ import { ReservationConfigService } from './reservation-setting.service';
 export class ReservationService {
   private today = dayjs();
   private nextMonth = dayjs().add(1, 'month');
+  private PreReservationList = []
+
 
   constructor(
     @InjectRepository(Xe_ReservationEntity)
@@ -62,6 +64,16 @@ export class ReservationService {
     await this.configSvc.setPreReservationCloseSettings();
   }
   
+
+  async setPreReservationTime(date: string, time: string) {
+    this.PreReservationList.push(`${date} ${time}`)
+    await this.configSvc.setPreReservationSettings(date, time);
+    
+    return this.PreReservationList
+    // TODO : 시간이 지나면 리스트에서 삭제되는 로직을 만들어야 하는가?
+  }
+
+
 
   @Cron('0 0 0 1 * *')
   async openReservation() {

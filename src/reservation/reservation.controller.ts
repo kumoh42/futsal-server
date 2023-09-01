@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Patch,
+  Post,
   Put,
   Query,
   UseGuards,
@@ -12,15 +13,16 @@ import {
 import { ReservationService } from './reservation.service';
 import { Xe_ReservationEntity } from 'src/entites/xe_reservation.entity';
 import { JwtAuthGuard } from 'src/auth/jwt/jwt.guard';
-import { ApiHeader, ApiOperation,  ApiTags } from '@nestjs/swagger';
+import { ApiHeader, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { MonthReservationDeleteDto } from 'src/common/dto/reservation/month-reservation-delete.dto';
 import { OneReservationDeleteDto } from 'src/common/dto/reservation/one-reservation-delete.dto';
+import { PreReservationSearchDto } from 'src/common/dto/reservation/pre-reservation-search.dto';
 
 @ApiTags('시설 예약')
 @Controller('reservation')
 @UseGuards(JwtAuthGuard)
 export class ReservationController {
-  constructor(private reservationService: ReservationService) {}
+  constructor(private reservationService: ReservationService) { }
 
   @Get('/:date')
   @ApiOperation({ description: '예약 현황 조회' })
@@ -28,10 +30,10 @@ export class ReservationController {
     name: 'date',
     description: '조회하고 싶은 날짜입니다.',
   })
-  async getMemberInfo(
+  async getReservationInfo(
     @Param('date') date: string,
   ): Promise<Xe_ReservationEntity[]> {
-    return await this.reservationService.getReservationInfo(date); 
+    return await this.reservationService.getReservationInfo(date);
   }
 
   @Put('/pre')
@@ -47,37 +49,48 @@ export class ReservationController {
     else throw new BadRequestException('state는 open과 close만 가능합니다.');
   }
 
+  @ApiOperation({ description: '사전 예약 시작 시간 예약' })
+  @Post('/pre/time-setting')
+  async getPreReservationTimeInfo(
+    @Body() body: PreReservationSearchDto
+  ) {
+    const { date, time } = body;
+    return await this.reservationService.setPreReservationTime(date, time)
+  }
+
   @ApiOperation({ description: '해당 월 전체 예약 삭제' })
-  @Patch('/delete-month') 
+  @Patch('/delete-month')
   async deleteMonthReservation(
     @Body() body: MonthReservationDeleteDto
-    ){
-        const {date, isPre} = body;
-        if(isPre){ return await this.reservationService.deleteMonthPreReservationHistories(date); }
+  ) {
+    const { date, isPre } = body;
+    if (isPre) { return await this.reservationService.deleteMonthPreReservationHistories(date); }
 
-        return await this.reservationService.deleteMonthReservationHistories(date);  
-     }
+    return await this.reservationService.deleteMonthReservationHistories(date);
+  }
 
   @ApiOperation({ description: '해당 일 전체 예약 삭제' })
-  @Patch('/delete-day') 
+  @Patch('/delete-day')
   async deleteDayReservation(
     @Body() body: OneReservationDeleteDto
-    ){
-        const {date, isPre} = body;
-        if(isPre){ return await this.reservationService.deleteDayPreReservationHistory(date); }
+  ) {
+    const { date, isPre } = body;
+    if (isPre) { return await this.reservationService.deleteDayPreReservationHistory(date); }
 
-        return await this.reservationService.deleteDayReservationHistory(date);  
-    }
-   
+    return await this.reservationService.deleteDayReservationHistory(date);
+  }
+
 
   @ApiOperation({ description: '해당하는 날짜의 특정 시간대 예약 삭제' })
   @Patch('/delete-one')
   async deleteOneReservation(
     @Body() body: OneReservationDeleteDto
-    ){
-        const {date, time, isPre} = body;
-        if(isPre){ return await this.reservationService.deleteOnePreReservationHistory(date, time); }
-        
-        return await this.reservationService.deleteOneReservationHistory(date, time);
-      }
+  ) {
+    const { date, time, isPre } = body;
+    if (isPre) { return await this.reservationService.deleteOnePreReservationHistory(date, time); }
+
+    return await this.reservationService.deleteOneReservationHistory(date, time);
+  }
+
+
 }

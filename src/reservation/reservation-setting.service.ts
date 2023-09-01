@@ -55,6 +55,34 @@ export class ReservationConfigService {
     await this.configRepo.save(updatedSettings);
   }
 
+  async setPreReservationSettings(date: string, time: string) {
+    const allSettings = await this.configRepo.find();
+    const year = date.substring(0, 4);
+    const month = date.substring(5, 7);
+    const dateSet = dayjs(`${year}-${month}-01`);
+
+    console.log(dateSet)
+    
+    const updatedSettings = allSettings.map((setting) => {
+      switch (setting.key) {
+        case 'start_date':
+          return {
+            ...setting, value: date };
+        case 'start_time':
+          return { ...setting, value: time };
+        case 'end_date':
+          return { ...setting, value: dateSet.endOf('month').format('YYYY-MM-DD')};
+        case 'end_time':
+          return { ...setting, value: '23' };
+        default:
+          return setting;
+      }
+    });
+    
+    
+    await this.configRepo.save(updatedSettings);
+  }
+
   async setReservationSettings() {
     const allSettings = await this.configRepo.find();
 
