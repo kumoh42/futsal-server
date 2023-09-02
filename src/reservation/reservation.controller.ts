@@ -17,7 +17,6 @@ import { ApiBody, ApiHeader, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { MonthReservationDeleteDto } from 'src/common/dto/reservation/month-reservation-delete.dto';
 import { OneReservationDeleteDto } from 'src/common/dto/reservation/one-reservation-delete.dto';
 import { PreReservationSearchDto } from 'src/common/dto/reservation/pre-reservation-set.dto';
-import { PreReservationDeleteDto } from 'src/common/dto/reservation/pre-reservation-delete.dto';
 
 @ApiTags('시설 예약')
 @Controller('reservation')
@@ -35,6 +34,12 @@ export class ReservationController {
     @Param('date') date: string,
   ): Promise<Xe_ReservationEntity[]> {
     return await this.reservationService.getReservationInfo(date);
+  }
+
+  @Get("/now")
+  @ApiOperation({ description: '현재 진행 중인 예약 확인' })
+  async searchNowReservation() {
+    return this.reservationService.searchNowReservationInfo()
   }
 
   @Put('/pre')
@@ -64,17 +69,22 @@ export class ReservationController {
     return await this.reservationService.setPreReservationTime(date, time)
   }
 
+  @Get('/pre/time-list')
+  async getPreReservationList() {
+    return await this.reservationService.getPreReservationInfo()
+  }
+
   @Patch('/pre/time-delete')
   @ApiOperation({ description: '사전 예약 시작 시간 예약 삭제' })
   @ApiBody({
-    type: [PreReservationDeleteDto],
-    description: '사전예약 시간을 삭제하는 DTO입니다.',
+    type: [PreReservationSearchDto],
+    description: '사전예약 시간을 설정하는 DTO입니다.',
   })
   async deletePreReservationList(
-    @Body() body: PreReservationDeleteDto
+    @Body() body: PreReservationSearchDto
   ) {
-    const { date } = body;
-    return await this.reservationService.deletePreReservationInfo(date)
+    const { date, time } = body;
+    return await this.reservationService.deletePreReservationInfo(date, time)
   }
 
   @Patch('/delete-month')

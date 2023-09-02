@@ -13,6 +13,21 @@ import dayjs from 'dayjs';
 import { ReservationTransaction } from './reservation-transaction';
 import { ReservationConfigService } from './reservation-setting.service';
 
+class DateTimeSet {
+  date: string;
+  time: string;
+
+  constructor(date: string, time: string) {
+    this.date = date;
+    this.time = time;
+  }
+  
+  toString() {
+    return `date: ${this.date}, time: ${this.time}`;
+  }
+}
+
+
 @Injectable()
 export class ReservationService {
   private today = dayjs();
@@ -47,6 +62,14 @@ export class ReservationService {
     }
   }
 
+  async getPreReservationInfo() {
+    return this.PreReservationList
+  }
+
+  async searchNowReservationInfo(){
+    // todo
+  }
+
   async openPreReservation() {
     const reservationSlot = await this.preRepository.find({
       where: { date: Like(`${this.nextMonth.format('YYYY-MM')}%`) },
@@ -70,21 +93,38 @@ export class ReservationService {
   
 
   async setPreReservationTime(date: string, time: string) {
-    const dateSet = `${date} ${time}:00`
-    this.PreReservationList.push(dateSet)
+    this.PreReservationList.push(new DateTimeSet(date, time))
+    this.PreReservationList.sort((a, b) => {
+      const dateCompare = a.date.localeCompare(b.date)
+      if (dateCompare > 0) {
+        return 1
+      }
+      else if (dateCompare < 0) {
+        return -1
+      }
+      else if (dateCompare === 0) {
+        return a.time.localeCompare(b.time);
+      }
+
+      // a.getDateTime().getTime() - b.getDateTime().getTime()
+   } );
 
     await this.configSvc.setPreReservationSettings(date, time);
-    
-    console.log(this.PreReservationList)
-    return this.PreReservationList
   }
 
-  async deletePreReservationInfo(date: string) {
-    const deleteIndex = this.PreReservationList.indexOf(date)
+  async deletePreReservationInfo(date: string, time: string) {
+    let deleteIndex = -1
+
+    for (let i = 0; i < this.PreReservationList.length; i++) {
+      if (this.PreReservationList[i].date == date &&
+        this.PreReservationList[i].time == time ) {
+          deleteIndex = i
+          break
+        }
+    }
 
     if (deleteIndex !== -1) {
       this.PreReservationList.splice(deleteIndex, 1)
-      console.log(this.PreReservationList)
     }
     else {
       throw new BadRequestException('삭제 불가능합니다.');
@@ -95,11 +135,12 @@ export class ReservationService {
     }
     else {
       const resetDateIndex = this.PreReservationList.length-1
-      const date = this.PreReservationList[resetDateIndex].substring(0, 10);
-      const time = this.PreReservationList[resetDateIndex].substring(11, 16);
+      const date = this.PreReservationList[resetDateIndex].date;
+      const time = this.PreReservationList[resetDateIndex].time;
       await this.configSvc.setPreReservationSettings(date, time)
     }
   }
+
 
   async openReservation() {
     const list = await this.reservationRepository.find({
