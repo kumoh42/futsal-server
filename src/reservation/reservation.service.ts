@@ -70,14 +70,36 @@ export class ReservationService {
   
 
   async setPreReservationTime(date: string, time: string) {
-    this.PreReservationList.push(`${date} ${time}`)
+    const dateSet = `${date} ${time}:00`
+    this.PreReservationList.push(dateSet)
+
     await this.configSvc.setPreReservationSettings(date, time);
     
+    console.log(this.PreReservationList)
     return this.PreReservationList
-    // TODO : 시간이 지나면 리스트에서 삭제되는 로직을 만들어야 하는가?
   }
 
+  async deletePreReservationInfo(date: string) {
+    const deleteIndex = this.PreReservationList.indexOf(date)
 
+    if (deleteIndex !== -1) {
+      this.PreReservationList.splice(deleteIndex, 1)
+      console.log(this.PreReservationList)
+    }
+    else {
+      throw new BadRequestException('삭제 불가능합니다.');
+    }
+
+    if (this.PreReservationList.length == 0){
+      await this.configSvc.setReservationSettings()
+    }
+    else {
+      const resetDateIndex = this.PreReservationList.length-1
+      const date = this.PreReservationList[resetDateIndex].substring(0, 10);
+      const time = this.PreReservationList[resetDateIndex].substring(11, 16);
+      await this.configSvc.setPreReservationSettings(date, time)
+    }
+  }
 
   async openReservation() {
     const list = await this.reservationRepository.find({

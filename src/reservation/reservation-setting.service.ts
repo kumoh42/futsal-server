@@ -58,15 +58,16 @@ export class ReservationConfigService {
   }
 
   async setPreReservationSettings(date: string, time: string) {
-    const allSettings = await this.configRepo.find();
     const year = date.substring(0, 4);
     const month = date.substring(5, 7);
     const dateSet = dayjs(`${year}-${month}-01`);
-
-    console.log(dateSet)
     
+    const allSettings = await this.configRepo.find();
+
     const updatedSettings = allSettings.map((setting) => {
       switch (setting.key) {
+        case 'is_pre_reservation_period':
+          return { ...setting, value: 'Y' };
         case 'start_date':
           return {
             ...setting, value: date };
@@ -80,8 +81,7 @@ export class ReservationConfigService {
           return setting;
       }
     });
-    
-    
+
     await this.configRepo.save(updatedSettings);
   }
 
@@ -99,4 +99,5 @@ export class ReservationConfigService {
 
     await this.configRepo.save(updatedSettings);
   }
+  
 }
