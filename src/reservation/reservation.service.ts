@@ -105,11 +105,11 @@ export class ReservationService {
       else if (dateCompare === 0) {
         return a.time.localeCompare(b.time);
       }
-
-      // a.getDateTime().getTime() - b.getDateTime().getTime()
    } );
-
-    await this.configSvc.setPreReservationSettings(date, time);
+    
+   if (this.PreReservationList.length > 0) {
+     await this.configSvc.setPreReservationSettings(this.PreReservationList[0].date, this.PreReservationList[0].time);
+   }
   }
 
   async deletePreReservationInfo(date: string, time: string) {
@@ -134,9 +134,8 @@ export class ReservationService {
       await this.configSvc.setReservationSettings()
     }
     else {
-      const resetDateIndex = this.PreReservationList.length-1
-      const date = this.PreReservationList[resetDateIndex].date;
-      const time = this.PreReservationList[resetDateIndex].time;
+      const date = this.PreReservationList[0].date;
+      const time = this.PreReservationList[0].time;
       await this.configSvc.setPreReservationSettings(date, time)
     }
   }
