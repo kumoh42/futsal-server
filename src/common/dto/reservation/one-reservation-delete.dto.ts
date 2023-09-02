@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
   IsArray,
   IsBoolean,
@@ -33,6 +34,7 @@ class ValidationOfTime implements ValidatorConstraintInterface {
 export class OneReservationDeleteDto {
   @IsString()
   @IsNotEmpty()
+  @ApiProperty()
   @Matches(/^(\d{4})-(\d{2})-(\d{2})$/, {
     message:
       ' 사전예약 date가 형식에 맞지 않습니다. xxxx-xx-xx 로 기입하여 주십시요.',
@@ -41,10 +43,12 @@ export class OneReservationDeleteDto {
 
   @IsArray()
   @IsNotEmpty()
+  @ApiProperty()
   @Validate(ValidationOfTime)
   times: number[];
 
   @IsBoolean()
   @IsNotEmpty()
+  @ApiProperty()
   isPre: boolean;
 }
