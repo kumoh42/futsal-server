@@ -7,11 +7,12 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Xe_ReservationEntity } from 'src/entites/xe_reservation.entity';
 import { Xe_Reservation_PreEntity } from 'src/entites/xe_reservation_pre.entity';
-import { Like, Repository } from 'typeorm';
+import { Like, Repository, TreeParent } from 'typeorm';
 import { ReservationSlotBuilder } from './reservation-slot.builder';
 import dayjs from 'dayjs';
 import { ReservationTransaction } from './reservation-transaction';
 import { ReservationConfigService } from './reservation-setting.service';
+import { Cron } from '@nestjs/schedule';
 
 class DateTimeSet {
   date: string;
@@ -66,9 +67,6 @@ export class ReservationService {
     return this.PreReservationList
   }
 
-  async searchNowReservationInfo(){
-    // todo
-  }
 
   async openPreReservation() {
     const reservationSlot = await this.preRepository.find({
@@ -93,7 +91,14 @@ export class ReservationService {
   
 
   async setPreReservationTime(date: string, time: string) {
+    for (let i = 0; i < this.PreReservationList.length; i++) {
+      if (this.PreReservationList[i].date == date 
+        && this.PreReservationList[i].time == time) {
+        throw new BadRequestException('동일한 예약 내역이 존재합니다.');
+      }
+    }
     this.PreReservationList.push(new DateTimeSet(date, time))
+
     this.PreReservationList.sort((a, b) => {
       const dateCompare = a.date.localeCompare(b.date)
       if (dateCompare > 0) {
@@ -110,6 +115,9 @@ export class ReservationService {
    if (this.PreReservationList.length > 0) {
      await this.configSvc.setPreReservationSettings(this.PreReservationList[0].date, this.PreReservationList[0].time);
    }
+
+   console.log(this.PreReservationList)
+
   }
 
   async deletePreReservationInfo(date: string, time: string) {
@@ -138,6 +146,8 @@ export class ReservationService {
       const time = this.PreReservationList[0].time;
       await this.configSvc.setPreReservationSettings(date, time)
     }
+
+    console.log(this.PreReservationList)
   }
 
 

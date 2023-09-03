@@ -36,10 +36,10 @@ export class ReservationController {
     return await this.reservationService.getReservationInfo(date);
   }
 
-  @Get("/now")
+  @Post('/now')
   @ApiOperation({ description: '현재 진행 중인 예약 확인' })
   async searchNowReservation() {
-    return this.reservationService.searchNowReservationInfo()
+    // return await this.reservationService.getNowReservationInfo()
   }
 
   @Put('/pre')
