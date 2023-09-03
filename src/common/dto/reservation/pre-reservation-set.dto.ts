@@ -1,11 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { 
+    IsBoolean,
     IsNotEmpty,
     IsString, 
     Matches, 
 } from 'class-validator';
 
-export class PreReservationSearchDto {
+export class PreReservationSetDto {
     @IsString()
     @IsNotEmpty()
     @ApiProperty()
@@ -21,4 +22,9 @@ export class PreReservationSearchDto {
         message: '사전 예약 time가 형식에 맞지 않습니다. xx:xx 로 기입하여 주십시오.'
     })
     time: string;
+
+    @IsBoolean()
+    @IsNotEmpty()
+    @ApiProperty()
+    isPre: boolean;
 }
