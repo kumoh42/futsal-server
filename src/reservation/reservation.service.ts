@@ -123,22 +123,6 @@ export class ReservationService {
     await this.configSvc.setReopenPreReservationSettings()
   }
 
-  async resetPreReservation() {
-
-    await this.preRepository
-      .createQueryBuilder()
-      .update(Xe_Reservation_PreEntity)
-      .set({
-        member_srl: null,
-        place_srl: null,
-        circle: null,
-        major: null,
-      })
-      .andWhere('member_srl IS NOT NULL')
-      .execute();
-
-    return ['사전 예약 삭제완료'];
-  }
 
   async setPreReservationTime(date: string, time: string, isPre: boolean) {
     for (let i = 0; i < this.PreReservationList.length; i++) {
@@ -165,8 +149,6 @@ export class ReservationService {
    if (this.PreReservationList.length > 0) {
      await this.configSvc.setPreReservationSettings(this.PreReservationList[0].date, this.PreReservationList[0].time);
    }
-
-
   }
 
 
@@ -227,6 +209,22 @@ export class ReservationService {
 
     await this.reservationRepository.save(reservationSlot);
     await this.preRepository.clear();
+  }
+
+  async resetPreReservation() {
+    await this.preRepository
+      .createQueryBuilder()
+      .update(Xe_Reservation_PreEntity)
+      .set({
+        member_srl: null,
+        place_srl: null,
+        circle: null,
+        major: null,
+      })
+      .andWhere('member_srl IS NOT NULL')
+      .execute();
+
+    return ['사전 예약 삭제완료'];
   }
 
   async deleteMonthReservationHistories(date: string) {
