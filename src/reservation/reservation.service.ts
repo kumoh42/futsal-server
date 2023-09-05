@@ -12,15 +12,16 @@ import { ReservationSlotBuilder } from './reservation-slot.builder';
 import dayjs from 'dayjs';
 import { ReservationTransaction } from './reservation-transaction';
 import { ReservationConfigService } from './reservation-setting.service';
-import { Cron } from '@nestjs/schedule';
 
 class DateTimeSet {
   date: string;
   time: string;
+  isPre: boolean;
 
-  constructor(date: string, time: string) {
+  constructor(date: string, time: string, isPre: boolean) {
     this.date = date;
     this.time = time;
+    this.isPre = isPre;
   }
   
   toString() {
@@ -33,7 +34,9 @@ class DateTimeSet {
 export class ReservationService {
   private today = dayjs();
   private nextMonth = dayjs().add(1, 'month');
-  private PreReservationList = []
+  private PreReservationList = [];
+  private NowSet = [];
+  // 정규예약 시작할 때 Reset 되게
 
 
   constructor(
@@ -67,6 +70,30 @@ export class ReservationService {
     return this.PreReservationList
   }
 
+  async getNowReservationInfo() {
+    const todayReservation = dayjs()
+
+    if (this.PreReservationList.length == 0 && this.NowSet.length == 0) {
+      this.NowSet.push(new DateTimeSet(dayjs().format('YYYY-MM-DD'), dayjs().format('HH:mm'), false))
+    }
+    else if (this.PreReservationList.length == 0 && this.NowSet.length !== 0) {
+    }
+    else {
+      const nowPreReservation : any = dayjs(`${this.PreReservationList[0].date} ${this.PreReservationList[0].time}:00`)
+      if (nowPreReservation < todayReservation) {
+        this.NowSet.pop()
+        this.NowSet.push(new DateTimeSet(this.PreReservationList[0].date, this.PreReservationList[0].time, true))
+        this.PreReservationList.splice(0, 1)
+      }
+      else {
+        this.NowSet.pop()
+        this.NowSet.push(new DateTimeSet(dayjs().format('YYYY-MM-DD'), dayjs().format('HH:mm'), false))
+      }
+    }
+
+    return this.NowSet
+  }
+
 
   async openPreReservation() {
     const reservationSlot = await this.preRepository.find({
@@ -89,15 +116,26 @@ export class ReservationService {
     await this.configSvc.setPreReservationCloseSettings();
   }
   
+  async stopPreReservation() {
+    await this.configSvc.setReservationSettings();
+  }
 
-  async setPreReservationTime(date: string, time: string) {
+  async reopenPreReservation() {
+    await this.configSvc.setReopenPreReservationSettings()
+  }
+
+  async resetPreReservation() {
+    this.preRepository.clear()
+  }
+
+  async setPreReservationTime(date: string, time: string, isPre: boolean) {
     for (let i = 0; i < this.PreReservationList.length; i++) {
       if (this.PreReservationList[i].date == date 
         && this.PreReservationList[i].time == time) {
         throw new BadRequestException('동일한 예약 내역이 존재합니다.');
       }
     }
-    this.PreReservationList.push(new DateTimeSet(date, time))
+    this.PreReservationList.push(new DateTimeSet(date, time, isPre))
 
     this.PreReservationList.sort((a, b) => {
       const dateCompare = a.date.localeCompare(b.date)
@@ -116,9 +154,9 @@ export class ReservationService {
      await this.configSvc.setPreReservationSettings(this.PreReservationList[0].date, this.PreReservationList[0].time);
    }
 
-   console.log(this.PreReservationList)
 
   }
+
 
   async deletePreReservationInfo(date: string, time: string) {
     let deleteIndex = -1
@@ -147,7 +185,6 @@ export class ReservationService {
       await this.configSvc.setPreReservationSettings(date, time)
     }
 
-    console.log(this.PreReservationList)
   }
 
 

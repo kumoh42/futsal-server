@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -23,6 +24,12 @@ import { PreReservationSetDto } from 'src/common/dto/reservation/pre-reservation
 export class ReservationController {
   constructor(private reservationService: ReservationService) { }
 
+  @ApiOperation({ description: '현재 진행되고 있는 예약 조회' })
+  @Get('/now/setting')
+  async getNowReservation() {
+    return await this.reservationService.getNowReservationInfo();
+  }
+
   @Get('/:date')
   @ApiOperation({ description: '예약 현황 조회' })
   @ApiHeader({
@@ -34,12 +41,6 @@ export class ReservationController {
     @Param('date') date: string,
   ): Promise<Xe_ReservationEntity[]> {
     return await this.reservationService.getReservationInfo(date);
-  }
-
-  @Post('/now')
-  @ApiOperation({ description: '현재 진행 중인 예약 확인' })
-  async searchNowReservation() {
-    // return await this.reservationService.getNowReservationInfo()
   }
 
   @Put('/pre')
@@ -56,6 +57,21 @@ export class ReservationController {
     else throw new BadRequestException('state는 open과 close만 가능합니다.');
   }
 
+  @Put('/pre/stop')
+  async preReservationStop() {
+    return await this.reservationService.stopPreReservation()
+  }
+
+  @Put('/pre/reopen')
+  async preReservationReopen() {
+    return await this.reservationService.reopenPreReservation()
+  }
+
+  @Delete('/pre/reset')
+  async preReservationReset() {
+    return await this.reservationService.resetPreReservation()
+  }
+
   @Post('/pre/time-setting')
   @ApiOperation({ description: '사전 예약 시작 시간 예약' })
   @ApiBody({
@@ -65,8 +81,8 @@ export class ReservationController {
   async getPreReservationTimeInfo(
     @Body() body: PreReservationSetDto
   ) {
-    const { date, time } = body;
-    return await this.reservationService.setPreReservationTime(date, time)
+    const { date, time, isPre } = body;
+    return await this.reservationService.setPreReservationTime(date, time, isPre)
   }
 
   @Get('/pre/time-list')

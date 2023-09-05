@@ -23,8 +23,7 @@ export class PreReservationSetDto {
     })
     time: string;
 
-    @IsBoolean()
-    @IsNotEmpty()
     @ApiProperty()
     isPre: boolean;
+
 }

@@ -100,4 +100,19 @@ export class ReservationConfigService {
     await this.configRepo.save(updatedSettings);
   }
   
+  async setReopenPreReservationSettings() {
+    const allSettings = await this.configRepo.find();
+
+    const updatedSettings = allSettings.map((setting) => {
+      switch (setting.key) {
+        case 'is_pre_reservation_period':
+          return { ...setting, value: 'Y' };
+        default:
+          return setting;
+      }
+    });
+
+    await this.configRepo.save(updatedSettings);
+  }
+
 }
