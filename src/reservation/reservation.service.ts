@@ -36,7 +36,6 @@ export class ReservationService {
   private nextMonth = dayjs().add(1, 'month');
   private PreReservationList = [];
   private NowSet = [];
-  // 정규예약 시작할 때 Reset 되게
 
 
   constructor(
@@ -125,7 +124,20 @@ export class ReservationService {
   }
 
   async resetPreReservation() {
-    this.preRepository.clear()
+
+    await this.preRepository
+      .createQueryBuilder()
+      .update(Xe_Reservation_PreEntity)
+      .set({
+        member_srl: null,
+        place_srl: null,
+        circle: null,
+        major: null,
+      })
+      .andWhere('member_srl IS NOT NULL')
+      .execute();
+
+    return ['사전 예약 삭제완료'];
   }
 
   async setPreReservationTime(date: string, time: string, isPre: boolean) {
