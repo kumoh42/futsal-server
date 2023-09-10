@@ -57,22 +57,21 @@ export class ReservationController {
     else throw new BadRequestException('state는 open과 close만 가능합니다.');
   }
 
-  @Put('/pre/stop')
-  @ApiOperation({ description: '사전예약 중단' })
-  async preReservationStop() {
-    return await this.reservationService.stopPreReservation()
-  }
 
-  @Put('/pre/reopen')
-  @ApiOperation({ description: '사전예약 재개' })
-  async preReservationReopen() {
-    return await this.reservationService.reopenPreReservation()
-  }
-
-  @Delete('/pre/reset')
-  @ApiOperation({ description: '사전예약 내역 초기화' })
-  async preReservationReset() {
-    return await this.reservationService.resetPreReservation()
+  @Put('/pre-set')
+  @ApiOperation({ description: '사전 예약 중단, 재개' })
+  @ApiHeader({
+    name: 'state',
+    description: '사전 예약 중단, 재개, 초기화 기능입니다. (stop = 중단, reopen = 재개, reset = 초기화)',
+  })
+  @UseGuards(JwtAuthGuard)
+  async preReservationStop(@Query('state') state: string) {
+    if (state === 'stop') await this.reservationService.stopPreReservation();
+    else if (state === 'reopen')
+      await this.reservationService.reopenPreReservation();
+    else if (state === 'reset')
+      await this.reservationService.resetPreReservation();
+    else throw new BadRequestException('state는 stop과 reopen, reset만 가능합니다.');
   }
 
   @Post('/pre/time-setting')
