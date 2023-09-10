@@ -72,7 +72,7 @@ export class ReservationConfigService {
           return {
             ...setting, value: date };
         case 'start_time':
-          return { ...setting, value: time };
+          return { ...setting, value: time.substring(0, 2) };
         case 'end_date':
           return { ...setting, value: dateSet.endOf('month').format('YYYY-MM-DD')};
         case 'end_time':

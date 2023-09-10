@@ -12,6 +12,7 @@ import { ReservationSlotBuilder } from './reservation-slot.builder';
 import dayjs from 'dayjs';
 import { ReservationTransaction } from './reservation-transaction';
 import { ReservationConfigService } from './reservation-setting.service';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 class DateTimeSet {
   date: string;
@@ -69,6 +70,7 @@ export class ReservationService {
     return this.PreReservationList
   }
 
+  @Cron('* */5 * * * *')
   async getNowReservationInfo() {
     const todayReservation = dayjs()
 
@@ -92,6 +94,7 @@ export class ReservationService {
 
     return this.NowSet
   }
+
 
 
   async openPreReservation() {
