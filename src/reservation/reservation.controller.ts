@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -13,13 +14,21 @@ import {
 import { ReservationService } from './reservation.service';
 import { Xe_ReservationEntity } from 'src/entites/xe_reservation.entity';
 import { JwtAuthGuard } from 'src/auth/jwt/jwt.guard';
-import { ApiHeader, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiHeader, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { MonthReservationDeleteDto } from 'src/common/dto/reservation/month-reservation-delete.dto';
 import { OneReservationDeleteDto } from 'src/common/dto/reservation/one-reservation-delete.dto';
+import { PreReservationSetDto } from 'src/common/dto/reservation/pre-reservation-set.dto';
 
 @ApiTags('시설 예약')
 @Controller('reservation')
 export class ReservationController {
-  constructor(private reservationService: ReservationService) {}
+  constructor(private reservationService: ReservationService) { }
+
+  // @ApiOperation({ description: '현재 진행되고 있는 예약 조회' })
+  // @Get('/now/setting')
+  // async getNowReservation() {
+  //   return await this.reservationService.getNowReservationInfo();
+  // }
 
   @Get('/:date')
   @ApiOperation({ description: '예약 현황 조회' })
@@ -28,7 +37,7 @@ export class ReservationController {
     description: '조회하고 싶은 날짜입니다.',
   })
   @UseGuards(JwtAuthGuard)
-  async getMemberInfo(
+  async getReservationInfo(
     @Param('date') date: string,
   ): Promise<Xe_ReservationEntity[]> {
     return await this.reservationService.getReservationInfo(date);
@@ -48,8 +57,68 @@ export class ReservationController {
     else throw new BadRequestException('state는 open과 close만 가능합니다.');
   }
 
-  @ApiOperation({ description: '해당 일 전체 예약 삭제' })
+
+  @Put('/pre-set')
+  @ApiOperation({ description: '사전 예약 중단, 재개' })
+  @ApiHeader({
+    name: 'state',
+    description: '사전 예약 중단, 재개, 초기화 기능입니다. (stop = 중단, reopen = 재개, reset = 초기화)',
+  })
+  @UseGuards(JwtAuthGuard)
+  async preReservationStop(@Query('state') state: string) {
+    if (state === 'stop') await this.reservationService.stopPreReservation();
+    else if (state === 'reopen')
+      await this.reservationService.reopenPreReservation();
+    else if (state === 'reset')
+      await this.reservationService.resetPreReservation();
+    else throw new BadRequestException('state는 stop과 reopen, reset만 가능합니다.');
+  }
+
+  @Post('/pre/time-setting')
+  @ApiOperation({ description: '사전 예약 시작 시간 예약' })
+  @ApiBody({
+    type: [PreReservationSetDto],
+    description: '사전예약 시간을 설정하는 DTO입니다.',
+  })
+  async getPreReservationTimeInfo(
+    @Body() body: PreReservationSetDto
+  ) {
+    const { date, time, isPre } = body;
+    return await this.reservationService.setPreReservationTime(date, time, isPre)
+  }
+
+  @Get('/pre/time-list')
+  @ApiOperation({ description: '사전예약 예약 시간 조회' })
+  async getPreReservationList() {
+    return await this.reservationService.getPreReservationInfo()
+  }
+
+  @Patch('/pre/time-delete')
+  @ApiOperation({ description: '사전 예약 시작 시간 예약 삭제' })
+  @ApiBody({
+    type: [PreReservationSetDto],
+    description: '사전예약 시간을 설정하는 DTO입니다.',
+  })
+  async deletePreReservationList(
+    @Body() body: PreReservationSetDto
+  ) {
+    const { date, time } = body;
+    return await this.reservationService.deletePreReservationInfo(date, time)
+  }
+
+  @Patch('/delete-month')
+  @ApiOperation({ description: '해당 월 전체 예약 삭제' })
+  async deleteMonthReservation(
+    @Body() body: MonthReservationDeleteDto
+  ) {
+    const { date, isPre } = body;
+    if (isPre) { return await this.reservationService.deleteMonthPreReservationHistories(date); }
+
+    return await this.reservationService.deleteMonthReservationHistories(date);
+  }
+
   @Patch('/delete-day')
+  @ApiOperation({ description: '해당 일 전체 예약 삭제' })
   @UseGuards(JwtAuthGuard)
   async deleteDayReservation(@Body() body: OneReservationDeleteDto) {
     const { date, isPre } = body;
@@ -60,8 +129,9 @@ export class ReservationController {
     return await this.reservationService.deleteDayReservationHistory(date);
   }
 
-  @ApiOperation({ description: '해당하는 날짜의 특정 시간대 예약 삭제' })
+
   @Patch('/delete-one')
+  @ApiOperation({ description: '해당하는 날짜의 특정 시간대 예약 삭제' })
   @UseGuards(JwtAuthGuard)
   async deleteOneReservation(@Body() body: OneReservationDeleteDto) {
     const { date, times, isPre } = body;
@@ -89,4 +159,5 @@ export class ReservationController {
 
     throw new BadRequestException('예약은 현재 open만 가능합니다.');
   }
+
 }
