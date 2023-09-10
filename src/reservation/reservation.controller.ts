@@ -24,11 +24,11 @@ import { PreReservationSetDto } from 'src/common/dto/reservation/pre-reservation
 export class ReservationController {
   constructor(private reservationService: ReservationService) { }
 
-  @ApiOperation({ description: '현재 진행되고 있는 예약 조회' })
-  @Get('/now/setting')
-  async getNowReservation() {
-    return await this.reservationService.getNowReservationInfo();
-  }
+  // @ApiOperation({ description: '현재 진행되고 있는 예약 조회' })
+  // @Get('/now/setting')
+  // async getNowReservation() {
+  //   return await this.reservationService.getNowReservationInfo();
+  // }
 
   @Get('/:date')
   @ApiOperation({ description: '예약 현황 조회' })
@@ -58,16 +58,19 @@ export class ReservationController {
   }
 
   @Put('/pre/stop')
+  @ApiOperation({ description: '사전예약 중단' })
   async preReservationStop() {
     return await this.reservationService.stopPreReservation()
   }
 
   @Put('/pre/reopen')
+  @ApiOperation({ description: '사전예약 재개' })
   async preReservationReopen() {
     return await this.reservationService.reopenPreReservation()
   }
 
   @Delete('/pre/reset')
+  @ApiOperation({ description: '사전예약 내역 초기화' })
   async preReservationReset() {
     return await this.reservationService.resetPreReservation()
   }
@@ -86,6 +89,7 @@ export class ReservationController {
   }
 
   @Get('/pre/time-list')
+  @ApiOperation({ description: '사전예약 예약 시간 조회' })
   async getPreReservationList() {
     return await this.reservationService.getPreReservationInfo()
   }
