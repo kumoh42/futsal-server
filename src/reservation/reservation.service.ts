@@ -129,29 +129,34 @@ export class ReservationService {
 
   async setPreReservationTime(date: string, time: string, isPre: boolean) {
     for (let i = 0; i < this.PreReservationList.length; i++) {
-      if (this.PreReservationList[i].date == date 
-        && this.PreReservationList[i].time == time) {
+      const existingReservation = this.PreReservationList[i];
+
+      const existingDateTime = dayjs(`${existingReservation.date} ${existingReservation.time}`);
+      const newDateTime = dayjs(`${date} ${time}`);
+
+      if (existingDateTime.isSame(newDateTime)) {
         throw new BadRequestException('동일한 예약 내역이 존재합니다.');
       }
     }
-    this.PreReservationList.push(new DateTimeSet(date, time, isPre))
+
+    this.PreReservationList.push(new DateTimeSet(date, time, isPre));
 
     this.PreReservationList.sort((a, b) => {
-      const dateCompare = a.date.localeCompare(b.date)
-      if (dateCompare > 0) {
-        return 1
+      const aDateTime = dayjs(`${a.date} ${a.time}`);
+      const bDateTime = dayjs(`${b.date} ${b.time}`);
+
+      if (aDateTime.isBefore(bDateTime)) {
+        return -1;
+      } else if (aDateTime.isAfter(bDateTime)) {
+        return 1;
+      } else {
+        return 0;
       }
-      else if (dateCompare < 0) {
-        return -1
-      }
-      else if (dateCompare === 0) {
-        return a.time.localeCompare(b.time);
-      }
-   } );
-    
-   if (this.PreReservationList.length > 0) {
-     await this.configSvc.setPreReservationSettings(this.PreReservationList[0].date, this.PreReservationList[0].time);
-   }
+    });
+
+    if (this.PreReservationList.length > 0) {
+      await this.configSvc.setPreReservationSettings(this.PreReservationList[0].date, this.PreReservationList[0].time);
+    }
   }
 
 
