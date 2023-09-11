@@ -2,8 +2,8 @@ import {
   BadRequestException,
   Body,
   Controller,
-  Delete,
   Get,
+  HttpCode,
   Param,
   Patch,
   Post,
@@ -18,11 +18,16 @@ import { ApiBody, ApiHeader, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { MonthReservationDeleteDto } from 'src/common/dto/reservation/month-reservation-delete.dto';
 import { OneReservationDeleteDto } from 'src/common/dto/reservation/one-reservation-delete.dto';
 import { PreReservationSetDto } from 'src/common/dto/reservation/pre-reservation-set.dto';
+import { BlockReservationDto } from 'src/common/dto/reservation/block-reservation.dto';
+import { ReservationBlock } from './reseravtion-block';
 
 @ApiTags('시설 예약')
 @Controller('reservation')
 export class ReservationController {
-  constructor(private reservationService: ReservationService) { }
+  constructor(
+    private reservationService: ReservationService,
+    private reservationBlock: ReservationBlock,  
+  ) { }
 
   // @ApiOperation({ description: '현재 진행되고 있는 예약 조회' })
   // @Get('/now/setting')
@@ -158,6 +163,13 @@ export class ReservationController {
       return await this.reservationService.openReservation();
 
     throw new BadRequestException('예약은 현재 open만 가능합니다.');
+  }
+
+  @Post('/block')
+  @HttpCode(200)
+  async blockRes(@Body() body : BlockReservationDto){
+    const {startDate, endDate} = body;
+    return await this.reservationBlock.checkReservationSlot(startDate, endDate);
   }
 
 }
