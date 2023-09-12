@@ -36,8 +36,9 @@ export class ReservationSlotBuilder {
 
     try
     {
-      const response = await axios.get(this.URL, { params: queryParams, headers: this.headers });
-      // const response = await axios.get('http://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getHoliDeInfo?ServiceKey=sPWOL4v2MOAE7sUq055%2BwdPT7voiyC2O97JQXNOnraKoP1hYApVuDOdnqZo9Q%2Bvz7olpXweaxcfSUJW1euhSGA%3D%3D&solYear=2023&solMonth=10')
+      // 둘 중 하나 쓰는 걸로 가져가야 할 듯
+      // const response = await axios.get(this.URL, { params: queryParams, headers: this.headers });
+      const response = await axios.get('http://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getHoliDeInfo?ServiceKey=sPWOL4v2MOAE7sUq055%2BwdPT7voiyC2O97JQXNOnraKoP1hYApVuDOdnqZo9Q%2Bvz7olpXweaxcfSUJW1euhSGA%3D%3D&solYear=2023&solMonth=10')
       const items = response.data.response.body.items.item;
   
       for (const item of items)
@@ -74,7 +75,8 @@ export class ReservationSlotBuilder {
   async buildSlots() {
     const days = this.nextMonth.daysInMonth(); // 다음달 일 수
     const dateStrings = this.createDateStrings(days);
-    const holidayList = await this.getHolidays(this.nextMonth.month()); // 다음달의 주말/공휴일 가져오기
+    const holidayList = await this.getHolidays(this.nextMonth.month());
+    // 다음달의 주말/공휴일 가져오기
     return dateStrings
       .map((date) => this.createPreReservationSlot(date, holidayList))
       .flat();
@@ -87,7 +89,6 @@ export class ReservationSlotBuilder {
     const is_holiday = isExist ? 'Y' : 'N';
 
     for (let hour = 8; hour <= 21; hour += 2) {
-      const is_holiday = 'N';
       const slot = {
         date: date,
         time: hour,
