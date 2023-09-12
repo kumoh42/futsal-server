@@ -169,7 +169,7 @@ export class ReservationController {
   @HttpCode(200)
   async blockRes(@Body() body : BlockReservationDto){
     const {startDate, endDate} = body;
-    return await this.reservationBlock.checkReservationSlot(startDate, endDate);
+    return await this.reservationBlock.BlockReservation(startDate, endDate);
   }
 
 }

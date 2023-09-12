@@ -19,7 +19,7 @@ export class ReservationBlock{
         @Inject(ReservationTransaction) private transaction: ReservationTransaction,
       ) {}
 
-      async checkReservationSlot(
+      async BlockReservation(
         startDate:string,
         endDate:string,
       )
@@ -32,18 +32,18 @@ export class ReservationBlock{
 
         const runningCheckForStartDateReservation: boolean =
         await this.transaction.isRunningReservation(endDate.split('T')[0]);
-        if(runningCheckForStartDateReservation) {return this.blockReservation(startDate, endDate)}
+        if(runningCheckForStartDateReservation) {return this.blockReservationSlot(startDate, endDate)}
 
         const runningCheckForEndDatePreReservation: boolean =
         await this.transaction.isRunningPreReservation(endDate.split('T')[0]);        
-        if(runningCheckForEndDatePreReservation) { return this.blockPreReservation(startDate, endDate)}
+        if(runningCheckForEndDatePreReservation) { return this.blockPreReservationSlot(startDate, endDate)}
 
         throw new BadRequestException(['예약이 활성화가 되어 있지 않습니다.'])
         
        
     }
 
-    blockReservation(
+    blockReservationSlot(
         startDate: string, 
         endDate: string
         )
@@ -75,7 +75,7 @@ export class ReservationBlock{
         return ['완료'];
     }
 
-   blockPreReservation(
+   blockPreReservationSlot(
         startDate: string, 
         endDate: string
         )
