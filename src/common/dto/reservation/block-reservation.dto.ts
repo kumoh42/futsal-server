@@ -25,7 +25,7 @@ export class IsStartDateBeforeEndDateConstraint implements ValidatorConstraintIn
   }
 
   defaultMessage(args: ValidationArguments) {
-    return 'startDate는 endDate보다 늦거나 같을 수 없으며,시작일과 종료일은 같은 월에 속해야 합니다. 또한 Time은 2의 배수여야 합니다.';
+    return 'startDate는 endDate보다 늦거나 같을 수 없으며, startDate && endDate은 같은 월에 속해야 합니다. 또한 Time은 2의 배수여야 합니다.';
   }
 }
 

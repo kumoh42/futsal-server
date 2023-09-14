@@ -11,6 +11,10 @@ import { ReservationTransaction } from "./reservation-transaction";
 
 @Injectable()
 export class ReservationBlock{
+
+  private readonly admin_srl : number  = -1;
+  private readonly place_srl : number = 0;
+
     constructor(
         @InjectRepository(Xe_ReservationEntity)
         private reservationRepository: Repository<Xe_ReservationEntity>,
@@ -24,12 +28,6 @@ export class ReservationBlock{
         endDate:string,
       )
     {
-        //일단 startDate랑 endDate 둘 다 사전, 정식 예약 테이블이 존재하는 지 검색하여야 하는데
-        //이건 질의를 너무 많이 던지는 거 같아 고민중입니다.
-        //일단 제 생각은 사전예약이 시작되면 그 전달까지의 정식예약이 모두 닫혀버리기 때문에 예외는
-        //피해갈 수 있을 거라 생각이 들지만 추가적으로 보수가 필요하다고 생각합니다. 
-        //현재 구현은 endDate를 기준으로 사전예약과 정식예약을 구분하고 있습니다.
-
         const runningCheckForStartDateReservation: boolean =
         await this.transaction.isRunningReservation(endDate.split('T')[0]);
         if(runningCheckForStartDateReservation) {return this.blockReservationSlot(startDate, endDate)}
@@ -39,8 +37,6 @@ export class ReservationBlock{
         if(runningCheckForEndDatePreReservation) { return this.blockPreReservationSlot(startDate, endDate)}
 
         throw new BadRequestException(['예약이 활성화가 되어 있지 않습니다.'])
-        
-       
     }
 
     blockReservationSlot(
@@ -55,8 +51,8 @@ export class ReservationBlock{
         .createQueryBuilder()
         .update(Xe_ReservationEntity)
         .set({
-            member_srl: 1,
-            place_srl: 0,
+            member_srl: this.admin_srl,
+            place_srl: this.place_srl,
             circle: '관리자가 임의로 막았습니다.',
             major: '관리자',
         })
@@ -87,8 +83,8 @@ export class ReservationBlock{
         .createQueryBuilder()
         .update(Xe_Reservation_PreEntity)
         .set({
-            member_srl: 1,
-            place_srl: 0,
+            member_srl: this.admin_srl,
+            place_srl: this.place_srl,
             circle: '관리자가 임의로 막았습니다.',
             major: '관리자',
         })
