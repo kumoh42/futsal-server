@@ -50,6 +50,12 @@ export class ReservationService {
     private configSvc: ReservationConfigService,
   ) {}
 
+
+  async convertTimeToCron(month: string, day: string, hour: string) {
+    const cronExpression = `* ${hour} ${day} ${month} *`
+    return cronExpression
+  }
+
   async getReservationInfo(date: string) {
     const monthInfo = date.slice(0, 7);
     const reservationSlot = await this.reservationRepository.find({
@@ -75,12 +81,12 @@ export class ReservationService {
     const todayReservation = dayjs()
 
     if (this.PreReservationList.length == 0 && this.NowSet.length == 0) {
-      this.NowSet.push(new DateTimeSet(dayjs().format('YYYY-MM-DD'), dayjs().format('HH:mm'), false))
+      this.NowSet.push(new DateTimeSet(dayjs().format('YYYY-MM-DD'), dayjs().format('HH'), false))
     }
     else if (this.PreReservationList.length == 0 && this.NowSet.length !== 0) {
     }
     else {
-      const nowPreReservation : any = dayjs(`${this.PreReservationList[0].date} ${this.PreReservationList[0].time}:00`)
+      const nowPreReservation : any = dayjs(`${this.PreReservationList[0].date} ${this.PreReservationList[0].time}`)
       if (nowPreReservation < todayReservation) {
         this.NowSet.pop()
         this.NowSet.push(new DateTimeSet(this.PreReservationList[0].date, this.PreReservationList[0].time, true))
@@ -88,7 +94,7 @@ export class ReservationService {
       }
       else {
         this.NowSet.pop()
-        this.NowSet.push(new DateTimeSet(dayjs().format('YYYY-MM-DD'), dayjs().format('HH:mm'), false))
+        this.NowSet.push(new DateTimeSet(dayjs().format('YYYY-MM-DD'), dayjs().format('HH'), false))
       }
     }
 
