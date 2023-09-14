@@ -4,9 +4,9 @@ import dayjs, { Dayjs } from 'dayjs';
 
 @Injectable()
 export class ReservationSlotBuilder {
-  private readonly SERVICE_KEY = process.env.HOLIDAY_SERVICE_KEY
-  private readonly URL = process.env.HOLIDAY_URL
-  private readonly headers = {'Content-Type': 'application/json; charset=utf-8'}
+  // private readonly SERVICE_KEY = process.env.HOLIDAY_SERVICE_KEY
+  // private readonly URL = process.env.HOLIDAY_URL
+  // private readonly headers = {'Content-Type': 'application/json; charset=utf-8'}
 
   private nextMonth: Dayjs;
   private today: Dayjs;
@@ -25,27 +25,29 @@ export class ReservationSlotBuilder {
     return formatted;
   }
 
-  async getPublicHolidays(month: number)
+  async getPublicHolidays(year: number, month: number)
   {
     const publicList:String[] = [];
-    const queryParams = {
-        'ServiceKey' : this.SERVICE_KEY,
-        'solYear' : 2023, //이거 년도는 어디서 받아오는거죠,,ㅡ,
-        'solMonth' : month,    
-    }
 
     try
     {
-      // 둘 중 하나 쓰는 걸로 가져가야 할 듯
-      // const response = await axios.get(this.URL, { params: queryParams, headers: this.headers });
-      const response = await axios.get('http://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getHoliDeInfo?ServiceKey=sPWOL4v2MOAE7sUq055%2BwdPT7voiyC2O97JQXNOnraKoP1hYApVuDOdnqZo9Q%2Bvz7olpXweaxcfSUJW1euhSGA%3D%3D&solYear=2023&solMonth=10')
+      // const response = await axios.get(this.url, { params: queryParams, headers: this.headers });
+      const url = `http://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getHoliDeInfo?ServiceKey=sPWOL4v2MOAE7sUq055%2BwdPT7voiyC2O97JQXNOnraKoP1hYApVuDOdnqZo9Q%2Bvz7olpXweaxcfSUJW1euhSGA%3D%3D&solYear=${year}&solMonth=${month+1}`
+      const response = await axios.get(url)
+      const count = response.data.response.body.totalCount;
       const items = response.data.response.body.items.item;
-  
-      for (const item of items)
-      {
-        const locdate = item.locdate.toString();
-        const formattedDate = `${locdate.slice(0, 4)}-${locdate.slice(4, 6)}-${locdate.slice(6, 8)}`;
-        publicList.push(formattedDate);
+      
+      if (count > 1){
+          for (const item of items) {
+              const locdate = item.locdate.toString();
+              const formattedDate = `${locdate.slice(0, 4)}-${locdate.slice(4, 6)}-${locdate.slice(6, 8)}`;
+              publicList.push(formattedDate);
+          }
+      }
+      else if (count == 1){
+          const locdate = items.locdate.toString();
+          const formattedDate = `${locdate.slice(0, 4)}-${locdate.slice(4, 6)}-${locdate.slice(6, 8)}`;
+          publicList.push(formattedDate);
       }
 
       return publicList;
@@ -54,20 +56,19 @@ export class ReservationSlotBuilder {
     }
   }
 
-  async getHolidays(month: number)
+  async getHolidays(year: number, month: number)
   {
-    const publicHolidays = await this.getPublicHolidays(month)
+    const publicHolidays = await this.getPublicHolidays(year, month)
     const holidayList: String[] = [];
     for (let day = 1; day <= 31; day++)
     {
-      const date = new Date(2023, month, day);
+      const date = new Date(year, month, day);
       if (date.getDay() === 0 || date.getDay() === 6)
       {
           holidayList.push(this.dateFormat(date));
       }
     }
     holidayList.push(...publicHolidays)
-    // console.log(holidayList)
     return holidayList
   }
 
@@ -75,8 +76,8 @@ export class ReservationSlotBuilder {
   async buildSlots() {
     const days = this.nextMonth.daysInMonth(); // 다음달 일 수
     const dateStrings = this.createDateStrings(days);
-    const holidayList = await this.getHolidays(this.nextMonth.month());
-    // 다음달의 주말/공휴일 가져오기
+    const holidayList = await this.getHolidays(dateStrings[0].slice(0,4), this.nextMonth.month()); // 다음달의 주말/공휴일 가져오기
+
     return dateStrings
       .map((date) => this.createPreReservationSlot(date, holidayList))
       .flat();
