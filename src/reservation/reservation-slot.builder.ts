@@ -16,15 +16,6 @@ export class ReservationSlotBuilder {
     this.nextMonth = nextMonth;
   }
 
-  // date foramt -> YYYY-MM-DD
-  private dateFormat(date)
-  {
-    let formatted = date.getFullYear() +
-        '-' + ( (date.getMonth()+1) < 9 ? "0" + (date.getMonth()+1) : (date.getMonth()+1) )+
-        '-' + ( (date.getDate()) < 9 ? "0" + (date.getDate()) : (date.getDate()) );
-    return formatted;
-  }
-
   async getPublicHolidays(year: number, month: number)
   {
     const publicList:String[] = [];
@@ -65,7 +56,7 @@ export class ReservationSlotBuilder {
       const date = new Date(year, month, day);
       if (date.getDay() === 0 || date.getDay() === 6)
       {
-          holidayList.push(this.dateFormat(date));
+          holidayList.push(date.toISOString().slice(0,10));
       }
     }
     holidayList.push(...publicHolidays)
