@@ -107,7 +107,7 @@ export class ReservationService {
     }
 
     this.builder.setDays(this.today, this.nextMonth);
-    const preResservationSlot = this.builder.buildSlots();
+    const preResservationSlot = await this.builder.buildSlots();
     await this.preRepository.clear();
     await this.configSvc.setPreReservationOpenSettings();
     await this.preRepository.save(preResservationSlot);
@@ -207,7 +207,7 @@ export class ReservationService {
 
     if (reservationSlot.length == 0) {
       this.builder.setDays(this.today, this.nextMonth);
-      reservationSlot = this.builder.buildSlots();
+      reservationSlot = await this.builder.buildSlots();
     }
 
     await this.reservationRepository.update(
