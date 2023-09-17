@@ -2,7 +2,6 @@ import {
   BadRequestException,
   Body,
   Controller,
-  Delete,
   Get,
   Param,
   Patch,
@@ -18,17 +17,20 @@ import { ApiBody, ApiHeader, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { MonthReservationDeleteDto } from 'src/common/dto/reservation/month-reservation-delete.dto';
 import { OneReservationDeleteDto } from 'src/common/dto/reservation/one-reservation-delete.dto';
 import { PreReservationSetDto } from 'src/common/dto/reservation/pre-reservation-set.dto';
+import { ReservationTimeService } from './reservation-time.service';
 
 @ApiTags('시설 예약')
 @Controller('reservation')
 export class ReservationController {
-  constructor(private reservationService: ReservationService) { }
+  constructor(
+    private reservationService: ReservationService,
+    private reservationTimeService: ReservationTimeService) { }
 
-  // @ApiOperation({ description: '현재 진행되고 있는 예약 조회' })
-  // @Get('/now/setting')
-  // async getNowReservation() {
-  //   return await this.reservationService.getNowReservationInfo();
-  // }
+  @ApiOperation({ description: '현재 진행되고 있는 예약 조회' })
+  @Get('/now/setting')
+  async getNowReservation() {
+    return await this.reservationTimeService.getNowReservationInfo();
+  }
 
   @Get('/:date')
   @ApiOperation({ description: '예약 현황 조회' })
@@ -83,14 +85,16 @@ export class ReservationController {
   async getPreReservationTimeInfo(
     @Body() body: PreReservationSetDto
   ) {
+
     const { date, time, isPre } = body;
-    return await this.reservationService.setPreReservationTime(date, time, isPre)
+
+    await this.reservationTimeService.setPreReservationTime(date, time, isPre)
   }
 
   @Get('/pre/time-list')
   @ApiOperation({ description: '사전예약 예약 시간 조회' })
   async getPreReservationList() {
-    return await this.reservationService.getPreReservationInfo()
+    return await this.reservationTimeService.getPreReservationInfo()
   }
 
   @Patch('/pre/time-delete')
@@ -103,7 +107,7 @@ export class ReservationController {
     @Body() body: PreReservationSetDto
   ) {
     const { date, time } = body;
-    return await this.reservationService.deletePreReservationInfo(date, time)
+    return await this.reservationTimeService.deletePreReservationInfo(date, time)
   }
 
   @Patch('/delete-month')

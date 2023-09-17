@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 @Entity('xe_reservation_time')
 export class Xe_Reservation_TimeEntity {
@@ -6,9 +6,9 @@ export class Xe_Reservation_TimeEntity {
    * xe_reservation_time - date
    * @description 사전예약 시작 날짜입니다.
    *
-   * Pk, NN
+   * PK, NN
    */
-  @PrimaryGeneratedColumn()
+  @PrimaryColumn({ length: 10 })
   date: string;
 
   /**
@@ -26,6 +26,6 @@ export class Xe_Reservation_TimeEntity {
    *
    * Default - NULL
    */
-    @Column({ length: 1 })
-    isPre: string;
+  @Column({ type: 'boolean', default: null }) 
+  isPre: boolean;
 }

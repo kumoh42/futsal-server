@@ -7,48 +7,30 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Xe_ReservationEntity } from 'src/entites/xe_reservation.entity';
 import { Xe_Reservation_PreEntity } from 'src/entites/xe_reservation_pre.entity';
+import { Xe_Reservation_TimeEntity } from 'src/entites/xe_reservation_time.entity';
 import { Like, Repository, TreeParent } from 'typeorm';
 import { ReservationSlotBuilder } from './reservation-slot.builder';
 import dayjs from 'dayjs';
 import { ReservationTransaction } from './reservation-transaction';
 import { ReservationConfigService } from './reservation-setting.service';
-import { Cron, CronExpression } from '@nestjs/schedule';
-
-class DateTimeSet {
-  date: string;
-  time: string;
-  isPre: boolean;
-
-  constructor(date: string, time: string, isPre: boolean) {
-    this.date = date;
-    this.time = time;
-    this.isPre = isPre;
-  }
-  
-  toString() {
-    return `date: ${this.date}, time: ${this.time}`;
-  }
-}
-
 
 @Injectable()
 export class ReservationService {
   private today = dayjs();
   private nextMonth = dayjs().add(1, 'month');
-  private PreReservationList = [];
-  private NowSet = [];
-
 
   constructor(
     @InjectRepository(Xe_ReservationEntity)
     private reservationRepository: Repository<Xe_ReservationEntity>,
     @InjectRepository(Xe_Reservation_PreEntity)
     private preRepository: Repository<Xe_Reservation_PreEntity>,
+    @InjectRepository(Xe_Reservation_TimeEntity)
+    private timeRepository: Repository<Xe_Reservation_TimeEntity>,
     @Inject(ReservationSlotBuilder) private builder: ReservationSlotBuilder,
     @Inject(ReservationTransaction) private transaction: ReservationTransaction,
     @Inject(ReservationConfigService)
     private configSvc: ReservationConfigService,
-  ) {}
+  ) { }
 
   async getReservationInfo(date: string) {
     const monthInfo = date.slice(0, 7);
@@ -66,37 +48,6 @@ export class ReservationService {
     }
   }
 
-  async getPreReservationInfo() {
-    return this.PreReservationList
-  }
-
-  @Cron('* */5 * * * *')
-  async getNowReservationInfo() {
-    const todayReservation = dayjs()
-
-    if (this.PreReservationList.length == 0 && this.NowSet.length == 0) {
-      this.NowSet.push(new DateTimeSet(dayjs().format('YYYY-MM-DD'), dayjs().format('HH:mm'), false))
-    }
-    else if (this.PreReservationList.length == 0 && this.NowSet.length !== 0) {
-    }
-    else {
-      const nowPreReservation : any = dayjs(`${this.PreReservationList[0].date} ${this.PreReservationList[0].time}:00`)
-      if (nowPreReservation < todayReservation) {
-        this.NowSet.pop()
-        this.NowSet.push(new DateTimeSet(this.PreReservationList[0].date, this.PreReservationList[0].time, true))
-        this.PreReservationList.splice(0, 1)
-      }
-      else {
-        this.NowSet.pop()
-        this.NowSet.push(new DateTimeSet(dayjs().format('YYYY-MM-DD'), dayjs().format('HH:mm'), false))
-      }
-    }
-
-    return this.NowSet
-  }
-
-
-
   async openPreReservation() {
     const reservationSlot = await this.preRepository.find({
       where: { date: Like(`${this.nextMonth.format('YYYY-MM')}%`) },
@@ -113,84 +64,14 @@ export class ReservationService {
     await this.preRepository.save(preResservationSlot);
   }
 
-  async closePreReservation() {
-    await this.preRepository.clear();
-    await this.configSvc.setPreReservationCloseSettings();
-  }
-  
-  async stopPreReservation() {
-    await this.configSvc.setReservationSettings();
-  }
-
-  async reopenPreReservation() {
-    await this.configSvc.setReopenPreReservationSettings()
-  }
-
-
-  async setPreReservationTime(date: string, time: string, isPre: boolean) {
-    for (let i = 0; i < this.PreReservationList.length; i++) {
-      const existingReservation = this.PreReservationList[i];
-
-      const existingDateTime = dayjs(`${existingReservation.date} ${existingReservation.time}`);
-      const newDateTime = dayjs(`${date} ${time}`);
-
-      if (existingDateTime.isSame(newDateTime)) {
-        throw new BadRequestException('동일한 예약 내역이 존재합니다.');
-      }
-    }
-
-    this.PreReservationList.push(new DateTimeSet(date, time, isPre));
-
-    this.PreReservationList.sort((a, b) => {
-      const aDateTime = dayjs(`${a.date} ${a.time}`);
-      const bDateTime = dayjs(`${b.date} ${b.time}`);
-
-      if (aDateTime.isBefore(bDateTime)) {
-        return -1;
-      } else if (aDateTime.isAfter(bDateTime)) {
-        return 1;
-      } else {
-        return 0;
-      }
-    });
-
-    if (this.PreReservationList.length > 0) {
-      await this.configSvc.setPreReservationSettings(this.PreReservationList[0].date, this.PreReservationList[0].time);
-    }
-  }
-
-
-  async deletePreReservationInfo(date: string, time: string) {
-    let deleteIndex = -1
-
-    for (let i = 0; i < this.PreReservationList.length; i++) {
-      if (this.PreReservationList[i].date == date &&
-        this.PreReservationList[i].time == time ) {
-          deleteIndex = i
-          break
-        }
-    }
-
-    if (deleteIndex !== -1) {
-      this.PreReservationList.splice(deleteIndex, 1)
-    }
-    else {
-      throw new BadRequestException('삭제 불가능합니다.');
-    }
-
-    if (this.PreReservationList.length == 0){
-      await this.configSvc.setReservationSettings()
-    }
-    else {
-      const date = this.PreReservationList[0].date;
-      const time = this.PreReservationList[0].time;
-      await this.configSvc.setPreReservationSettings(date, time)
-    }
-
-  }
-
-
   async openReservation() {
+    await this.timeRepository
+    .createQueryBuilder()
+    .delete()
+    .from(Xe_Reservation_TimeEntity)
+    .execute();
+    // 이 코드를 여기에 써도 되는지,,,
+
     const list = await this.reservationRepository.find({
       where: { date: Like(`${this.nextMonth.format('YYYY-MM')}%`) },
     });
@@ -233,6 +114,19 @@ export class ReservationService {
       .execute();
 
     return ['사전 예약 삭제완료'];
+  }
+
+  async closePreReservation() {
+    await this.preRepository.clear();
+    await this.configSvc.setPreReservationCloseSettings();
+  }
+
+  async stopPreReservation() {
+    await this.configSvc.setReservationSettings();
+  }
+
+  async reopenPreReservation() {
+    await this.configSvc.setReopenPreReservationSettings()
   }
 
   async deleteMonthReservationHistories(date: string) {
