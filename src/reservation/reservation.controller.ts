@@ -3,6 +3,7 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
   Param,
   Patch,
   Post,
@@ -18,12 +19,15 @@ import { MonthReservationDeleteDto } from 'src/common/dto/reservation/month-rese
 import { OneReservationDeleteDto } from 'src/common/dto/reservation/one-reservation-delete.dto';
 import { PreReservationSetDto } from 'src/common/dto/reservation/pre-reservation-set.dto';
 import { ReservationTimeService } from './reservation-time.service';
+import { BlockReservationDto } from 'src/common/dto/reservation/block-reservation.dto';
+import { ReservationBlock } from './reseravtion-block';
 
 @ApiTags('시설 예약')
 @Controller('reservation')
 export class ReservationController {
   constructor(
     private reservationService: ReservationService,
+    private reservationBlock: ReservationBlock,  
     private reservationTimeService: ReservationTimeService) { }
 
   @ApiOperation({ description: '현재 진행되고 있는 예약 조회' })
@@ -162,6 +166,13 @@ export class ReservationController {
       return await this.reservationService.openReservation();
 
     throw new BadRequestException('예약은 현재 open만 가능합니다.');
+  }
+
+  @Post('/block')
+  @HttpCode(200)
+  async blockRes(@Body() body : BlockReservationDto){
+    const {startDate, endDate} = body;
+    return await this.reservationBlock.BlockReservation(startDate, endDate);
   }
 
 }
