@@ -18,8 +18,8 @@ export class PreReservationSetDto {
     @IsString()
     @IsNotEmpty()
     @ApiProperty()
-    @Matches( /^(\d{2}):(\d{2})$/,{
-        message: '사전 예약 time가 형식에 맞지 않습니다. xx:xx 로 기입하여 주십시오.'
+    @Matches( /^(\d{2})$/,{
+        message: '사전 예약 time가 형식에 맞지 않습니다. xx 로 기입하여 주십시오.'
     })
     time: string;
 
