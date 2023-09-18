@@ -9,8 +9,8 @@ import { ReservationSlotBuilder } from './reservation-slot.builder';
 import { ReservationTransaction } from './reservation-transaction';
 import { ReservationConfigService } from './reservation-setting.service';
 import { Xe_Reservation_TimeEntity } from 'src/entites/xe_reservation_time.entity';
-import { ReservationPreTimer } from './reservation-time.service';
 import { ReservationBlock } from './reseravtion-block';
+import { ReservationTimeService } from './reservation-time.service';
 
 @Module({
   imports: [
@@ -23,8 +23,8 @@ import { ReservationBlock } from './reseravtion-block';
   ],
   controllers: [ReservationController],
   providers: [
-    ReservationPreTimer,
     ReservationService,
+    ReservationTimeService,
     ReservationSlotBuilder,
     ReservationTransaction,
     ReservationConfigService,
