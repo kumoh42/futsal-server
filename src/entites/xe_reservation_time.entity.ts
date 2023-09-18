@@ -26,6 +26,6 @@ export class Xe_Reservation_TimeEntity {
    *
    * Default - NULL
    */
-  @Column({ type: 'boolean', default: null }) 
+  @Column({ type: 'boolean', default: null })
   isPre: boolean;
 }

@@ -1,26 +1,40 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, Matches, Validate, ValidationArguments, ValidatorConstraint, ValidatorConstraintInterface } from 'class-validator';
-
+import {
+  IsNotEmpty,
+  IsString,
+  Matches,
+  Validate,
+  ValidationArguments,
+  ValidatorConstraint,
+  ValidatorConstraintInterface,
+} from 'class-validator';
 
 @ValidatorConstraint({ name: 'IsStartDateBeforeEndDate', async: false })
-export class IsStartDateBeforeEndDateConstraint implements ValidatorConstraintInterface {
-  validate(
-    startDate: string,
-    args: ValidationArguments)
-  {
+export class IsStartDateBeforeEndDateConstraint
+  implements ValidatorConstraintInterface
+{
+  validate(startDate: string, args: ValidationArguments) {
     const endDate = (args.object as any).endDate;
-    
-    //time이 2의 배수가 아닌 경우 
-    if(Number(startDate.split('T')[1]) % 2 !== 0 || Number(endDate.split('T')[1]) % 2 !== 0 ) { return false; } 
-    
+
+    //time이 2의 배수가 아닌 경우
+    if (
+      Number(startDate.split('T')[1]) % 2 !== 0 ||
+      Number(endDate.split('T')[1]) % 2 !== 0
+    ) {
+      return false;
+    }
+
     //시작일과 마감일이 같은 월에 속해있지 않은 경우
-    if(Number(startDate.split('-')[1]) !== Number(endDate.split('-')[1])){ return false}
-  
+    if (Number(startDate.split('-')[1]) !== Number(endDate.split('-')[1])) {
+      return false;
+    }
 
     //Date 객체로 변환하기 위에 기존 문자열에 추가하였습니다.
     const modifiedStartDate = startDate + ':00:00.000Z';
     const modifiedEndDate = endDate + ':00:00.000Z';
-    if(new Date(modifiedStartDate) >=new Date(modifiedEndDate)) { return false; }
+    if (new Date(modifiedStartDate) >= new Date(modifiedEndDate)) {
+      return false;
+    }
     return true;
   }
 
@@ -29,28 +43,25 @@ export class IsStartDateBeforeEndDateConstraint implements ValidatorConstraintIn
   }
 }
 
-export class BlockReservationDto{
-    
-    @IsString()
-    @IsNotEmpty()
-    @ApiProperty()
-    @Matches(/^(\d{4})-(\d{2})-(\d{2})T(\d{2})$/,{
-        message:
+export class BlockReservationDto {
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty()
+  @Matches(/^(\d{4})-(\d{2})-(\d{2})T(\d{2})$/, {
+    message:
       '알맞지 않은 예약 문자열입니다. xxxx-xx-xxTxx 로 기입하여 주십시요',
-    })
-    @Validate(IsStartDateBeforeEndDateConstraint)
-    startDate: string;
+  })
+  @Validate(IsStartDateBeforeEndDateConstraint)
+  startDate: string;
 
-    
-    @IsString()
-    @IsNotEmpty()
-    @ApiProperty()
-    @Matches(/^(\d{4})-(\d{2})-(\d{2})T(\d{2})$/,{
-        message:
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty()
+  @Matches(/^(\d{4})-(\d{2})-(\d{2})T(\d{2})$/, {
+    message:
       '알맞지 않은 예약 문자열입니다. xxxx-xx-xxTxx 로 기입하여 주십시요',
-    })
-    endDate: string
-
+  })
+  endDate: string;
 }
 
 // {
