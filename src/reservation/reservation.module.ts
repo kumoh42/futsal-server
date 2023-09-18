@@ -8,6 +8,7 @@ import { Xe_Reservation_PreEntity } from 'src/entites/xe_reservation_pre.entity'
 import { ReservationSlotBuilder } from './reservation-slot.builder';
 import { ReservationTransaction } from './reservation-transaction';
 import { ReservationConfigService } from './reservation-setting.service';
+import { ReservationBlock } from './reseravtion-block';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { ReservationConfigService } from './reservation-setting.service';
     ReservationSlotBuilder,
     ReservationTransaction,
     ReservationConfigService,
+    ReservationBlock
   ],
 })
 export class ReservationModule {}
