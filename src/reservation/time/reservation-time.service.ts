@@ -8,6 +8,7 @@ import dayjs from 'dayjs';
 import { ReservationTimeTransactionRepository } from './reservation-time.transaction.repository';
 import { SchedulerRegistry } from '@nestjs/schedule'
 import { CronJob } from 'cron';
+import { EventBridgeClient, PutRuleCommand } from "@aws-sdk/client-eventbridge";
 
 @Injectable()
 export class ReservationTimeService {
@@ -18,6 +19,29 @@ export class ReservationTimeService {
   ) {
   }
 
+  async updateAWSEventBridge(cronString: string) {
+    
+    const credentials = {
+      accessKeyId: process.env.ACCESS_KEY_ID,
+      secretAccessKey: process.env.SECRET_ACCESS_KEY,
+    };
+    const eventbridge = new EventBridgeClient({ region: "ap-northeast-2", credentials });
+
+    const ruleName = 'futsal-server-scheduler'; 
+    const params = {
+      Name: ruleName,
+      ScheduleExpression: cronString,
+      State: 'ENABLED',  // Rule 상태 (ENABLED 또는 DISABLED)
+    };
+
+    try {
+      const data = await eventbridge.send(new PutRuleCommand(params));
+      console.log(data);
+    } catch (error) {
+      console.error("Rule 업데이트 오류: ", error);
+    }
+  }
+
   async addCronJob() {
     const nowReservation = await this.getNowReservationInfo();
 
@@ -25,6 +49,7 @@ export class ReservationTimeService {
       const autoDate = nowReservation[0].slice(8, 10) ;
       const autoTime = nowReservation[1];
       const name = `${autoTime} ${autoDate}`
+      const cronString = `cron(0 ${autoTime} ${autoDate} * ? *)` // 원하는 새로운 cron 표현식 (기존 : 0 15 L * ? *)
   
       const job = new CronJob(` 0 ${autoTime} ${autoDate} * * `, () => {
         console.log('스케줄러 실행 완료')
@@ -32,6 +57,8 @@ export class ReservationTimeService {
       console.log(job.lastDate())
   
       this.scheduleRegistry.addCronJob(name, job);
+
+      this.updateAWSEventBridge(cronString);
     }  
   }
 
@@ -59,7 +86,7 @@ export class ReservationTimeService {
 
   async setPreReservationTime(date: string, time: string, isPre: boolean) {
     const list = await this.repo.get();
-
+    console.log(list)
     if (list.length >= 1) {
       throw new BadRequestException(['이미 사전 예약이 존재합니다.']);
     }

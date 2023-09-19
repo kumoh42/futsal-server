@@ -30,11 +30,11 @@ export class ReservationController {
     private reservationTimeService: ReservationTimeService,
   ) {}
 
-  // @ApiOperation({ description: '현재 진행되고 있는 예약 조회' })
-  // @Get('/now/setting')
-  // async getNowReservation() {
-  //   return await this.reservationTimeService.getNowReservationInfo();
-  // }
+  @ApiOperation({ description: '현재 진행되고 있는 예약 조회' })
+  @Get('/now/setting')
+  async getNowReservation() {
+    return await this.reservationTimeService.getNowReservationInfo();
+  }
 
   @Get('/:date')
   @ApiOperation({ description: '예약 현황 조회' })
