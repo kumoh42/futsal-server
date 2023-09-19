@@ -1,10 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, IsNull, Like, Not, Repository } from 'typeorm';
-import dayjs from 'dayjs';
+import { Repository } from 'typeorm';
 import { Xe_Reservation_ConfigEntity } from 'src/entites/xe_reservation_config.entity';
-import { Xe_Reservation_PreEntity } from 'src/entites/xe_reservation_pre.entity';
-import { ReservationSlotBuilder } from '../reservation-slot.builder';
 import { Xe_Reservation_TimeEntity } from 'src/entites/xe_reservation_time.entity';
 
 @Injectable()
@@ -14,6 +11,8 @@ export class ReservationTimeTransactionRepository {
     private timeRepository: Repository<Xe_Reservation_TimeEntity>,
   ) {}
 
+    
+    
   async get() {
     return await this.timeRepository.find();
   }
