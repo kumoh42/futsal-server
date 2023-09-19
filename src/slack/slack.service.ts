@@ -11,7 +11,7 @@ export class SlackService {
 
   async sendSlackMessage(
     name: string,
-    user_id: string,
+    userId: string,
     email: string,
     text: string,
   ): Promise<string> {
@@ -21,7 +21,7 @@ export class SlackService {
       .post(this.SLACK_URL, {
         text: this.SLACK_MESSAGE_TEMPLETE.replace('name', name)
           .replace(/LB/g, `\n`)
-          .replace('user_id', user_id)
+          .replace('user_id', userId)
           .replace('user_email', email)
           .replace('text', text)
           .replace('nowTime', nowTime),
