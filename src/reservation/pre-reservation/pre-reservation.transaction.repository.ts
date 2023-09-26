@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, IsNull, Like, Not, Repository } from 'typeorm';
+import { DataSource, In, IsNull, Like, Not, Repository } from 'typeorm';
 import dayjs from 'dayjs';
 import { Xe_Reservation_ConfigEntity } from 'src/entites/xe_reservation_config.entity';
 import { Xe_Reservation_PreEntity } from 'src/entites/xe_reservation_pre.entity';
 import { ReservationSlotBuilder } from '../reservation-slot.builder';
+import { NotFoundError } from 'rxjs';
 
 export interface IUpdateSetting {
   isPre?: boolean;
@@ -24,6 +25,7 @@ export class PreReservationTransactionRepository {
     private configRepo: Repository<Xe_Reservation_ConfigEntity>,
     @InjectRepository(Xe_Reservation_PreEntity)
     private preRepository: Repository<Xe_Reservation_PreEntity>,
+    private dataSource: DataSource,
   ) {}
 
   async isPre() {
@@ -37,11 +39,15 @@ export class PreReservationTransactionRepository {
   }
 
   async updatePreReservation({ isPre, thisMonth, nextMonth }) {
-    const builder = new ReservationSlotBuilder(thisMonth, nextMonth);
-    const preResservationSlot = await builder.buildSlots();
-    await this.preRepository.clear();
-    await this.updateSetting({ isPre });
-    await this.preRepository.save(preResservationSlot);
+    try{
+      const builder = new ReservationSlotBuilder(thisMonth, nextMonth);
+      const preResservationSlot = await builder.buildSlots();
+      await this.preRepository.clear();
+      await this.updateSetting({ isPre });
+      await this.preRepository.save(preResservationSlot);
+    } catch(error){
+      throw error;
+    }
   }
 
   // 사전 예약 세팅 - 구조 분해 할당
@@ -52,53 +58,76 @@ export class PreReservationTransactionRepository {
     endDate,
     endTime,
   }: IUpdateSetting) {
-    const allSettings = await this.configRepo.find();
+    try{
+      const allSettings = await this.configRepo.find();
 
-    const updatedSettings = allSettings.map((setting) => {
-      switch (setting.key) {
-        case 'is_pre_reservation_period':
-          return {
-            ...setting,
-            value: isPre === undefined ? setting.value : isPre ? 'Y' : 'N',
-          };
+      // if(allSettings.find(setting => setting.key === 'is_pre_reservation_period').value == 'N'){
+      //   throw new ConflictException('현재 진행 중인 사전예약이 없습니다.');
+      // }
 
-        case 'start_date':
-          return {
-            ...setting,
-            value: startDate ?? setting.value, // ?? <- 앞에 값이 undefined면, 뒤의 값을 쓰겠다
-          };
+      const updatedSettings = allSettings.map((setting) => {
+        switch (setting.key) {
+          case 'is_pre_reservation_period':
+            return {
+              ...setting,
+              value: isPre === undefined ? setting.value : isPre ? 'Y' : 'N',
+            };
 
-        case 'start_time':
-          return { ...setting, value: startTime ?? setting.value };
+          case 'start_date':
+            return {
+              ...setting,
+              value: startDate ?? setting.value, // ?? <- 앞에 값이 undefined면, 뒤의 값을 쓰겠다
+            };
 
-        case 'end_date':
-          return {
-            ...setting,
-            value: endDate ?? setting.value,
-          };
-        case 'end_time':
-          return { ...setting, value: endTime ?? setting.value };
+          case 'start_time':
+            return { ...setting, value: startTime ?? setting.value };
 
-        default:
-          return setting;
-      }
-    });
+          case 'end_date':
+            return {
+              ...setting,
+              value: endDate ?? setting.value,
+            };
+          case 'end_time':
+            return { ...setting, value: endTime ?? setting.value };
 
-    await this.configRepo.save(updatedSettings);
+          default:
+            return setting;
+        }
+      });
+      await this.configRepo.save(updatedSettings);
+
+    } catch(error){
+      throw error;
+    }
   }
 
+
+
   async reset() {
-    await this.preRepository
-      .createQueryBuilder()
-      .update(Xe_Reservation_PreEntity)
-      .set({
-        member_srl: null,
-        place_srl: null,
-        circle: null,
-        major: null,
-      })
-      .andWhere('member_srl IS NOT NULL')
-      .execute();
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try{
+      await this.preRepository
+        .createQueryBuilder()
+        .update(Xe_Reservation_PreEntity)
+        .set({
+          member_srl: null,
+          place_srl: null,
+          circle: null,
+          major: null,
+        })
+        .andWhere('member_srl IS NOT NULL')
+        .execute();
+
+      await queryRunner.commitTransaction();
+    }catch(error){
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally{
+      await queryRunner.release();
+    }
   }
 
   async close() {
@@ -171,7 +200,12 @@ export class PreReservationTransactionRepository {
   }
 
   async deleteBy({ date, times }) {
-    const query = this.preRepository
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try{
+      const query = this.preRepository
       .createQueryBuilder()
       .update(Xe_Reservation_PreEntity)
       .set({
@@ -183,9 +217,21 @@ export class PreReservationTransactionRepository {
       .where('date LIKE :date', { date: `${date}%` })
       .andWhere('member_srl IS NOT NULL');
 
-    if (times) query.andWhere('time = IN(:times)', { times });
+      if (times) query.andWhere('time = IN(:times)', { times });
+      
+      const result = await query.execute();
 
-    await query.execute();
+      if(result.affected == 0){
+        throw new NotFoundException('해당 날짜 또는 월의 예약이 존재하지 않습니다.');
+      }
+      await queryRunner.commitTransaction();
+
+    } catch(error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release()
+    }
   }
 
   async findBy({ monthInfo }) {
@@ -195,7 +241,7 @@ export class PreReservationTransactionRepository {
   }
 
   async block({ startYMD, startTime, endYMD, endTime }) {
-    this.preRepository
+    const result = await this.preRepository
       .createQueryBuilder()
       .update(Xe_Reservation_PreEntity)
       .set({
@@ -220,5 +266,9 @@ export class PreReservationTransactionRepository {
         endTime: `${endTime}`,
       })
       .execute();
+    
+      if(result.affected == 0){
+        throw new NotFoundException('해당 시간 대의 예약 차단이 불가능합니다.');
+      }
   }
 }

@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Inject,
   Injectable,
   NotFoundException,
@@ -16,6 +17,17 @@ export class OfficialReservationService {
 
   // TODO -> 둘 다 한 꺼번에 되야하느 ㄴ애니까
   async getOfficialReservationInfo(date: string) {
+    const datePattern = /^\d{4}-\d{2}-\d{2}$/;
+    const dateInput = date; // 날짜는 쿼리 매개변수로 전달됐다고 가정합니다.
+
+    if (!datePattern.test(dateInput)) { //프론트에서 과연 값을 어떻게 넘겨주려나..,.,.,.
+      throw new BadRequestException('날짜 형식이 올바르지 않습니다. YYYY-MM-DD 형식을 사용해야 합니다.');
+    }
+
+    if (parseInt(date.slice(5,7)) > 12){
+      throw new BadRequestException('1월부터 12월까지만 입력해주세요.');
+    }
+    
     const monthInfo = date.slice(0, 7);
     return await this.repo.findBy({
       monthInfo,
@@ -26,7 +38,7 @@ export class OfficialReservationService {
     const isOpen = await this.repo.isOfficial();
 
     if (!isOpen) {
-      throw new BadRequestException('이미 예약 진행 중입니다.');
+      throw new ConflictException('이미 예약 진행 중입니다.');
     }
 
     const thisMonth = dayjs();
