@@ -41,7 +41,7 @@ export class ReservationController {
     name: 'date',
     description: '조회하고 싶은 날짜입니다.',
   })
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   async getReservationInfo(
     @Param('date') date: string,
   ): Promise<Xe_ReservationEntity[]> {
@@ -54,7 +54,7 @@ export class ReservationController {
     name: 'state',
     description: '사전 예약 활성화 상태입니다. (open = 시작, close = 중지)',
   })
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   async reservationPreStart(@Query('state') state: string) {
     if (state === 'open') await this.reservationService.openReservation(false);
     else if (state === 'close')
@@ -69,7 +69,7 @@ export class ReservationController {
     description:
       '사전 예약 중단, 재개, 초기화 기능입니다. (stop = 중단, reopen = 재개, reset = 초기화)',
   })
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   async preReservationStop(@Query('state') state: string) {
     if (state === 'stop') await this.reservationService.stopPreReservation();
     else if (state === 'reopen')
@@ -130,7 +130,7 @@ export class ReservationController {
 
   @Patch('/delete-one')
   @ApiOperation({ description: '해당하는 날짜의 특정 시간대 예약 삭제' })
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   async deleteOneReservation(@Body() body: OneReservationDeleteDto) {
     const { date, times, isPre } = body;
     if (isPre) {
