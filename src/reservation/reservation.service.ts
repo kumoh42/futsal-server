@@ -1,282 +1,84 @@
-import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Xe_ReservationEntity } from 'src/entites/xe_reservation.entity';
-import { Xe_Reservation_PreEntity } from 'src/entites/xe_reservation_pre.entity';
-import { Like, Repository } from 'typeorm';
-import { ReservationSlotBuilder } from './reservation-slot.builder';
-import dayjs from 'dayjs';
-import { ReservationTransaction } from './reservation-transaction';
-import { ReservationConfigService } from './reservation-setting.service';
+import { Inject, Injectable } from '@nestjs/common';
+import { OfficialReservationService } from './official-reservation/official-reservation.service';
+import { PreReservationService } from './pre-reservation/pre-reservation.service';
+import { OfficialReservationTransactionRepository } from './official-reservation/official-reservation.transaction.repository';
 
-@Injectable()
+@Injectable() 
 export class ReservationService {
-  private today = dayjs();
-  private nextMonth = dayjs().add(1, 'month');
-
   constructor(
-    @InjectRepository(Xe_ReservationEntity)
-    private reservationRepository: Repository<Xe_ReservationEntity>,
-    @InjectRepository(Xe_Reservation_PreEntity)
-    private preRepository: Repository<Xe_Reservation_PreEntity>,
-    @Inject(ReservationSlotBuilder) private builder: ReservationSlotBuilder,
-    @Inject(ReservationTransaction) private transaction: ReservationTransaction,
-    @Inject(ReservationConfigService)
-    private configSvc: ReservationConfigService,
+    @Inject(OfficialReservationService)
+    private readonly officialSvc: OfficialReservationService,
+    @Inject(PreReservationService)
+    private readonly preSvc: PreReservationService,
+    @Inject(OfficialReservationTransactionRepository)
+    private readonly officalReservationRepo: OfficialReservationTransactionRepository
   ) {}
 
-  async getReservationInfo(date: string) {
-    const monthInfo = date.slice(0, 7);
-    const reservationSlot = await this.reservationRepository.find({
-      where: { date: Like(`${monthInfo}%`) },
-    });
+  // 사전 예약이랑 - 정식 예약이 같이 있네??
+  async getReservationInfo(date: string, isOfficial: boolean) {
+    if (isOfficial) return this.officialSvc.getOfficialReservationInfo(date);
 
-    if (reservationSlot.length == 0) {
-      const preReservationSlot = this.preRepository.find({
-        where: { date: Like(`${monthInfo}%`) },
-      });
-      return preReservationSlot;
-    } else {
-      return reservationSlot;
-    }
+    return this.preSvc.getPreReservationInfo(date);
+  }
+  
+  // 사전 예약 - 정식 예약만
+  async openReservation(isOfficial: boolean) {
+    if (isOfficial) return this.officialSvc.openReservation();
+    
+    return this.preSvc.openPreReservation();
   }
 
-  async openPreReservation() {
-    const reservationSlot = await this.preRepository.find({
-      where: { date: Like(`${this.nextMonth.format('YYYY-MM')}%`) },
-    });
-
-    if (reservationSlot.length > 0) {
-      throw new BadRequestException('이미 사전예약 진행 중입니다.');
-    }
-
-    this.builder.setDays(this.today, this.nextMonth);
-    const preResservationSlot = this.builder.buildSlots();
-    await this.preRepository.clear();
-    await this.configSvc.setPreReservationOpenSettings();
-    await this.preRepository.save(preResservationSlot);
+  //우선예약 - time
+  async stopPreReservation() {
+    await this.preSvc.stopPreReservation();
   }
 
+  //우선예약 - time
+  async reopenPreReservation() {
+    await this.preSvc.reopenPreReservation();
+  }
+
+  //우선예약
+  async resetPreReservation() {
+    return this.preSvc.resetPreReservation();
+  }
+
+  //우선예약
   async closePreReservation() {
-    await this.preRepository.clear();
-    await this.configSvc.setPreReservationCloseSettings();
+    return this.preSvc.closePreReservation();
   }
 
-  async openReservation() {
-    const list = await this.reservationRepository.find({
-      where: { date: Like(`${this.nextMonth.format('YYYY-MM')}%`) },
-    });
-
-    if (list.length > 0) {
-      throw new BadRequestException('이미 예약 진행 중입니다.');
-    }
-
-    await this.configSvc.setReservationSettings();
-
-    let reservationSlot = await this.preRepository.find({
-      where: { date: Like(`${this.nextMonth.format('YYYY-MM')}%`) },
-    });
-
-    if (reservationSlot.length == 0) {
-      this.builder.setDays(this.today, this.nextMonth);
-      reservationSlot = this.builder.buildSlots();
-    }
-
-    await this.reservationRepository.update(
-      { date: Like(`${this.today.format('YYYY-MM')}%`) },
-      { is_able: 'N' },
-    );
-
-    await this.reservationRepository.save(reservationSlot);
-    await this.preRepository.clear();
-  }
-
+  //정식예약
   async deleteMonthReservationHistories(date: string) {
-    const runningCheckForReservation: boolean =
-      await this.transaction.isRunningReservation(date);
-    if (!runningCheckForReservation) {
-      throw new BadRequestException(['정식예약 진행중이 아닙니다.']);
-    }
-
-    const ReservationHistory: boolean =
-      await this.transaction.checkReservaionHistory(date);
-    if (!ReservationHistory) {
-      throw new NotFoundException([' 예약 내역이 존재하지 않습니다. ']);
-    }
-
-    await this.reservationRepository
-      .createQueryBuilder()
-      .update(Xe_ReservationEntity)
-      .set({
-        member_srl: null,
-        place_srl: null,
-        circle: null,
-        major: null,
-      })
-      .where('date LIKE :date', { date: `${date}%` })
-      .andWhere('member_srl IS NOT NULL')
-      .execute();
-
+    await this.officialSvc.deleteReservationHistories(date);
     return ['예약 삭제완료'];
   }
 
+  //사전예약
   async deleteMonthPreReservationHistories(date: string) {
-    const runningCheckForReservation: boolean =
-      await this.transaction.isRunningPreReservation(date);
-    if (!runningCheckForReservation) {
-      throw new BadRequestException(['사전예약 진행중이 아닙니다.']);
-    }
-
-    const ReservationHistory: boolean =
-      await this.transaction.checkPreReservaionHistory(date);
-    if (!ReservationHistory) {
-      throw new NotFoundException([' 예약 내역이 존재하지 않습니다. ']);
-    }
-
-    await this.preRepository
-      .createQueryBuilder()
-      .update(Xe_Reservation_PreEntity)
-      .set({
-        member_srl: null,
-        place_srl: null,
-        circle: null,
-        major: null,
-      })
-      .where('date LIKE :date', { date: `${date}%` })
-      .andWhere('member_srl IS NOT NULL')
-      .execute();
-
+    await this.preSvc.deletePreReservationHistories(date);
     return ['예약 삭제완료'];
   }
 
+  //정식예약
   async deleteOneReservationHistory(date: string, times: number[]) {
-    const runningCheckForReservation: boolean =
-      await this.transaction.isRunningReservation(date);
-    if (!runningCheckForReservation) {
-      throw new BadRequestException(['정식예약 진행중이 아닙니다.']);
-    }
-
-    const ReservationHistory: boolean =
-      await this.transaction.checkReservaionHistory(date, times);
-    if (!ReservationHistory) {
-      throw new NotFoundException([
-        ' 체크하신 부분의 예약이 존재하지 않습니다. ',
-      ]);
-    }
-
-    for (const time of times) {
-      await this.reservationRepository
-        .createQueryBuilder()
-        .update(Xe_ReservationEntity)
-        .set({
-          member_srl: null,
-          place_srl: null,
-          circle: null,
-          major: null,
-        })
-        .where('date LIKE :date', { date: `${date}%` })
-        .andWhere('time = :time', { time: time })
-        .andWhere('member_srl IS NOT NULL')
-        .execute();
-    }
-    return '예약 삭제완료';
+    await this.officialSvc.deleteReservationHistories(date, times);
+    return ['예약 삭제완료'];
   }
 
+  //사전예약
   async deleteOnePreReservationHistory(date: string, times: number[]) {
-    const runningCheckForPreReservation: boolean =
-      await this.transaction.isRunningPreReservation(date);
-    if (!runningCheckForPreReservation) {
-      throw new BadRequestException(['사전예약 진행중이 아닙니다.']);
-    }
-
-    const PreReservationHistory: boolean =
-      await this.transaction.checkPreReservaionHistory(date, times);
-    if (!PreReservationHistory) {
-      throw new NotFoundException([
-        ' 해당 시간에 예약 내역이 존재하지 않습니다. ',
-      ]);
-    }
-    for (const time of times) {
-      await this.preRepository
-        .createQueryBuilder()
-        .update(Xe_Reservation_PreEntity)
-        .set({
-          member_srl: null,
-          place_srl: null,
-          circle: null,
-          major: null,
-        })
-        .where('date LIKE :date', { date: `${date}%` })
-        .andWhere('time = :time', { time: time })
-        .andWhere('member_srl IS NOT NULL')
-        .execute();
-    }
-    return '예약 삭제완료';
+    await this.preSvc.deletePreReservationHistories(date, times);
+    return ['예약 삭제완료'];
   }
 
-  async deleteDayReservationHistory(date: string) {
-    const runningCheckForReservation: boolean =
-      await this.transaction.isRunningReservation(date);
-    if (!runningCheckForReservation) {
-      throw new BadRequestException(['정식예약 진행중이 아닙니다.']);
-    }
+  //예약 여부 확인
+  async blockReservation(startDate: string, endDate: string) {
+    const isOfficial = await this.officalReservationRepo.isOfficial()
 
-    const ReservationHistory: boolean =
-      await this.transaction.checkReservaionHistory(date);
-    if (!ReservationHistory) {
-      throw new NotFoundException([
-        ' 해당 일자에 예약 내역이 존재하지 않습니다. ',
-      ]);
-    }
+    if(isOfficial)
+      return this.officialSvc.blockReservationSlot(startDate, endDate);
 
-    await this.reservationRepository
-      .createQueryBuilder()
-      .update(Xe_ReservationEntity)
-      .set({
-        member_srl: null,
-        place_srl: null,
-        circle: null,
-        major: null,
-      })
-      .where('date LIKE :date', { date: `${date}%` })
-      .andWhere('member_srl IS NOT NULL')
-      .execute();
-
-    return '예약 삭제완료';
-  }
-
-  async deleteDayPreReservationHistory(date: string) {
-    const runningCheckForPreReservation: boolean =
-      await this.transaction.isRunningPreReservation(date);
-    if (!runningCheckForPreReservation) {
-      throw new BadRequestException(['사전예약 진행중이 아닙니다.']);
-    }
-
-    const PreReservationHistory: boolean =
-      await this.transaction.checkPreReservaionHistory(date);
-    if (!PreReservationHistory) {
-      throw new NotFoundException([
-        ' 해당 일자에 예약 내역이 존재하지 않습니다. ',
-      ]);
-    }
-
-    await this.preRepository
-      .createQueryBuilder()
-      .update(Xe_Reservation_PreEntity)
-      .set({
-        member_srl: null,
-        place_srl: null,
-        circle: null,
-        major: null,
-      })
-      .where('date LIKE :date', { date: `${date}%` })
-      .andWhere('member_srl IS NOT NULL')
-      .execute();
-
-    return '예약 삭제완료';
+    return this.preSvc.blockPreReservationSlot(startDate, endDate);
   }
 }
