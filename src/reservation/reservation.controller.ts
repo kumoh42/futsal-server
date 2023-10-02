@@ -71,9 +71,13 @@ export class ReservationController {
   })
   @UseGuards(JwtAuthGuard)
   async preReservationStop(@Query('state') state: string) {
-    if (state === 'stop') await this.reservationService.stopPreReservation();
-    else if (state === 'reopen')
+    if (state === 'stop') {
+      await this.reservationService.stopPreReservation();
+      await this.reservationTimeService.getNowReservationInfo();
+    }
+    else if (state === 'reopen') {
       await this.reservationService.reopenPreReservation();
+    }    
     else if (state === 'reset')
       await this.reservationService.resetPreReservation();
     else
@@ -107,10 +111,11 @@ export class ReservationController {
     description: '사전예약 시간을 설정하는 DTO입니다.',
   })
   async deletePreReservationList(@Body() body: PreReservationSetDto) {
-    const { date, time } = body;
+    const { date, time, isPre } = body;
     return await this.reservationTimeService.deletePreReservationInfo(
       date,
       time,
+      isPre
     );
   }
 
