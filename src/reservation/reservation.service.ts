@@ -20,12 +20,22 @@ export class ReservationService {
 
     return this.preSvc.getPreReservationInfo(date);
   }
-
+  
   // 사전 예약 - 정식 예약만
   async openReservation(isOfficial: boolean) {
     if (isOfficial) return this.officialSvc.openReservation();
-
+    
     return this.preSvc.openPreReservation();
+  }
+
+  //우선예약 - time
+  async stopPreReservation() {
+    await this.preSvc.stopPreReservation();
+  }
+
+  //우선예약 - time
+  async reopenPreReservation() {
+    await this.preSvc.reopenPreReservation();
   }
 
   //우선예약
@@ -36,16 +46,6 @@ export class ReservationService {
   //우선예약
   async closePreReservation() {
     return this.preSvc.closePreReservation();
-  }
-
-  //우선예약
-  async stopPreReservation() {
-    await this.preSvc.stopPreReservation();
-  }
-
-  //우선예약
-  async reopenPreReservation() {
-    await this.preSvc.reopenPreReservation();
   }
 
   //정식예약

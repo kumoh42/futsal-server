@@ -13,11 +13,15 @@ export class ReservationTimeService {
   constructor(
     @Inject(ReservationTimeTransactionRepository)
     private repo: ReservationTimeTransactionRepository,
+
   ) {}
 
   async getNowReservationInfo() {
     const today = dayjs();
     const times = await this.repo.get();
+    
+    console.log(times)
+    const configList = await this.repo.getConfig()
 
     if (times.length === 0)
       return {
@@ -36,6 +40,7 @@ export class ReservationTimeService {
     }
 
     return {date: date, time: time, isPre: true};
+
   }
 
   async getPreReservationInfo() {
