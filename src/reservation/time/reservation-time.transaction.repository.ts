@@ -10,11 +10,20 @@ export class ReservationTimeTransactionRepository {
   constructor(
     @InjectRepository(Xe_Reservation_TimeEntity)
     private timeRepository: Repository<Xe_Reservation_TimeEntity>,
+    @InjectRepository(Xe_Reservation_ConfigEntity)
+    private configRepository: Repository<Xe_Reservation_ConfigEntity>,
   ) {}
 
   async get() {
     return await this.timeRepository.find();
   }
+
+  async getConfig() {
+    return await this.configRepository.find({
+      where: { key: 'is_pre_reservation_period' },
+    });
+  }
+  
 
   async update({ date, time, isPre }) {
     await this.timeRepository.manager.transaction(async (em) => {
