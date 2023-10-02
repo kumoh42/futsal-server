@@ -17,9 +17,8 @@ export class PreReservationService {
 
   // 사전 예약이랑 - 정식 예약이 같이 있네??
   async getPreReservationInfo(date: string) {
-    const monthInfo = date.slice(0, 7);
     return await this.repo.findBy({
-      monthInfo,
+      date,
     });
   }
 

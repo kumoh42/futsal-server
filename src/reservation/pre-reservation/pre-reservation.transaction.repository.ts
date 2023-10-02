@@ -234,9 +234,9 @@ export class PreReservationTransactionRepository {
     }
   }
 
-  async findBy({ monthInfo }) {
+  async findBy({ date }) {
     return await this.preRepository.find({
-      where: { date: Like(`${monthInfo}%`) },
+      where: { date: Like(`${date}%`) },
     });
   }
 

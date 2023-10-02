@@ -34,9 +34,9 @@ export class OfficialReservationTransactionRepository {
     return is_pre_reservation_period === 'N';
   }
 
-  async findBy({ monthInfo }: { monthInfo: string }) {
+  async findBy({ date }: { date: string }) {
     return this.reservationRepository.find({
-      where: { date: Like(`${monthInfo}%`) },
+      where: { date: Like(`${date}%`) },
     });
   }
 
