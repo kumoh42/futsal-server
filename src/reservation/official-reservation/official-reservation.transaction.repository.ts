@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, IsNull, Like, Not, Repository } from 'typeorm';
+import { DataSource, In, IsNull, Like, Not, Repository } from 'typeorm';
 import { Xe_Reservation_ConfigEntity } from 'src/entites/xe_reservation_config.entity';
 import { Xe_ReservationEntity } from 'src/entites/xe_reservation.entity';
 import { Xe_Reservation_TimeEntity } from 'src/entites/xe_reservation_time.entity';
@@ -21,6 +21,7 @@ export class OfficialReservationTransactionRepository {
     private timeRepository: Repository<Xe_Reservation_TimeEntity>,
     @InjectRepository(Xe_Reservation_TimeEntity)
     private preRepo: Repository<Xe_Reservation_PreEntity>,
+    private dataSource: DataSource,
   ) {}
 
   async isOfficial() {
@@ -33,28 +34,48 @@ export class OfficialReservationTransactionRepository {
     return is_pre_reservation_period === 'N';
   }
 
-  async findBy({ monthInfo }: { monthInfo: string }) {
+  async findBy({ date }: { date: string }) {
     return this.reservationRepository.find({
-      where: { date: Like(`${monthInfo}%`) },
+      where: { date: Like(`${date}%`) },
     });
   }
 
   async deleteBy({ date, times }: { date: string; times?: number[] }) {
-    const query = this.reservationRepository
-      .createQueryBuilder()
-      .update(Xe_ReservationEntity)
-      .set({
-        member_srl: null,
-        place_srl: null,
-        circle: null,
-        major: null,
-      })
-      .where('date LIKE :date', { date: `${date}%` })
-      .andWhere('member_srl IS NOT NULL');
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
 
-    if (times) query.andWhere('time = IN(:times)', { times });
+    try{
+      const query = this.reservationRepository
+        .createQueryBuilder()
+        .update(Xe_ReservationEntity)
+        .set({
+          member_srl: null,
+          place_srl: null,
+          circle: null,
+          major: null,
+        })
+        .where('date LIKE :date', { date: `${date}%` })
+        .andWhere('member_srl IS NOT NULL');
+  
+      if (times) query.andWhere('time = IN(:times)', { times });
+  
+      await query.execute();
+      
+      const result = await query.execute();
 
-    await query.execute();
+      if(result.affected == 0){
+        throw new NotFoundException('해당 날짜 또는 월의 예약이 존재하지 않습니다.');
+      }
+      await queryRunner.commitTransaction();
+
+    } catch(error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release()
+    }
+
   }
 
   async updateReservation({ isOpen, nextMonth, thisMonth }) {

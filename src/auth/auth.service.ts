@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -41,13 +42,13 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new BadRequestException(['아이디가 존재하지 않습니다.']);
+      throw new NotFoundException(['아이디가 존재하지 않습니다.']);
     }
 
     const passwordCompareResult = await compare(userPassword, user.password);
 
     if (!passwordCompareResult) {
-      throw new BadRequestException(['사용자를 찾을 수 없습니다.']);
+      throw new NotFoundException(['잘못된 비밀번호 입니다.']);
     }
 
     const payload = { userId: user.user_id, userName: user.user_name };

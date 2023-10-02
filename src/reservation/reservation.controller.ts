@@ -5,6 +5,7 @@ import {
   Get,
   HttpCode,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
   Put,
@@ -20,6 +21,7 @@ import { OneReservationDeleteDto } from 'src/common/dto/reservation/one-reservat
 import { PreReservationSetDto } from 'src/common/dto/reservation/pre-reservation-set.dto';
 import { ReservationTimeService } from './time/reservation-time.service';
 import { BlockReservationDto } from 'src/common/dto/reservation/block-reservation.dto';
+import { getReservationPipe } from 'src/common/get-reservation.pipe';
 
 @ApiTags('시설 예약')
 @Controller('reservation')
@@ -43,7 +45,7 @@ export class ReservationController {
   })
   @UseGuards(JwtAuthGuard)
   async getReservationInfo(
-    @Param('date') date: string,
+    @Param('date', getReservationPipe) date: string
   ): Promise<Xe_ReservationEntity[]> {
     return await this.reservationService.getReservationInfo(date, true);
   }
@@ -111,7 +113,8 @@ export class ReservationController {
     description: '사전예약 시간을 설정하는 DTO입니다.',
   })
   async deletePreReservationList(@Body() body: PreReservationSetDto) {
-    const { date, time, isPre } = body;
+    const { date, time, isPre} = body;
+
     return await this.reservationTimeService.deletePreReservationInfo(
       date,
       time,

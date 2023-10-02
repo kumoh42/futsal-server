@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Inject,
   Injectable,
   NotFoundException,
@@ -22,52 +23,24 @@ export class ReservationTimeService {
     console.log(times)
     const configList = await this.repo.getConfig()
 
-    if (configList[0].value === 'N') {
-      if (times.length === 0) { 
-        const nowTimeInfo = {
-          date: dayjs().format('YYYY-MM-DD'),
+    if (times.length === 0)
+      return {
+        date: dayjs().format('YYYY-MM-DD'),
+        time: dayjs().format('HH'),
+        isPre: false};
+
+    const { date, time } = times[0];
+    const datetimeForm = dayjs(`${date} ${time}`);
+
+    if (today.isBefore(datetimeForm)) {
+      return {
+          date:dayjs().format('YYYY-MM-DD'),
           time: dayjs().format('HH'),
-          isPre: false
-        };
-        return nowTimeInfo;
-      }
-    
-      else {
-        const nowTimeInfo = { };
-        return nowTimeInfo
-      }
+          isPre: false};
     }
 
-    else {
-      if (times.length === 0)
-      {
-        const nowTimeInfo = {
-          date: dayjs().format('YYYY-MM-DD'),
-          time: dayjs().format('HH'),
-          isPre: false
-        };
-        return nowTimeInfo
-      }
-  
-      const { date, time } = times[0];
-      const datetimeForm = dayjs(`${date} ${time}`);
-  
-      if (today.isBefore(datetimeForm)) {
-        const nowTimeInfo = {
-          date: dayjs().format('YYYY-MM-DD'),
-          time: dayjs().format('HH'),
-          isPre: false
-        };
-        return nowTimeInfo
-      }
-  
-      const nowTimeInfo = {
-        date: date,
-        time: time,
-        isPre: true
-      };
-      return nowTimeInfo;
-    }
+    return {date: date, time: time, isPre: true};
+
   }
 
   async getPreReservationInfo() {
@@ -78,7 +51,7 @@ export class ReservationTimeService {
     const list = await this.repo.get();
 
     if (list.length >= 1) {
-      throw new BadRequestException(['이미 사전 예약이 존재합니다.']);
+      throw new ConflictException(['이미 사전 예약이 존재합니다.']);
     }
 
     await this.repo.update({ date: date, time: time, isPre: isPre });

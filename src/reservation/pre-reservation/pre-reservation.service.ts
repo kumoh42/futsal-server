@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Inject,
   Injectable,
   NotFoundException,
@@ -16,9 +17,8 @@ export class PreReservationService {
 
   // 사전 예약이랑 - 정식 예약이 같이 있네??
   async getPreReservationInfo(date: string) {
-    const monthInfo = date.slice(0, 7);
     return await this.repo.findBy({
-      monthInfo,
+      date,
     });
   }
 
@@ -27,7 +27,7 @@ export class PreReservationService {
     const isPre = await this.repo.isPre();
 
     if (isPre) {
-      throw new BadRequestException('이미 사전예약 진행 중입니다.');
+      throw new ConflictException('이미 사전예약 진행 중입니다.');
     }
 
     const thisMonth = dayjs();

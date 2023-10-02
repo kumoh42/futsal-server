@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Inject,
   Injectable,
   NotFoundException,
@@ -16,9 +17,8 @@ export class OfficialReservationService {
 
   // TODO -> 둘 다 한 꺼번에 되야하느 ㄴ애니까
   async getOfficialReservationInfo(date: string) {
-    const monthInfo = date.slice(0, 7);
     return await this.repo.findBy({
-      monthInfo,
+      date,
     });
   }
 
@@ -26,7 +26,7 @@ export class OfficialReservationService {
     const isOpen = await this.repo.isOfficial();
 
     if (!isOpen) {
-      throw new BadRequestException('이미 예약 진행 중입니다.');
+      throw new ConflictException('이미 예약 진행 중입니다.');
     }
 
     const thisMonth = dayjs();
