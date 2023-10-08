@@ -45,7 +45,7 @@ export class OfficialReservationTransactionRepository {
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
-    try{
+    try {
       const query = this.reservationRepository
         .createQueryBuilder()
         .update(Xe_ReservationEntity)
@@ -57,25 +57,25 @@ export class OfficialReservationTransactionRepository {
         })
         .where('date LIKE :date', { date: `${date}%` })
         .andWhere('member_srl IS NOT NULL');
-  
+
       if (times) query.andWhere('time = IN(:times)', { times });
-  
+
       await query.execute();
-      
+
       const result = await query.execute();
 
-      if(result.affected == 0){
-        throw new NotFoundException('해당 날짜 또는 월의 예약이 존재하지 않습니다.');
+      if (result.affected == 0) {
+        throw new NotFoundException(
+          '해당 날짜 또는 월의 예약이 존재하지 않습니다.',
+        );
       }
       await queryRunner.commitTransaction();
-
-    } catch(error) {
+    } catch (error) {
       await queryRunner.rollbackTransaction();
       throw error;
     } finally {
-      await queryRunner.release()
+      await queryRunner.release();
     }
-
   }
 
   async updateReservation({ isOpen, nextMonth, thisMonth }) {

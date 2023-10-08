@@ -23,7 +23,6 @@ export class ReservationTimeTransactionRepository {
       where: { key: 'is_pre_reservation_period' },
     });
   }
-  
 
   async update({ date, time, isPre }) {
     await this.timeRepository.manager.transaction(async (em) => {
@@ -31,14 +30,14 @@ export class ReservationTimeTransactionRepository {
       timeRepo.date = date;
       timeRepo.time = time;
       timeRepo.isPre = isPre;
-      await em.save(timeRepo);      
+      await em.save(timeRepo);
 
       const allSettings = await em.find(Xe_Reservation_ConfigEntity);
 
       const year = date.substring(0, 4);
       const month = date.substring(5, 7);
       const dateSet = dayjs(`${year}-${month}-01`);
-      
+
       const updatedSettings = allSettings.map((setting) => {
         switch (setting.key) {
           case 'is_pre_reservation_period':
@@ -72,12 +71,14 @@ export class ReservationTimeTransactionRepository {
       timeRepo.date = list.date;
       timeRepo.time = list.time;
 
-      const timeEntity = await em.findOne(Xe_Reservation_TimeEntity, {where: timeRepo});
+      const timeEntity = await em.findOne(Xe_Reservation_TimeEntity, {
+        where: timeRepo,
+      });
 
       if (!timeEntity) {
         throw new BadRequestException(['삭제할 예약이 존재하지 않습니다.']);
       }
-      
+
       await em.remove(timeEntity);
 
       const allSettings = await em.find(Xe_Reservation_ConfigEntity);

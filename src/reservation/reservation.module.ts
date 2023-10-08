@@ -32,7 +32,7 @@ import { ReservationTimeTransactionRepository } from './time/reservation-time.tr
     OfficialReservationTransactionRepository,
     PreReservationService,
     PreReservationTransactionRepository,
-    ReservationTimeTransactionRepository
+    ReservationTimeTransactionRepository,
   ],
 })
 export class ReservationModule {}
