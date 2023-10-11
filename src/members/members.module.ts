@@ -13,6 +13,6 @@ import { Xe_Reservation_CricleEntity } from 'src/entites/xe_reservation_cricle.e
     ]),
   ],
   providers: [MembersService],
-  controllers:[MembersController]
+  controllers: [MembersController],
 })
 export class MembersModule {}

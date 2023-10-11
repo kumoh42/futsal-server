@@ -1,7 +1,6 @@
 import { IsNotEmpty, IsNumber, IsString, Matches } from 'class-validator';
 
 export class MemberInfoDto {
-
   @IsNotEmpty()
   memberName: string;
 
@@ -16,5 +15,4 @@ export class MemberInfoDto {
   @IsNumber()
   @IsNotEmpty()
   majorSrl: number;
-  
 }
