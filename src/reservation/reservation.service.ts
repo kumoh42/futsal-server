@@ -3,7 +3,7 @@ import { OfficialReservationService } from './official-reservation/official-rese
 import { PreReservationService } from './pre-reservation/pre-reservation.service';
 import { OfficialReservationTransactionRepository } from './official-reservation/official-reservation.transaction.repository';
 
-@Injectable() 
+@Injectable()
 export class ReservationService {
   constructor(
     @Inject(OfficialReservationService)
@@ -11,7 +11,7 @@ export class ReservationService {
     @Inject(PreReservationService)
     private readonly preSvc: PreReservationService,
     @Inject(OfficialReservationTransactionRepository)
-    private readonly officalReservationRepo: OfficialReservationTransactionRepository
+    private readonly officalReservationRepo: OfficialReservationTransactionRepository,
   ) {}
 
   // 사전 예약이랑 - 정식 예약이 같이 있네??
@@ -20,11 +20,11 @@ export class ReservationService {
 
     return this.preSvc.getPreReservationInfo(date);
   }
-  
+
   // 사전 예약 - 정식 예약만
   async openReservation(isOfficial: boolean) {
     if (isOfficial) return this.officialSvc.openReservation();
-    
+
     return this.preSvc.openPreReservation();
   }
 
@@ -74,9 +74,9 @@ export class ReservationService {
 
   //예약 여부 확인
   async blockReservation(startDate: string, endDate: string) {
-    const isOfficial = await this.officalReservationRepo.isOfficial()
+    const isOfficial = await this.officalReservationRepo.isOfficial();
 
-    if(isOfficial)
+    if (isOfficial)
       return this.officialSvc.blockReservationSlot(startDate, endDate);
 
     return this.preSvc.blockPreReservationSlot(startDate, endDate);

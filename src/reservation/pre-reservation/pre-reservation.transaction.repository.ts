@@ -1,4 +1,8 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, In, IsNull, Like, Not, Repository } from 'typeorm';
 import dayjs from 'dayjs';
@@ -39,13 +43,13 @@ export class PreReservationTransactionRepository {
   }
 
   async updatePreReservation({ isPre, thisMonth, nextMonth }) {
-    try{
+    try {
       const builder = new ReservationSlotBuilder(thisMonth, nextMonth);
       const preResservationSlot = await builder.buildSlots();
       await this.preRepository.clear();
       await this.updateSetting({ isPre });
       await this.preRepository.save(preResservationSlot);
-    } catch(error){
+    } catch (error) {
       throw error;
     }
   }
@@ -58,7 +62,7 @@ export class PreReservationTransactionRepository {
     endDate,
     endTime,
   }: IUpdateSetting) {
-    try{
+    try {
       const allSettings = await this.configRepo.find();
 
       // if(allSettings.find(setting => setting.key === 'is_pre_reservation_period').value == 'N'){
@@ -95,20 +99,17 @@ export class PreReservationTransactionRepository {
         }
       });
       await this.configRepo.save(updatedSettings);
-
-    } catch(error){
+    } catch (error) {
       throw error;
     }
   }
-
-
 
   async reset() {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
-    try{
+    try {
       await this.preRepository
         .createQueryBuilder()
         .update(Xe_Reservation_PreEntity)
@@ -122,10 +123,10 @@ export class PreReservationTransactionRepository {
         .execute();
 
       await queryRunner.commitTransaction();
-    }catch(error){
+    } catch (error) {
       await queryRunner.rollbackTransaction();
       throw error;
-    } finally{
+    } finally {
       await queryRunner.release();
     }
   }
@@ -204,33 +205,34 @@ export class PreReservationTransactionRepository {
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
-    try{
+    try {
       const query = this.preRepository
-      .createQueryBuilder()
-      .update(Xe_Reservation_PreEntity)
-      .set({
-        member_srl: null,
-        place_srl: null,
-        circle: null,
-        major: null,
-      })
-      .where('date LIKE :date', { date: `${date}%` })
-      .andWhere('member_srl IS NOT NULL');
+        .createQueryBuilder()
+        .update(Xe_Reservation_PreEntity)
+        .set({
+          member_srl: null,
+          place_srl: null,
+          circle: null,
+          major: null,
+        })
+        .where('date LIKE :date', { date: `${date}%` })
+        .andWhere('member_srl IS NOT NULL');
 
       if (times) query.andWhere('time = IN(:times)', { times });
-      
+
       const result = await query.execute();
 
-      if(result.affected == 0){
-        throw new NotFoundException('해당 날짜 또는 월의 예약이 존재하지 않습니다.');
+      if (result.affected == 0) {
+        throw new NotFoundException(
+          '해당 날짜 또는 월의 예약이 존재하지 않습니다.',
+        );
       }
       await queryRunner.commitTransaction();
-
-    } catch(error) {
+    } catch (error) {
       await queryRunner.rollbackTransaction();
       throw error;
     } finally {
-      await queryRunner.release()
+      await queryRunner.release();
     }
   }
 
@@ -266,9 +268,9 @@ export class PreReservationTransactionRepository {
         endTime: `${endTime}`,
       })
       .execute();
-    
-      if(result.affected == 0){
-        throw new NotFoundException('해당 시간 대의 예약 차단이 불가능합니다.');
-      }
+
+    if (result.affected == 0) {
+      throw new NotFoundException('해당 시간 대의 예약 차단이 불가능합니다.');
+    }
   }
 }

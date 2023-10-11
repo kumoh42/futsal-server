@@ -13,34 +13,34 @@ export class ReservationTimeService {
   constructor(
     @Inject(ReservationTimeTransactionRepository)
     private repo: ReservationTimeTransactionRepository,
-
   ) {}
 
   async getNowReservationInfo() {
     const today = dayjs();
     const times = await this.repo.get();
-    
-    console.log(times)
-    const configList = await this.repo.getConfig()
+
+    console.log(times);
+    const configList = await this.repo.getConfig();
 
     if (times.length === 0)
       return {
         date: dayjs().format('YYYY-MM-DD'),
         time: dayjs().format('HH'),
-        isPre: false};
+        isPre: false,
+      };
 
     const { date, time } = times[0];
     const datetimeForm = dayjs(`${date} ${time}`);
 
     if (today.isBefore(datetimeForm)) {
       return {
-          date:dayjs().format('YYYY-MM-DD'),
-          time: dayjs().format('HH'),
-          isPre: false};
+        date: dayjs().format('YYYY-MM-DD'),
+        time: dayjs().format('HH'),
+        isPre: false,
+      };
     }
 
-    return {date: date, time: time, isPre: true};
-
+    return { date: date, time: time, isPre: true };
   }
 
   async getPreReservationInfo() {

@@ -5,7 +5,6 @@ import {
   Get,
   HttpCode,
   Param,
-  ParseIntPipe,
   Patch,
   Post,
   Put,
@@ -45,7 +44,7 @@ export class ReservationController {
   })
   @UseGuards(JwtAuthGuard)
   async getReservationInfo(
-    @Param('date', getReservationPipe) date: string
+    @Param('date', getReservationPipe) date: string,
   ): Promise<Xe_ReservationEntity[]> {
     return await this.reservationService.getReservationInfo(date, true);
   }
@@ -76,11 +75,9 @@ export class ReservationController {
     if (state === 'stop') {
       await this.reservationService.stopPreReservation();
       await this.reservationTimeService.getNowReservationInfo();
-    }
-    else if (state === 'reopen') {
+    } else if (state === 'reopen') {
       await this.reservationService.reopenPreReservation();
-    }    
-    else if (state === 'reset')
+    } else if (state === 'reset')
       await this.reservationService.resetPreReservation();
     else
       throw new BadRequestException(
@@ -113,12 +110,12 @@ export class ReservationController {
     description: '사전예약 시간을 설정하는 DTO입니다.',
   })
   async deletePreReservationList(@Body() body: PreReservationSetDto) {
-    const { date, time, isPre} = body;
+    const { date, time, isPre } = body;
 
     return await this.reservationTimeService.deletePreReservationInfo(
       date,
       time,
-      isPre
+      isPre,
     );
   }
 
