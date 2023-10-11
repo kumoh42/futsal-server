@@ -39,7 +39,6 @@ export class MembersService {
         'major.major_name',
       ])
       .getRawMany();
-
     return membersWithCircleAndMajor;
   }
 
@@ -67,7 +66,6 @@ export class MembersService {
         'major.major_name',
       ])
       .getRawMany();
-
     return membersWithCircleAndMajor;
   }
 
@@ -131,7 +129,6 @@ export class MembersService {
       })
       .where('member_srl = :memberSrl', { memberSrl: memberSrl })
       .execute();
-
     return [`${memberSrl} 승인 완료`];
   }
 }
