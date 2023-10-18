@@ -46,7 +46,6 @@ export class OfficialReservationTransactionRepository {
       }
     }
 
-    console.log(dateList);
     return dateList;
   }
 
