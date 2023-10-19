@@ -19,7 +19,6 @@ export class ReservationTimeService {
     const today = dayjs();
     const times = await this.repo.get();
 
-    console.log(times);
     const configList = await this.repo.getConfig();
 
     if (times.length === 0)
