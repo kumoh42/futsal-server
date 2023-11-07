@@ -48,7 +48,7 @@ jobs:
         echo "CACHE_TTL=${{ secrets.CACHE_TTL }}" >> .env
         echo "CACHE_MAX=${{ secrets.CACHE_MAX }}" >> .env
         echo "SLACK_URL=${{ secrets.SLACK_URL }}" >> .env
-        echo "SLACK_MESSAGE_TEMPLETE="${{ secrets.DEV_SLACK_MESSAGE_TEMPLETE }}" >> .env
+        echo "SLACK_MESSAGE_TEMPLETE=${{ secrets.DEV_SLACK_MESSAGE_TEMPLETE }}" >> .env
 
     - name: Install dependencies
       run: npm install
