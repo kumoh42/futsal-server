@@ -35,9 +35,18 @@ export class OfficialReservationTransactionRepository {
   }
 
   async findBy({ date }: { date: string }) {
-    return this.reservationRepository.find({
+    const dateList = await this.reservationRepository.find({
       where: { date: Like(`${date}%`) },
     });
+    
+    for (let i = 0; i < dateList.length; i++) {
+      if (dateList[i].member_srl === 0 && dateList[i].place_srl === 0) {
+        dateList[i].member_srl = null;
+        dateList[i].place_srl = null;
+      }
+    }
+
+    return dateList;
   }
 
   async deleteBy({ date, times }: { date: string; times?: number[] }) {
@@ -50,15 +59,15 @@ export class OfficialReservationTransactionRepository {
         .createQueryBuilder()
         .update(Xe_ReservationEntity)
         .set({
-          member_srl: null,
-          place_srl: null,
+          member_srl: 0,
+          place_srl: 0,
           circle: null,
           major: null,
         })
         .where('date LIKE :date', { date: `${date}%` })
         .andWhere('member_srl IS NOT NULL');
 
-      if (times) query.andWhere('time = IN(:times)', { times });
+      if (times) query.andWhere('time IN (:times)', { times });
 
       await query.execute();
 

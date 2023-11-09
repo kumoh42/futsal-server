@@ -44,3 +44,7 @@ lerna-debug.log*
 
 #AWS Lambda files
 .serverless
+
+#AWS
+*.pem
+*.csv
