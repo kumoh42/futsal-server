@@ -13,6 +13,7 @@ import { OfficialReservationTransactionRepository } from './official-reservation
 import { PreReservationService } from './pre-reservation/pre-reservation.service';
 import { PreReservationTransactionRepository } from './pre-reservation/pre-reservation.transaction.repository';
 import { ReservationTimeTransactionRepository } from './time/reservation-time.transaction.repository';
+import { ReservationScheduler } from './reservation-scheduler';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { ReservationTimeTransactionRepository } from './time/reservation-time.tr
   ],
   controllers: [ReservationController],
   providers: [
+    ReservationScheduler,
     ReservationService,
     ReservationTimeService,
     ReservationSlotBuilder,
