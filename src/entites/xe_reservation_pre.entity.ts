@@ -12,40 +12,6 @@ export class Xe_Reservation_PreEntity {
   reservation_srl: number;
 
   /**
-   * xe_reservation_pre - member_id
-   * @description 예약자. xe_member 테이블의 member_srl 값입니다. 그러나 fk는 아닙니다.
-   *
-   * Default - NULL
-   */
-  @Column()
-  member_srl: number;
-
-  /**
-   * xe_reservation_pre - place_srl
-   * @description 예약한 장소를 의미합니다. 현재 풋살장 밖에 사용하지 않으므로 전부 0으로 처리됩니다.
-   *
-   * Default - NULL
-   */
-  @Column()
-  place_srl: number;
-
-  /**
-   * xe_reservation_pre - circle
-   * @description 예약자 동아리를 의미합니다. 한글 문자열으로 입력되어 있습니다.
-   */
-  @Column({ length: 20 })
-  circle: string;
-
-  /**
-   * xe_reservation_pre - circle
-   * @description 예약자가 속한 학과를 의미합니다. 한글 문자열으로 입력되어 있습니다.
-   *
-   * Default - NULL
-   */
-  @Column({ length: 10 })
-  major: string;
-
-  /**
    * xe_reservation_pre - date
    * @description 사용날짜를 의미합니다.
    *
@@ -63,36 +29,26 @@ export class Xe_Reservation_PreEntity {
    */
   time: number;
 
-  /**
-   * xe_reservation_pre - is_able
-   * @description  ???
-   *
-   * NN
-   *
-   * Default - 'N'
-   */
-  @Column({ length: 1 })
+  @Column({ default: 0 })
+  member_srl: number;
+
+  @Column({ default: 0 })
+  place_srl: number;
+
+  @Column({ length: 20, default: '' })
+  circle: string;
+
+  @Column({ length: 10, default: '' })
+  major: string;
+
+  // date 필드와 time 필드는 기본값 설정이 적합하지 않을 수 있으므로 변경하지 않음
+
+  @Column({ length: 1, default: 'N' })
   is_able: string;
 
-  /**
-   * xe_reservation_pre - is_holyday
-   * @description 예약날의 주말 여부를 의미합니다.
-   *
-   * NN
-   *
-   * Default - 'N'
-   */
-  @Column({ length: 1 })
+  @Column({ length: 1, default: 'N' })
   is_holiday: string;
 
-  /**
-   * xe_reservation_pre - regdate
-   * @description ???2
-   *
-   * NN
-   *
-   * Default - CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP()
-   */
-  @Column({ length: 40 })
+  @Column({ length: 40, default: 'test' })
   regdate: string;
 }
