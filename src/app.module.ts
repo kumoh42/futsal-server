@@ -6,7 +6,6 @@ import { AuthModule } from './auth/auth.module';
 import { ReservationModule } from './reservation/reservation.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { SlackModule } from './slack/slack.module';
-import { MembersController } from './members/members.controller';
 import { MembersModule } from './members/members.module';
 
 @Module({

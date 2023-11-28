@@ -4,8 +4,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { MemberInfoDto } from 'src/common/dto/members/members.dto';
-import { Xe_Reservation_MemberEntity } from 'src/entites/xe_reservation_member.entity';
+import { MemberInfoDto } from '@/common/dto/members/members.dto';
+import { Xe_Reservation_MemberEntity } from '@/entites/xe_reservation_member.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()

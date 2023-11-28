@@ -18,5 +18,8 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "esModuleInterop": true,
+    "paths": {
+      "@/*": ["src/*"] // '@'를 사용하여 'src' 폴더를 가리킴
+    }
   }
 }
