@@ -14,6 +14,7 @@ import { MembersModule } from './members/members.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    ScheduleModule.forRoot(),
     TypeOrmModule.forRoot({
       type: process.env.DATABASE_TYPE as any,
       host: process.env.DATABASE_HOST,
