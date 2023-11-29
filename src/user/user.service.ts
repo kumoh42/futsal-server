@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Xe_Member_FutsalEntity } from 'src/entites/xe_member.futsal.entity';
+import { Xe_Member_FutsalEntity } from '@/entites/xe_member.futsal.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()

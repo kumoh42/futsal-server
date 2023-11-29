@@ -1,10 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, In, IsNull, Like, Not, Repository } from 'typeorm';
-import { Xe_Reservation_ConfigEntity } from 'src/entites/xe_reservation_config.entity';
-import { Xe_ReservationEntity } from 'src/entites/xe_reservation.entity';
-import { Xe_Reservation_TimeEntity } from 'src/entites/xe_reservation_time.entity';
-import { Xe_Reservation_PreEntity } from 'src/entites/xe_reservation_pre.entity';
+import { Xe_Reservation_ConfigEntity } from '@/entites/xe_reservation_config.entity';
+import { Xe_ReservationEntity } from '@/entites/xe_reservation.entity';
+import { Xe_Reservation_TimeEntity } from '@/entites/xe_reservation_time.entity';
+import { Xe_Reservation_PreEntity } from '@/entites/xe_reservation_pre.entity';
 import { ReservationSlotBuilder } from '../reservation-slot.builder';
 
 @Injectable()
@@ -38,7 +38,7 @@ export class OfficialReservationTransactionRepository {
     const dateList = await this.reservationRepository.find({
       where: { date: Like(`${date}%`) },
     });
-    
+
     for (let i = 0; i < dateList.length; i++) {
       if (dateList[i].member_srl === 0 && dateList[i].place_srl === 0) {
         dateList[i].member_srl = null;

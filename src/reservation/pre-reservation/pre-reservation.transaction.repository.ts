@@ -1,15 +1,10 @@
-import {
-  ConflictException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, In, IsNull, Like, Not, Repository } from 'typeorm';
 import dayjs from 'dayjs';
-import { Xe_Reservation_ConfigEntity } from 'src/entites/xe_reservation_config.entity';
-import { Xe_Reservation_PreEntity } from 'src/entites/xe_reservation_pre.entity';
+import { Xe_Reservation_ConfigEntity } from '@/entites/xe_reservation_config.entity';
+import { Xe_Reservation_PreEntity } from '@/entites/xe_reservation_pre.entity';
 import { ReservationSlotBuilder } from '../reservation-slot.builder';
-import { NotFoundError } from 'rxjs';
 
 export interface IUpdateSetting {
   isPre?: boolean;

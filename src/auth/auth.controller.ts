@@ -11,7 +11,7 @@ import {
 import { AuthService } from './auth.service';
 import { Response } from 'express';
 import { JwtAuthGuard } from './jwt/jwt.guard';
-import { User } from 'src/common/decorators/user.decorator';
+import { User } from '@/common/decorators/user.decorator';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ApiBody, ApiHeader, ApiOperation, ApiTags } from '@nestjs/swagger';
 
