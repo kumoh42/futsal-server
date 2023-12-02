@@ -53,7 +53,6 @@ export class Xe_Reservation_PreEntity {
    */
   @Column({ length: 11 })
   date: string;
-
   @Column()
   /**
    * xe_reservation_pre - time

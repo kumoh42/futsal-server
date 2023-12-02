@@ -4,6 +4,7 @@ import {
   Controller,
   Get,
   HttpCode,
+  Inject,
   Param,
   Patch,
   Post,
@@ -21,6 +22,7 @@ import { PreReservationSetDto } from '@/common/dto/reservation/pre-reservation-s
 import { ReservationTimeService } from './time/reservation-time.service';
 import { BlockReservationDto } from '@/common/dto/reservation/block-reservation.dto';
 import { getReservationPipe } from '@/common/get-reservation.pipe';
+import { ReservationScheduler } from './reservation-scheduler';
 
 @ApiTags('시설 예약')
 @Controller('reservation')
@@ -28,7 +30,14 @@ export class ReservationController {
   constructor(
     private reservationService: ReservationService,
     private reservationTimeService: ReservationTimeService,
+    private scheduler: ReservationScheduler,
   ) {}
+
+  @ApiOperation({ description: '현재 등록된 scheduler 목록 조회' })
+  @Get('/schedule')
+  async getSchedule() {
+    return await this.scheduler.getSchedule();
+  }
 
   @ApiOperation({ description: '현재 진행되고 있는 예약 조회' })
   @Get('/now/setting')
