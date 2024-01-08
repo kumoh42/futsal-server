@@ -14,11 +14,11 @@ export class ReservationScheduler {
     private schedulerRegistry: SchedulerRegistry,
   ) {}
 
-  // @Cron('0 0 0 1 * *', {
+  // @Cron('0 30 * * * *', {
   //   timeZone: 'Asia/Seoul',
   //   name: 'Create Pre Reservation Slot',
   // })
-  @Cron('0 30 * * * *', {
+  @Cron('0 0 0 1 * *', {
     timeZone: 'Asia/Seoul',
     name: 'Create Pre Reservation Slot',
   })
@@ -35,7 +35,11 @@ export class ReservationScheduler {
     });
   }
 
-  @Cron('0 0 * * * *', {
+  // @Cron('0 0 * * * *', {
+  //   timeZone: 'Asia/Seoul',
+  //   name: 'Open Officail Reservation',
+  // })
+  @Cron('0 0 0 1 * *', {
     timeZone: 'Asia/Seoul',
     name: 'Open Officail Reservation',
   })
