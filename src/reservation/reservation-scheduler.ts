@@ -39,7 +39,7 @@ export class ReservationScheduler {
   //   timeZone: 'Asia/Seoul',
   //   name: 'Open Officail Reservation',
   // })
-  @Cron('0 0 0 10 * *', {
+  @Cron('0 0 10 10 * *', {
     timeZone: 'Asia/Seoul',
     name: 'Open Official Reservation',
   })
