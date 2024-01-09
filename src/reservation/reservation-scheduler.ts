@@ -14,10 +14,6 @@ export class ReservationScheduler {
     private schedulerRegistry: SchedulerRegistry,
   ) {}
 
-  // @Cron('0 30 * * * *', {
-  //   timeZone: 'Asia/Seoul',
-  //   name: 'Create Pre Reservation Slot',
-  // })
   @Cron('0 0 0 1 * *', {
     timeZone: 'Asia/Seoul',
     name: 'Create Pre Reservation Slot',
@@ -27,7 +23,7 @@ export class ReservationScheduler {
 
     const after1Month = addMonth(today, 1);
     const after2Month = addMonth(today, 2);
-    console.log("SCHEDULER is called : createPreReservationSlot");
+
     await this.preReservationTransactionRepo.updatePreReservation({
       isPre: false,
       thisMonth: after1Month,
@@ -35,16 +31,15 @@ export class ReservationScheduler {
     });
   }
 
-  // @Cron('0 0 * * * *', {
+  // @Cron('0 0 0 1 * *', {
   //   timeZone: 'Asia/Seoul',
   //   name: 'Open Officail Reservation',
   // })
-  @Cron('0 0 10 10 * *', {
+  @Cron('0 15 0 10 * *', {
     timeZone: 'Asia/Seoul',
-    name: 'Open Official Reservation',
+    name: 'Open Officail Reservation',
   })
   private async openOfficailReservation() {
-    console.log("SCHEDULER is called : openOfficialReservation");
     await this.officialReservationSvc.openReservation();
   }
 
