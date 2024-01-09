@@ -3,6 +3,7 @@ import { Cron, SchedulerRegistry } from '@nestjs/schedule';
 import { addMonth, applyAsiaSeoulTz, getToday } from '@/util/date-util';
 import { PreReservationTransactionRepository } from './pre-reservation/pre-reservation.transaction.repository';
 import { OfficialReservationService } from './official-reservation/official-reservation.service';
+import { CronTime } from 'cron';
 
 @Injectable()
 export class ReservationScheduler {
@@ -14,32 +15,38 @@ export class ReservationScheduler {
     private schedulerRegistry: SchedulerRegistry,
   ) {}
 
-  @Cron('0 0 0 1 * *', {
+  @Cron('0 0 20 28-31 * *', {
     timeZone: 'Asia/Seoul',
     name: 'Create Pre Reservation Slot',
   })
   private async createPreReservationSlot() {
+    const now = new Date();
+    const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+    if (now.getDate() !== lastDayOfMonth.getDate()) {
+      return;  // 오늘이 이 달의 마지막 날이 아니면 함수를 종료
+    }
+
     const today = getToday();
 
     const after1Month = addMonth(today, 1);
     const after2Month = addMonth(today, 2);
-
+    console.log("SCHEDULER is called : createPreReservationSlot");
     await this.preReservationTransactionRepo.updatePreReservation({
       isPre: false,
       thisMonth: after1Month,
       nextMonth: after2Month,
     });
+
+    await this.resetScheduleTime();
   }
 
-  // @Cron('0 0 0 1 * *', {
-  //   timeZone: 'Asia/Seoul',
-  //   name: 'Open Officail Reservation',
-  // })
-  @Cron('0 15 0 10 * *', {
+  @Cron('0 0 0 1 * *', {
     timeZone: 'Asia/Seoul',
-    name: 'Open Officail Reservation',
+    name: 'Open Official Reservation',
   })
   private async openOfficailReservation() {
+    console.log("SCHEDULER is called : openOfficialReservation");
     await this.officialReservationSvc.openReservation();
   }
 
@@ -60,5 +67,17 @@ export class ReservationScheduler {
     } catch (e) {
       return 'error: next fire date is in the past!';
     }
+  }
+
+  async updateScheduleTime(time: string) {
+    const job = this.schedulerRegistry.getCronJob('Create Pre Reservation Slot');
+    job.setTime(new CronTime(`${time} * *`, 'Asia/Seoul'));
+    job.start();
+  }
+
+  async resetScheduleTime() {
+    const job = this.schedulerRegistry.getCronJob('Create Pre Reservation Slot');
+    job.setTime(new CronTime(`0 0 20 28-31 * *`, 'Asia/Seoul'));
+    job.start();
   }
 }
