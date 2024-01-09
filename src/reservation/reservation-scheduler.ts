@@ -39,9 +39,9 @@ export class ReservationScheduler {
   //   timeZone: 'Asia/Seoul',
   //   name: 'Open Officail Reservation',
   // })
-  @Cron('0 0 0 1 * *', {
+  @Cron('0 0 0 10 * *', {
     timeZone: 'Asia/Seoul',
-    name: 'Open Officail Reservation',
+    name: 'Open Official Reservation',
   })
   private async openOfficailReservation() {
     console.log("SCHEDULER is called : openOfficialReservation");
