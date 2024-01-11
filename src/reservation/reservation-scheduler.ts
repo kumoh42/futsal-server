@@ -4,6 +4,7 @@ import { addMonth, applyAsiaSeoulTz, getToday } from '@/util/date-util';
 import { PreReservationTransactionRepository } from './pre-reservation/pre-reservation.transaction.repository';
 import { OfficialReservationService } from './official-reservation/official-reservation.service';
 import { CronTime } from 'cron';
+import dayjs from 'dayjs';
 
 @Injectable()
 export class ReservationScheduler {
@@ -20,11 +21,11 @@ export class ReservationScheduler {
     name: 'Create Pre Reservation Slot',
   })
   private async createPreReservationSlot() {
-    const now = new Date();
-    const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-
-    if (now.getDate() !== lastDayOfMonth.getDate()) {
-      return;  // 오늘이 이 달의 마지막 날이 아니면 함수를 종료
+    const now = dayjs();
+    const lastDayOfMonth = now.daysInMonth();
+    
+    if (now.date() != lastDayOfMonth){
+      return; //이 달의 마지막 날이 아니면 종료
     }
 
     const today = getToday();
