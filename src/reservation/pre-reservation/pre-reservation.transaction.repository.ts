@@ -44,10 +44,11 @@ export class PreReservationTransactionRepository {
       await this.preRepository.softDelete({});
 
       const preReservations = await this.preRepository.find();
-      console.log(preReservations);
       
       await this.updateSetting({ isPre });
       await this.preRepository.save(preResservationSlot);
+
+      const newPreRepository = await this.preRepository.find();
     } catch (error) {
       throw error;
     }
