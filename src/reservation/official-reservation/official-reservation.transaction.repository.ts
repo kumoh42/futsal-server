@@ -19,7 +19,7 @@ export class OfficialReservationTransactionRepository {
     private reservationRepository: Repository<Xe_ReservationEntity>,
     @InjectRepository(Xe_Reservation_TimeEntity)
     private timeRepository: Repository<Xe_Reservation_TimeEntity>,
-    @InjectRepository(Xe_Reservation_TimeEntity)
+    @InjectRepository(Xe_Reservation_PreEntity)
     private preRepo: Repository<Xe_Reservation_PreEntity>,
     private dataSource: DataSource,
   ) {}
