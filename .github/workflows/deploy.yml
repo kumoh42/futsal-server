@@ -2,11 +2,11 @@ name: Deploy to EC2 in main for Deploy
 
 on:
   push:
-    branches: ["main", "dev"]
+    branches: ["main", "KUM-143-server-for-deploy"]
   workflow_run:
     workflows: ["Test"]
     types: [completed]
-    branches: ["main", "dev"]
+    branches: ["main"]
 
 jobs:
   build_and_deploy:
