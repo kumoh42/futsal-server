@@ -1,12 +1,12 @@
-name: Deploy Nestjs on lambda
+name: Deploy to EC2 in main for Deploy
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "dev"]
   workflow_run:
     workflows: ["Test"]
     types: [completed]
-    branches: ["main"]
+    branches: ["main", "dev"]
 
 jobs:
   build_and_deploy:
@@ -16,23 +16,54 @@ jobs:
       ECR_REGISTRY: ${{ secrets.ECR_PATH }}
       ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
       IMAGE_TAG: latest
-      LAMBDA_NAME: ${{ secrets.LAMBDA_NAME }}
+      EC2_HOST: ${{ secrets.EC2_HOST }}
+      EC2_USERNAME: ${{ secrets.EC2_USERNAME }}
       AWS_REGION: ${{ secrets.AWS_REGION }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_SG_NAME: ${{ secrets.AWS_SG_NAME }}
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
 
+    - name: Get Github action IP
+      id: ip
+      uses: haythem/public-ip@v1.2
+
+    - name: Create .env file
+      run: |
+        echo "DATABASE_TYPE=${{ secrets.DATABASE_TYPE }}" >> .env
+        echo "DATABASE_PORT=${{ secrets.DATABASE_PORT }}" >> .env
+        echo "DATABASE_HOST=${{ secrets.DATABASE_HOST }}" >> .env
+        echo "DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }}" >> .env
+        echo "DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}" >> .env
+        echo "DATABASE_NAME=${{ secrets.DATABASE_NAME }}" >> .env
+        echo "JWT_ACCESS_SECRET_KEY=${{ secrets.JWT_ACCESS_SECRET_KEY }}" >> .env
+        echo "JWT_ACCESS_EXPIRATION_TIME=${{ secrets.JWT_ACCESS_EXPIRATION_TIME }}" >> .env
+        echo "JWT_REFRESH_SECRET_KEY=${{ secrets.JWT_REFRESH_SECRET_KEY }}" >> .env
+        echo "JWT_REFRESH_EXPIRATION_TIME=${{ secrets.JWT_REFRESH_EXPIRATION_TIME }}" >> .env
+        echo "CACHE_TTL=${{ secrets.CACHE_TTL }}" >> .env
+        echo "CACHE_MAX=${{ secrets.CACHE_MAX }}" >> .env
+        echo "SLACK_URL=${{ secrets.SLACK_URL }}" >> .env
+        echo "SLACK_MESSAGE_TEMPLETE=${{ secrets.DEV_SLACK_MESSAGE_TEMPLETE }}" >> .env
+
     - name: Install dependencies
       run: npm install
-
+  
     - name: Run npm build
       run: npm run build
-
+      
     - name: Build Docker image
       run: docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
 
     - name: Login to Amazon ECR
       id: login-ecr
@@ -41,28 +72,33 @@ jobs:
     - name: Push Docker image to ECR
       run: docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ env.AWS_REGION }}
-            
-    - name: Make Environment variables
+    - name: Add Github Actions IP to Security group
       run: |
-        aws lambda update-function-configuration \
-        --function-name $LAMBDA_NAME \
-        --environment 'Variables={DATABASE_TYPE=${{ secrets.DATABASE_TYPE }},DATABASE_PORT=${{ secrets.DATABASE_PORT }},DATABASE_HOST=${{ secrets.DATABASE_HOST }},DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }},DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }},DATABASE_NAME=${{ secrets.DATABASE_NAME }},JWT_ACCESS_SECRET_KEY=${{ secrets.JWT_ACCESS_SECRET_KEY }},JWT_ACCESS_EXPIRATION_TIME=${{ secrets.JWT_ACCESS_EXPIRATION_TIME }},JWT_REFRESH_SECRET_KEY=${{ secrets.JWT_REFRESH_SECRET_KEY }},JWT_REFRESH_EXPIRATION_TIME=${{ secrets.JWT_REFRESH_EXPIRATION_TIME }},CACHE_TTL=${{ secrets.CACHE_TTL }},CACHE_MAX=${{ secrets.CACHE_MAX }},SLACK_URL=${{ secrets.SLACK_URL }},SLACK_MESSAGE_TEMPLETE="${{ secrets.SLACK_MESSAGE_TEMPLETE }}"}'
-  
-    - name: Update Lambda function image
-      uses: nick-invision/retry@v2
+        aws ec2 authorize-security-group-ingress --group-name ${{ env.AWS_SG_NAME }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32    
+      env:
+        AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
+        AWS_DEFAULT_REGION: ${{ env.AWS_REGION }}
+
+    - name: SSH into EC2 and deploy
+      uses: appleboy/ssh-action@master
       with:
-        timeout_minutes: 10
-        max_attempts: 5
-        retry_on: error
-        shell: bash
-        command: |
-          aws lambda update-function-code \
-            --function-name $LAMBDA_NAME \
-            --image-uri $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        host: ${{ env.EC2_HOST }}
+        username: ${{ env.EC2_USERNAME }}
+        key: ${{ env.SSH_PRIVATE_KEY }}
+        script: |
+          # Pull and run the Docker image on EC2
+          aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}
+          echo "${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}"
+          docker pull ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+          docker stop ${{ env.ECR_REPOSITORY }} || true
+          docker rm ${{ env.ECR_REPOSITORY }} || true
+          docker run -d --name ${{ env.ECR_REPOSITORY }} -p 3000:3000 ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+
+    - name: Remove Github Actions IP from security group
+      run: |
+        aws ec2 revoke-security-group-ingress --group-name ${{ env.AWS_SG_NAME }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
+      env:
+        AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
+        AWS_DEFAULT_REGION: ${{ env.AWS_REGION }}
