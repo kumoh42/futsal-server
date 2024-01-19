@@ -42,13 +42,9 @@ export class PreReservationTransactionRepository {
       const builder = new ReservationSlotBuilder(thisMonth, nextMonth);
       const preResservationSlot = await builder.buildSlots();
       await this.preRepository.softDelete({});
-
-      const preReservations = await this.preRepository.find();
       
       await this.updateSetting({ isPre });
       await this.preRepository.save(preResservationSlot);
-
-      const newPreRepository = await this.preRepository.find();
     } catch (error) {
       throw error;
     }
