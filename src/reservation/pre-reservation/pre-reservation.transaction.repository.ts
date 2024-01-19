@@ -35,7 +35,7 @@ export class PreReservationTransactionRepository {
       .map((setting) => setting.value)[0];
 
     return is_pre_reservation_period === 'Y';
-  }
+  } 
 
   async updatePreReservation({ isPre, thisMonth, nextMonth }) {
     try {
@@ -49,6 +49,7 @@ export class PreReservationTransactionRepository {
       throw error;
     }
   }
+
 
   // 사전 예약 세팅 - 구조 분해 할당
   async updateSetting({
