@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   ConflictException,
   Inject,
   Injectable,
@@ -23,7 +22,7 @@ export class OfficialReservationService {
   }
 
   async openReservation() {
-    const isOpen = await this.repo.isOfficial();
+    const isOpen = await this.repo.isOfficialToReservaition();
 
     if (!isOpen) {
       throw new ConflictException('이미 예약 진행 중입니다.');
