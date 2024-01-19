@@ -23,9 +23,9 @@ export class ReservationService {
 
   // 사전 예약 - 정식 예약만
   async openReservation(isOfficial: boolean) {
-    if (isOfficial) return this.officialSvc.openReservation();
+    if (isOfficial) return this.officialSvc.openReservation(); // 정식예약 시작
 
-    return this.preSvc.openPreReservation();
+    return this.preSvc.openPreReservation(); // 사전예약 시작
   }
 
   //우선예약 - time

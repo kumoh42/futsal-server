@@ -41,7 +41,8 @@ export class PreReservationTransactionRepository {
     try {
       const builder = new ReservationSlotBuilder(thisMonth, nextMonth);
       const preResservationSlot = await builder.buildSlots();
-      await this.preRepository.clear();
+      await this.preRepository.softDelete({});
+      
       await this.updateSetting({ isPre });
       await this.preRepository.save(preResservationSlot);
     } catch (error) {
@@ -128,7 +129,10 @@ export class PreReservationTransactionRepository {
   }
 
   async close() {
-    await this.preRepository.clear();
+
+    const preReservations = await this.preRepository.find();
+    
+    await this.preRepository.softDelete({});
     await this.updateSetting({
       isPre: false,
       endDate: dayjs().format('YYYY-MM-DD'),

@@ -125,9 +125,10 @@ export class OfficialReservationTransactionRepository {
     );
 
     await this.reservationRepository.save(reservationSlot);
-    this.preRepoTransction.updatePreReservation({isPre: false, nextMonth, thisMonth })
+    await this.preRepo.softDelete({});
+    this.preRepoTransction.updatePreReservation({isPre: false, nextMonth, thisMonth })    
   }
-
+  
   async updateSetting({ isOpen}) {
     const allSettings = await this.configRepo.find();
     const updatedSettings = allSettings.map((setting) => {
