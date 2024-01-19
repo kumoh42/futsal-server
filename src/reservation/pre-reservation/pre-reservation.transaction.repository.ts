@@ -134,8 +134,6 @@ export class PreReservationTransactionRepository {
   async close() {
 
     const preReservations = await this.preRepository.find();
-    console.log(preReservations);
-    
     
     await this.preRepository.softDelete({});
     await this.updateSetting({
