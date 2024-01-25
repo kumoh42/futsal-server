@@ -8,6 +8,9 @@ import dayjs from 'dayjs';
 
 @Injectable()
 export class ReservationScheduler {
+
+  private userSetTime = false;
+
   constructor(
     @Inject(PreReservationTransactionRepository)
     private preReservationTransactionRepo: PreReservationTransactionRepository,
@@ -25,7 +28,7 @@ export class ReservationScheduler {
     const now = dayjs();
     const lastDayOfMonth = now.daysInMonth();
     
-    if (now.date() != lastDayOfMonth){
+    if (!this.userSetTime && now.date() != lastDayOfMonth){
       return; //이 달의 마지막 날이 아니면 종료
     }
 
@@ -72,12 +75,14 @@ export class ReservationScheduler {
   }
 
   async updateScheduleTime(time: string) {
+    this.userSetTime = true;
     const job = this.schedulerRegistry.getCronJob('Create Pre Reservation Slot');
     job.setTime(new CronTime(`${time} * *`, 'Asia/Seoul'));
     job.start();
   }
 
   async resetScheduleTime() {
+    this.userSetTime = false;
     const job = this.schedulerRegistry.getCronJob('Create Pre Reservation Slot');
     job.setTime(new CronTime(`0 0 20 28-31 * *`, 'Asia/Seoul'));
     job.start();
