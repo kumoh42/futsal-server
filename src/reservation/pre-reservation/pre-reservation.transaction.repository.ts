@@ -35,19 +35,21 @@ export class PreReservationTransactionRepository {
       .map((setting) => setting.value)[0];
 
     return is_pre_reservation_period === 'Y';
-  }
+  } 
 
   async updatePreReservation({ isPre, thisMonth, nextMonth }) {
     try {
       const builder = new ReservationSlotBuilder(thisMonth, nextMonth);
       const preResservationSlot = await builder.buildSlots();
-      await this.preRepository.clear();
+      await this.preRepository.softDelete({});
+      
       await this.updateSetting({ isPre });
       await this.preRepository.save(preResservationSlot);
     } catch (error) {
       throw error;
     }
   }
+
 
   // 사전 예약 세팅 - 구조 분해 할당
   async updateSetting({
@@ -127,7 +129,10 @@ export class PreReservationTransactionRepository {
   }
 
   async close() {
-    await this.preRepository.clear();
+
+    const preReservations = await this.preRepository.find();
+    
+    await this.preRepository.softDelete({});
     await this.updateSetting({
       isPre: false,
       endDate: dayjs().format('YYYY-MM-DD'),
