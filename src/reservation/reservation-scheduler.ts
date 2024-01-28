@@ -38,7 +38,7 @@ export class ReservationScheduler {
     const after2Month = addMonth(today, 2);
     console.log("SCHEDULER is called : createPreReservationSlot");
     await this.preReservationTransactionRepo.updatePreReservation({
-      isPre: false,
+      isPre: true,
       thisMonth: after1Month,
       nextMonth: after2Month,
     });
