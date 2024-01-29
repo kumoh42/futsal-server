@@ -2,8 +2,8 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import dayjs from 'dayjs';
-import { Xe_Reservation_ConfigEntity } from 'src/entites/xe_reservation_config.entity';
-import { Xe_Reservation_TimeEntity } from 'src/entites/xe_reservation_time.entity';
+import { Xe_Reservation_ConfigEntity } from '@/entites/xe_reservation_config.entity';
+import { Xe_Reservation_TimeEntity } from '@/entites/xe_reservation_time.entity';
 
 @Injectable()
 export class ReservationTimeTransactionRepository {

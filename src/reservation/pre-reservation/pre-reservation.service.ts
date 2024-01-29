@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   ConflictException,
   Inject,
   Injectable,
@@ -33,7 +32,10 @@ export class PreReservationService {
     const thisMonth = dayjs();
     const nextMonth = dayjs().add(1, 'months');
 
-    await this.repo.updatePreReservation({ isPre: true, thisMonth, nextMonth });
+    //config 레포 끌고 온 후 isPre Y로 변경
+    await this.repo.updateSetting({ isPre: true});
+    
+    //await this.repo.updatePreReservation({ isPre: true, thisMonth, nextMonth });
   }
 
   //우선예약

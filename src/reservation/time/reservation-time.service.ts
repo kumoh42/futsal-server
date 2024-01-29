@@ -7,12 +7,14 @@ import {
 } from '@nestjs/common';
 import dayjs from 'dayjs';
 import { ReservationTimeTransactionRepository } from './reservation-time.transaction.repository';
+import { ReservationScheduler } from '../reservation-scheduler';
 
 @Injectable()
 export class ReservationTimeService {
   constructor(
     @Inject(ReservationTimeTransactionRepository)
     private repo: ReservationTimeTransactionRepository,
+    private reservationScheduler: ReservationScheduler,
   ) {}
 
   async getNowReservationInfo() {
@@ -52,8 +54,9 @@ export class ReservationTimeService {
     if (list.length >= 1) {
       throw new ConflictException(['이미 사전 예약이 존재합니다.']);
     }
-
+    const cronFormat = this.formatForCron(date, time);
     await this.repo.update({ date: date, time: time, isPre: isPre });
+    await this.reservationScheduler.updateScheduleTime(cronFormat);
 
     return '사전예약 설정 완료';
   }
@@ -68,5 +71,12 @@ export class ReservationTimeService {
     await this.repo.delete({ date: date, time: time, isPre: isPre });
 
     return '사전예약 예약 삭제 완료';
+  }
+
+  formatForCron(date: string, time: string){
+    const [year, month, day] = date.split("-");
+    const cronFormat = `0 0 ${time} ${day}`;
+
+    return cronFormat;
   }
 }

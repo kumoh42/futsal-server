@@ -4,8 +4,8 @@ import { AuthService } from './auth.service';
 import { PassportModule } from '@nestjs/passport/dist';
 import { JwtModule } from '@nestjs/jwt/dist';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Xe_Member_FutsalEntity } from 'src/entites/xe_member.futsal.entity';
-import { CachesModule } from 'src/cache/cache.module';
+import { Xe_Member_FutsalEntity } from '@/entites/xe_member.futsal.entity';
+import { CachesModule } from '@/cache/cache.module';
 
 @Global()
 @Module({

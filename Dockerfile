@@ -1,56 +1,29 @@
-# FROM public.ecr.aws/lambda/nodejs:18
-
-# COPY package*.json ./
-
-# RUN npm install
-
-# COPY . .
-
-# EXPOSE 3000
-
-# CMD ["dist/serverless.handler"]
-
-
-
-###################
-# build for local development
-FROM public.ecr.aws/lambda/nodejs:18 As development
+# DEVELOPMENT
+FROM node:18-alpine As development
 
 WORKDIR /usr/src/app
 
-COPY --chown=node:node package*.json ./
+COPY package*.json ./
 
-RUN npm ci
+RUN npm install
 
-COPY --chown=node:node . .
-
-USER node
-
-###################
-# BUILD FOR PRODUCTION
-FROM public.ecr.aws/lambda/nodejs:18 As build
-
-WORKDIR /usr/src/app
-
-COPY --chown=node:node package*.json ./
-COPY --chown=node:node --from=development /usr/src/app/node_modules ./node_modules
-COPY --chown=node:node . .
+COPY . .
 
 RUN npm run build
 
-RUN npm ci --only=production && npm cache clean --force
-
-USER node
 
 
-
-###################
 # PRODUCTION
-FROM public.ecr.aws/lambda/nodejs:18 As production
+FROM node:18-alpine As production
 
-COPY --chown=node:node --from=build /usr/src/app/node_modules ./node_modules
-COPY --chown=node:node --from=build /usr/src/app/dist ./dist
+WORKDIR /usr/src/app
 
-EXPOSE 3000
+COPY package*.json ./
 
-CMD [ "dist/serverless.handler" ]
+RUN npm ci --only=production
+
+COPY . .
+
+COPY --from=development /usr/src/app/dist ./dist
+
+CMD [ "node", "dist/main.js" ]

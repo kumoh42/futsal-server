@@ -1,7 +1,7 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
-import { JwtAuthGuard } from 'src/auth/jwt/jwt.guard';
-import { User } from 'src/common/decorators/user.decorator';
+import { JwtAuthGuard } from '@/auth/jwt/jwt.guard';
+import { User } from '@/common/decorators/user.decorator';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('유저 정보 조회')

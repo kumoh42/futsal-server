@@ -9,9 +9,9 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { MembersService } from './members.service';
-import { JwtAuthGuard } from 'src/auth/jwt/jwt.guard';
-import { MemberInfoDto } from 'src/common/dto/members/members.dto';
-import { ParseIntPipe } from 'src/pipe/parse-int.pipe';
+import { JwtAuthGuard } from '@/auth/jwt/jwt.guard';
+import { MemberInfoDto } from '@/common/dto/members/members.dto';
+import { ParseIntPipe } from '@/pipe/parse-int.pipe';
 
 @UseGuards(JwtAuthGuard)
 @Controller('members')

@@ -1,11 +1,12 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, In, IsNull, Like, Not, Repository } from 'typeorm';
-import { Xe_Reservation_ConfigEntity } from 'src/entites/xe_reservation_config.entity';
-import { Xe_ReservationEntity } from 'src/entites/xe_reservation.entity';
-import { Xe_Reservation_TimeEntity } from 'src/entites/xe_reservation_time.entity';
-import { Xe_Reservation_PreEntity } from 'src/entites/xe_reservation_pre.entity';
+import { Xe_Reservation_ConfigEntity } from '@/entites/xe_reservation_config.entity';
+import { Xe_ReservationEntity } from '@/entites/xe_reservation.entity';
+import { Xe_Reservation_TimeEntity } from '@/entites/xe_reservation_time.entity';
+import { Xe_Reservation_PreEntity } from '@/entites/xe_reservation_pre.entity';
 import { ReservationSlotBuilder } from '../reservation-slot.builder';
+import { PreReservationTransactionRepository } from '../pre-reservation/pre-reservation.transaction.repository';
 
 @Injectable()
 export class OfficialReservationTransactionRepository {
@@ -19,9 +20,10 @@ export class OfficialReservationTransactionRepository {
     private reservationRepository: Repository<Xe_ReservationEntity>,
     @InjectRepository(Xe_Reservation_TimeEntity)
     private timeRepository: Repository<Xe_Reservation_TimeEntity>,
-    @InjectRepository(Xe_Reservation_TimeEntity)
+    @InjectRepository(Xe_Reservation_PreEntity)
     private preRepo: Repository<Xe_Reservation_PreEntity>,
     private dataSource: DataSource,
+    private preRepoTransction : PreReservationTransactionRepository,
   ) {}
 
   async isOfficial() {
@@ -34,11 +36,21 @@ export class OfficialReservationTransactionRepository {
     return is_pre_reservation_period === 'N';
   }
 
+  async isOfficialToReservaition() {
+    const allSettings = await this.configRepo.find();
+
+    const is_pre_reservation_period = allSettings
+      .filter((setting) => setting.key === 'is_pre_reservation_period')
+      .map((setting) => setting.value)[0];
+
+    return is_pre_reservation_period === 'Y';
+  }
+
   async findBy({ date }: { date: string }) {
     const dateList = await this.reservationRepository.find({
       where: { date: Like(`${date}%`) },
     });
-    
+
     for (let i = 0; i < dateList.length; i++) {
       if (dateList[i].member_srl === 0 && dateList[i].place_srl === 0) {
         dateList[i].member_srl = null;
@@ -88,20 +100,21 @@ export class OfficialReservationTransactionRepository {
   }
 
   async updateReservation({ isOpen, nextMonth, thisMonth }) {
-    if (isOpen)
+    if (isOpen){
       await this.timeRepository
-        .createQueryBuilder()
-        .delete()
-        .from(Xe_Reservation_TimeEntity)
-        .execute();
+      .createQueryBuilder()
+      .delete()
+      .from(Xe_Reservation_TimeEntity)
+      .execute();
 
+    }
     await this.updateSetting({ isOpen });
-
     let reservationSlot = await this.preRepo.find({
       where: { date: Like(`${nextMonth.format('YYYY-MM')}%`) },
     });
 
     if (reservationSlot.length == 0) {
+      console.log('block')
       const builder = new ReservationSlotBuilder(thisMonth, nextMonth);
       reservationSlot = await builder.buildSlots();
     }
@@ -112,12 +125,12 @@ export class OfficialReservationTransactionRepository {
     );
 
     await this.reservationRepository.save(reservationSlot);
-    await this.preRepo.clear();
+    await this.preRepo.softDelete({});
+    this.preRepoTransction.updatePreReservation({isPre: false, nextMonth, thisMonth })    
   }
-
-  async updateSetting({ isOpen }) {
+  
+  async updateSetting({ isOpen}) {
     const allSettings = await this.configRepo.find();
-
     const updatedSettings = allSettings.map((setting) => {
       switch (setting.key) {
         case 'is_pre_reservation_period':
@@ -126,10 +139,9 @@ export class OfficialReservationTransactionRepository {
           return setting;
       }
     });
-
     await this.configRepo.save(updatedSettings);
-  }
-
+}
+      
   async getReservaionHistory(date: string, times?: number[]) {
     let where: any = {
       member_srl: Not(IsNull()),

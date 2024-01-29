@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, DeleteDateColumn, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('xe_reservation_pre')
 export class Xe_Reservation_PreEntity {
@@ -53,7 +53,6 @@ export class Xe_Reservation_PreEntity {
    */
   @Column({ length: 11 })
   date: string;
-
   @Column()
   /**
    * xe_reservation_pre - time
@@ -95,4 +94,7 @@ export class Xe_Reservation_PreEntity {
    */
   @Column({ length: 40 })
   regdate: string;
+
+  @DeleteDateColumn()
+  delete_date!: Date | null;
 }

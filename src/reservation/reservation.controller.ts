@@ -4,6 +4,7 @@ import {
   Controller,
   Get,
   HttpCode,
+  Inject,
   Param,
   Patch,
   Post,
@@ -12,15 +13,16 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ReservationService } from './reservation.service';
-import { Xe_ReservationEntity } from 'src/entites/xe_reservation.entity';
-import { JwtAuthGuard } from 'src/auth/jwt/jwt.guard';
+import { Xe_ReservationEntity } from '@/entites/xe_reservation.entity';
+import { JwtAuthGuard } from '@/auth/jwt/jwt.guard';
 import { ApiBody, ApiHeader, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { MonthReservationDeleteDto } from 'src/common/dto/reservation/month-reservation-delete.dto';
-import { OneReservationDeleteDto } from 'src/common/dto/reservation/one-reservation-delete.dto';
-import { PreReservationSetDto } from 'src/common/dto/reservation/pre-reservation-set.dto';
+import { MonthReservationDeleteDto } from '@/common/dto/reservation/month-reservation-delete.dto';
+import { OneReservationDeleteDto } from '@/common/dto/reservation/one-reservation-delete.dto';
+import { PreReservationSetDto } from '@/common/dto/reservation/pre-reservation-set.dto';
 import { ReservationTimeService } from './time/reservation-time.service';
-import { BlockReservationDto } from 'src/common/dto/reservation/block-reservation.dto';
-import { getReservationPipe } from 'src/common/get-reservation.pipe';
+import { BlockReservationDto } from '@/common/dto/reservation/block-reservation.dto';
+import { getReservationPipe } from '@/common/get-reservation.pipe';
+import { ReservationScheduler } from './reservation-scheduler';
 
 @ApiTags('시설 예약')
 @Controller('reservation')
@@ -28,7 +30,14 @@ export class ReservationController {
   constructor(
     private reservationService: ReservationService,
     private reservationTimeService: ReservationTimeService,
+    private scheduler: ReservationScheduler,
   ) {}
+
+  @ApiOperation({ description: '현재 등록된 scheduler 목록 조회' })
+  @Get('/schedule')
+  async getSchedule() {
+    return await this.scheduler.getSchedule();
+  }
 
   @ApiOperation({ description: '현재 진행되고 있는 예약 조회' })
   @Get('/now/setting')
