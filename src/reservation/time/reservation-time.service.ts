@@ -75,7 +75,14 @@ export class ReservationTimeService {
 
   formatForCron(date: string, time: string){
     const [year, month, day] = date.split("-");
-    const cronFormat = `0 0 ${time} ${day}`;
+    let [hour] = time.split(":").map(Number);
+    
+    if (hour === 0) {
+      hour = 23;
+  } else {
+      hour -= 1;
+  }
+    const cronFormat = `0 55 ${hour} ${day}`;
 
     return cronFormat;
   }
