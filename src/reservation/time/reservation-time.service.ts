@@ -68,6 +68,7 @@ export class ReservationTimeService {
       throw new NotFoundException(['사전예약 데이터가 존재하지 않습니다.']);
     }
 
+    await this.reservationScheduler.resetScheduleTime();
     await this.repo.delete({ date: date, time: time, isPre: isPre });
 
     return '사전예약 예약 삭제 완료';
@@ -75,7 +76,14 @@ export class ReservationTimeService {
 
   formatForCron(date: string, time: string){
     const [year, month, day] = date.split("-");
-    const cronFormat = `0 0 ${time} ${day}`;
+    let [hour] = time.split(":").map(Number);
+    
+    if (hour === 0) {
+      hour = 23;
+  } else {
+      hour -= 1;
+  }
+    const cronFormat = `0 55 ${hour} ${day}`;
 
     return cronFormat;
   }
