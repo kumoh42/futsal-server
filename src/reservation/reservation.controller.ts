@@ -51,7 +51,6 @@ export class ReservationController {
     name: 'date',
     description: '조회하고 싶은 날짜입니다.',
   })
-  @UseGuards(JwtAuthGuard)
   async getReservationInfo(
     @Param('date', getReservationPipe) date: string,
     @Query('state') state: string,
