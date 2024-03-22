@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn, Timestamp } from 'typeorm';
 
 @Entity('xe_reservation_member')
 export class Xe_Reservation_MemberEntity {
@@ -10,6 +10,17 @@ export class Xe_Reservation_MemberEntity {
    */
   @PrimaryGeneratedColumn()
   member_srl: number;
+
+
+  @Column({ length: 30 })
+  user_id: string;
+
+  //해쉬 알고리즘 사용 !
+  @Column({ length: 60 })
+  user_password: string;
+
+  @Column()
+  user_student_number: number;
 
   /**
    * xe_reservation_member - major_srl
@@ -70,6 +81,7 @@ export class Xe_Reservation_MemberEntity {
    *
    * Default - CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP()
    */
-  @Column({ length: 60 })
+  
+  @Column({ length: 40 })
   regdate: string;
 }

@@ -4,7 +4,6 @@ import {
   Controller,
   Get,
   HttpCode,
-  Inject,
   Param,
   Patch,
   Post,
