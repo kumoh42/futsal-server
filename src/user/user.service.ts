@@ -30,7 +30,22 @@ export class UserService {
   }
 
 
-  async makeNewUser(info: NewUserDto){
+  async makeNewUser(info: NewUserDto): Promise<string>{
+
+    const existingUserById = await this.memberRepository.findOne({
+      where: {user_id: info.id}
+    })
+    const existingUserBySNumber = await this.memberRepository.findOne({ 
+      where:{user_student_number: info.sNumber}
+     });
+
+    if (existingUserById) {
+        throw new BadRequestException('이미 존재하는 사용자 ID입니다.');
+    }
+    if (existingUserBySNumber) {
+        throw new BadRequestException('이미 존재하는 학번입니다.');
+    }
+
     try{
       const newUser = this.memberRepository.create({
         user_id: info.id,
@@ -45,7 +60,8 @@ export class UserService {
       await this.memberRepository.save(newUser);
       return info.name + ' 학우님  회원가입 완료';
     }catch(error){
-      throw new BadRequestException('이미 계정이 존재합니다.')
+      console.log(error)
+      throw new BadRequestException('알 수 없는 에러가 발생했습니다.')
     }
 }
 
