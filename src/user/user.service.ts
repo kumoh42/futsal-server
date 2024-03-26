@@ -51,7 +51,7 @@ export class UserService {
       const hashedPassword=await this.hashPassword(info.password);   
       const newUser = this.memberRepository.create({
         user_id: info.id,
-        user_password: info.password,
+        user_password: hashedPassword,
         user_name: info.name,
         user_student_number: info.sNumber,
         major_srl: info.major,
