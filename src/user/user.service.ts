@@ -4,6 +4,7 @@ import { Xe_Member_FutsalEntity } from '@/entites/xe_member.futsal.entity';
 import { Repository } from 'typeorm';
 import { NewUserDto } from '@/common/dto/user/make-user.dto';
 import { Xe_Reservation_MemberEntity } from '@/entites/xe_reservation_member.entity';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -47,9 +48,10 @@ export class UserService {
     }
 
     try{
+      const hashedPassword=await this.hashPassword(info.password);
       const newUser = this.memberRepository.create({
         user_id: info.id,
-        user_password: info.password,
+        user_password: hashedPassword,
         user_name: info.name,
         user_student_number: info.sNumber,
         major_srl: info.major,
@@ -63,12 +65,13 @@ export class UserService {
       console.log(error)
       throw new BadRequestException('알 수 없는 에러가 발생했습니다.')
     }
-}
 
-  //password 해시 생성 알고리즘 입니다 ! 후에 있을 실제 디비 연동을 위해 일단 주석처리 해놓았습니다.
-  // async hashPassword(password: string): Promise<string> {
-  //   const saltRounds = 10; // 솔트를 사용하여 해싱할 횟수 (추가 보안)
-  //   const hashedPassword = await hash(password, saltRounds);
-  //   return hashedPassword;
-  // }
+
+  }
+  async hashPassword(password:string):Promise<string>
+  {
+    const saltRounds=10; // 솔트를 사용하여 해싱할 횟수
+    const hashedPassword=await bcrypt.hash(password,saltRounds);
+    return hashedPassword;
+  }
 }

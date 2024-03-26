@@ -28,5 +28,6 @@ export class NewUserDto {
   
   @IsString()
   @IsNotEmpty()
+  @Matches(/^(?=.*[a-z])(?=.*[\d!@#$%^&*()])[a-zA-Z\d!@3$%^7*()]{8,20}$/) // 영소문자, 숫자, 특수기호가 최소 하나 이상 존재해야함
   password: string;
 }

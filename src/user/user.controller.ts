@@ -22,5 +22,5 @@ export class UserController {
   async makeUser(@Body() info: NewUserDto){
     return await this.userService.makeNewUser(info);
   }
-  
+
 }
