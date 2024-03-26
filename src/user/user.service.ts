@@ -68,7 +68,7 @@ export class UserService {
 }
   async hashPassword(password:string):Promise<string>
   {
-    const saltRounds=10; // 솔트를 사용하여 해싱할 횟수
+    const saltRounds=parseInt(process.env.USER_HASH_COUNT); // 환경변수를 이용함, 가져올 때 문자로 변환되서 parseInt 넣어줌
     const hashedPassword=await bcrypt.hash(password,saltRounds);
     return hashedPassword;
   }
