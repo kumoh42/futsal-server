@@ -28,5 +28,6 @@ export class NewUserDto {
   
   @IsString()
   @IsNotEmpty()
+  @Matches(/^(?=.*[a-z])(?=.*[\d!@#$%^&*()])[a-zA-Z\d!@3$%^7*()]{8,20}$/) 
   password: string;
 }
