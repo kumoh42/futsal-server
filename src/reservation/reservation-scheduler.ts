@@ -20,7 +20,7 @@ export class ReservationScheduler {
   ) {}
 
 
-  @Cron('0 55 19 28-31 * *', {
+  @Cron('0 0 20 28-31 * *', {
     timeZone: 'Asia/Seoul',
     name: 'Create Pre Reservation Slot',
   })
@@ -84,7 +84,7 @@ export class ReservationScheduler {
   async resetScheduleTime() {
     this.userSetTime = false;
     const job = this.schedulerRegistry.getCronJob('Create Pre Reservation Slot');
-    job.setTime(new CronTime(`0 55 19 28-31 * *`, 'Asia/Seoul'));
+    job.setTime(new CronTime(`0 0 20 28-31 * *`, 'Asia/Seoul'));
     job.start();
   }
 }
