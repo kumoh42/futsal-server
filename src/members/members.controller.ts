@@ -12,8 +12,9 @@ import { MembersService } from './members.service';
 import { JwtAuthGuard } from '@/auth/jwt/jwt.guard';
 import { MemberInfoDto } from '@/common/dto/members/members.dto';
 import { ParseIntPipe } from '@/pipe/parse-int.pipe';
+import { CheckPermissions } from '@/common/decorators/permission.guard';
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, CheckPermissions('admin'))
 @Controller('members')
 export class MembersController {
   constructor(private membersService: MembersService) {}
