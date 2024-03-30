@@ -10,6 +10,7 @@ import { Repository } from 'typeorm';
 import { compare } from 'bcrypt';
 import { CacheService } from '@/cache/cache.service';
 import { Payload } from './jwt/jwt.payload';
+import { Xe_Reservation_MemberEntity } from '@/entites/xe_reservation_member.entity';
 
 @Injectable()
 export class AuthService {
@@ -26,6 +27,8 @@ export class AuthService {
     private cacheService: CacheService,
     @InjectRepository(Xe_Member_FutsalEntity)
     private userRepository: Repository<Xe_Member_FutsalEntity>,
+    // @InjectRepository(Xe_Reservation_MemberEntity)
+    // private userRepository: Repository<Xe_Reservation_MemberEntity>,
   ) {}
 
   //password 해시 생성 알고리즘 입니다 ! 후에 있을 실제 디비 연동을 위해 일단 주석처리 해놓았습니다.
@@ -45,12 +48,15 @@ export class AuthService {
     }
 
     const passwordCompareResult = await compare(userPassword, user.password);
+    // const passwordCompareResult = await compare(userPassword, user.user_password);
 
     if (!passwordCompareResult) {
       throw new NotFoundException(['잘못된 비밀번호 입니다.']);
     }
 
-    const payload = { userId: user.user_id, userName: user.user_name };
+    const payload = { userId: user.user_id, userName: user.user_name, permission: 'admin' };
+    // const payload = { userId: user.user_id, userName: user.user_name, permission: user.permission };
+    
     const accessToken = await this.generateAccessToken(payload);
     const refreshToken = await this.generateRefreshToken(payload);
     await this.storeRefreshTokenInCache(refreshToken, user.user_id);
