@@ -3,7 +3,7 @@ import { Reflector } from '@nestjs/core';
 import { ModuleRef } from '@nestjs/core';
 
 @Injectable()
-export class PermissionsGuard implements CanActivate {
+export class PermissionGuard implements CanActivate {
   private permission: string ='';
 
   constructor(private reflector: Reflector, private moduleRef: ModuleRef) {}
@@ -22,9 +22,9 @@ export class PermissionsGuard implements CanActivate {
 }
 
 // Guard 생성을 위한 팩토리 함수
-export function CheckPermissions(permission: string): Type<CanActivate> {
+export function CheckPermission(permission: string): Type<CanActivate> {
   @Injectable()
-  class MixinPermissionsGuard extends PermissionsGuard {
+  class MixinPermissionsGuard extends PermissionGuard {
     constructor(reflector: Reflector, moduleRef: ModuleRef) {
       super(reflector, moduleRef);
       this.setPermissions(permission);
