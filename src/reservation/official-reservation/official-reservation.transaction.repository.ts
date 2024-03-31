@@ -99,18 +99,19 @@ export class OfficialReservationTransactionRepository {
     }
   }
 
-  async updateReservation({ isOpen, nextMonth, thisMonth }) {
+  async updateReservation({ isOpen, thisMonth, nextMonth }) {
     if (isOpen){
       await this.timeRepository
       .createQueryBuilder()
       .delete()
       .from(Xe_Reservation_TimeEntity)
       .execute();
-
     }
     await this.updateSetting({ isOpen });
+
     let reservationSlot = await this.preRepo.find({
-      where: { date: Like(`${nextMonth.format('YYYY-MM')}%`) },
+      where: { date: Like(`${thisMonth.format('YYYY-MM')}%`) },
+      select: ['reservation_srl', 'member_srl', 'place_srl', 'circle', 'major', 'date', 'time', 'is_able', 'is_holiday', 'regdate']
     });
 
     if (reservationSlot.length == 0) {
@@ -119,14 +120,16 @@ export class OfficialReservationTransactionRepository {
       reservationSlot = await builder.buildSlots();
     }
 
+    //지난달 정식예약 예약 불가능하게 변경
     await this.reservationRepository.update(
-      { date: Like(`${thisMonth.format('YYYY-MM')}%`) },
+      { date: Like(`${thisMonth.subtract(1, 'months').format('YYYY-MM')}%`) },
       { is_able: 'N' },
     );
-
     await this.reservationRepository.save(reservationSlot);
     await this.preRepo.softDelete({});
-    this.preRepoTransction.updatePreReservation({isPre: false, nextMonth, thisMonth })    
+    
+    //트랜잭션에서 사전예약 슬릇을 생성하므로 필요 없는 코드
+    // this.preRepoTransction.updatePreReservation({isPre: false, nextMonth, thisMonth })    
   }
   
   async updateSetting({ isOpen}) {
