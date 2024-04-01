@@ -4,7 +4,6 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { Xe_Member_FutsalEntity } from '@/entites/xe_member.futsal.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { compare } from 'bcrypt';
@@ -25,10 +24,8 @@ export class AuthService {
   constructor(
     private jwtService: JwtService,
     private cacheService: CacheService,
-    @InjectRepository(Xe_Member_FutsalEntity)
-    private userRepository: Repository<Xe_Member_FutsalEntity>,
-    // @InjectRepository(Xe_Reservation_MemberEntity)
-    // private userRepository: Repository<Xe_Reservation_MemberEntity>,
+    @InjectRepository(Xe_Reservation_MemberEntity)
+    private userRepository: Repository<Xe_Reservation_MemberEntity>,
   ) {}
 
   //password 해시 생성 알고리즘 입니다 ! 후에 있을 실제 디비 연동을 위해 일단 주석처리 해놓았습니다.
@@ -47,15 +44,13 @@ export class AuthService {
       throw new NotFoundException(['아이디가 존재하지 않습니다.']);
     }
 
-    const passwordCompareResult = await compare(userPassword, user.password);
-    // const passwordCompareResult = await compare(userPassword, user.user_password);
+    const passwordCompareResult = await compare(userPassword, user.user_password);
 
     if (!passwordCompareResult) {
       throw new NotFoundException(['잘못된 비밀번호 입니다.']);
     }
 
-    const payload = { userId: user.user_id, userName: user.user_name, permission: 'admin' };
-    // const payload = { userId: user.user_id, userName: user.user_name, permission: user.permission };
+    const payload = { userId: user.user_id, userName: user.user_name, permission: user.permission };
     
     const accessToken = await this.generateAccessToken(payload);
     const refreshToken = await this.generateRefreshToken(payload);
@@ -90,7 +85,7 @@ export class AuthService {
     const user = await this.userRepository.findOne({
       where: { user_id: userId },
     });
-    const payload = { userId: user.user_id, userName: user.user_name };
+    const payload = { userId: user.user_id, userName: user.user_name, permission: user.permission };
 
     const [newAccessToken, newRefreshToken] = await Promise.all([
       this.generateAccessToken(payload),
