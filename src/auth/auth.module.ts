@@ -4,8 +4,8 @@ import { AuthService } from './auth.service';
 import { PassportModule } from '@nestjs/passport/dist';
 import { JwtModule } from '@nestjs/jwt/dist';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Xe_Member_FutsalEntity } from '@/entites/xe_member.futsal.entity';
 import { CachesModule } from '@/cache/cache.module';
+import { Xe_Reservation_MemberEntity } from '@/entites/xe_reservation_member.entity';
 
 @Global()
 @Module({
@@ -14,7 +14,7 @@ import { CachesModule } from '@/cache/cache.module';
     JwtModule.register({
       secret: String(process.env.JWT_ACCESS_SECRET_KEY),
     }),
-    TypeOrmModule.forFeature([Xe_Member_FutsalEntity]),
+    TypeOrmModule.forFeature([Xe_Reservation_MemberEntity]),
     CachesModule,
   ],
   controllers: [AuthController],
