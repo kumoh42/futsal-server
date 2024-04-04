@@ -217,11 +217,9 @@ export class PreReservationTransactionRepository {
         })
         .where('date LIKE :date', { date: `${date}%` })
         .andWhere('member_srl IS NOT NULL');
-
-      if (times) query.andWhere('time = IN(:times)', { times });
-
+      
+      if (times) query.andWhere('time IN (:times)', { times });
       const result = await query.execute();
-
       if (result.affected == 0) {
         throw new NotFoundException(
           '해당 날짜 또는 월의 예약이 존재하지 않습니다.',

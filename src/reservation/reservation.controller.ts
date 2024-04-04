@@ -51,11 +51,15 @@ export class ReservationController {
     name: 'date',
     description: '조회하고 싶은 날짜입니다.',
   })
-  @UseGuards(JwtAuthGuard)
   async getReservationInfo(
     @Param('date', getReservationPipe) date: string,
+    @Query('state') state: string,
   ): Promise<Xe_ReservationEntity[]> {
-    return await this.reservationService.getReservationInfo(date, true);
+    if (state === 'pre') 
+      return await this.reservationService.getReservationInfo(date, false);
+    else if (state === 'official')
+      return await this.reservationService.getReservationInfo(date, true);
+    else throw new BadRequestException('state는 open과 close만 가능합니다.');
   }
 
   @Put('/pre')
