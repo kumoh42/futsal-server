@@ -34,9 +34,10 @@ export class ReservationScheduler {
     if (!this.userSetTime && now.date() != lastDayOfMonth){
       return; //이 달의 마지막 날이 아니면 종료
     }
-    
+
     if(this.slotIsOpen) //만약에 사전예약이 열린 적이 있으면
     {
+      await this.resetScheduleTime();
       return;    //종료하기
     }
     
@@ -95,7 +96,7 @@ export class ReservationScheduler {
     const now=dayjs();
     const lastDayOfMonth = now.daysInMonth();
     this.userSetTime = false;
-    if(now==lastDayOfMonth)
+    if(now==lastDayOfMonth)   
     {
       this.slotIsOpen=false;
     }
