@@ -10,6 +10,8 @@ import dayjs from 'dayjs';
 export class ReservationScheduler {
 
   private userSetTime = false;
+  private slotIsOpen=false; // 이번달에 사전예약을 가동한 적이 있는지 판단
+  
 
   constructor(
     @Inject(PreReservationTransactionRepository)
@@ -20,7 +22,7 @@ export class ReservationScheduler {
   ) {}
 
 
-  @Cron('0 0 20 28-31 * *', {
+  @Cron('0 0 20 28-31 * *', {             
     timeZone: 'Asia/Seoul',
     name: 'Create Pre Reservation Slot',
   })
@@ -28,9 +30,16 @@ export class ReservationScheduler {
     const now = dayjs();
     const lastDayOfMonth = now.daysInMonth();
     
+    
     if (!this.userSetTime && now.date() != lastDayOfMonth){
       return; //이 달의 마지막 날이 아니면 종료
     }
+    
+    if(this.slotIsOpen) //만약에 사전예약이 열린 적이 있으면
+    {
+      return;    //종료하기
+    }
+    
 
     const today = getToday();
     
@@ -42,8 +51,9 @@ export class ReservationScheduler {
       thisMonth: after1Month,
       nextMonth: after2Month,
     });
+    this.slotIsOpen=true;
 
-    await this.resetScheduleTime();
+    await this.resetScheduleTime();     
   }
 
   @Cron('0 0 0 1 * *', {
@@ -82,7 +92,13 @@ export class ReservationScheduler {
   }
 
   async resetScheduleTime() {
+    const now=dayjs();
+    const lastDayOfMonth = now.daysInMonth();
     this.userSetTime = false;
+    if(now==lastDayOfMonth)
+    {
+      this.slotIsOpen=false;
+    }
     const job = this.schedulerRegistry.getCronJob('Create Pre Reservation Slot');
     job.setTime(new CronTime(`0 0 20 28-31 * *`, 'Asia/Seoul'));
     job.start();
