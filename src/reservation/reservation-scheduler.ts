@@ -37,7 +37,7 @@ export class ReservationScheduler {
 
     if(this.slotIsOpen) //만약에 사전예약이 열린 적이 있으면
     {
-      await this.resetScheduleTime();
+      this.slotIsOpen=false;
       return;    //종료하기
     }
     
@@ -93,13 +93,7 @@ export class ReservationScheduler {
   }
 
   async resetScheduleTime() {
-    const now=dayjs();
-    const lastDayOfMonth = now.daysInMonth();
     this.userSetTime = false;
-    if(now==lastDayOfMonth)   
-    {
-      this.slotIsOpen=false;
-    }
     const job = this.schedulerRegistry.getCronJob('Create Pre Reservation Slot');
     job.setTime(new CronTime(`0 0 20 28-31 * *`, 'Asia/Seoul'));
     job.start();
