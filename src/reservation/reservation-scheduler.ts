@@ -10,7 +10,7 @@ import dayjs from 'dayjs';
 export class ReservationScheduler {
 
   private userSetTime = false;
-  private slotIsOpen=false; // 이번달에 사전예약을 가동한 적이 있는지 판단
+ 
   
 
   constructor(
@@ -35,11 +35,6 @@ export class ReservationScheduler {
       return; //이 달의 마지막 날이 아니면 종료
     }
 
-    if(this.slotIsOpen) //만약에 사전예약이 열린 적이 있으면
-    {
-      this.slotIsOpen=false;
-      return;    //종료하기
-    }
     
 
     const today = getToday();
@@ -52,7 +47,6 @@ export class ReservationScheduler {
       thisMonth: after1Month,
       nextMonth: after2Month,
     });
-    this.slotIsOpen=true;
 
     await this.resetScheduleTime();     
   }

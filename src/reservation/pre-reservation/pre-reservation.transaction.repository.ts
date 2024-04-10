@@ -39,6 +39,14 @@ export class PreReservationTransactionRepository {
 
   async updatePreReservation({ isPre, thisMonth, nextMonth }) {
     try {
+      const setting = await this.configRepo.findOne({ where: { key: 'is_pre_reservation_period'}});
+      if(setting.value==='Y')
+        {
+
+          console.log("이미 사전예약이 열려있습니다.");
+          return;
+        }
+        
       const builder = new ReservationSlotBuilder(thisMonth, nextMonth);
       const preResservationSlot = await builder.buildSlots();
       await this.preRepository.softDelete({});
