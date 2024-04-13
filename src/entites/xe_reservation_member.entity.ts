@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn, Timestamp } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('xe_reservation_member')
 export class Xe_Reservation_MemberEntity {
