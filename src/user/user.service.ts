@@ -1,6 +1,6 @@
 import { BadRequestException, HttpException, HttpStatus, Injectable, NotFoundException, RequestTimeoutException, UnauthorizedException } from '@nestjs/common';
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
-import { DataSource, EntityManager, Repository } from 'typeorm';
+import { Connection, DataSource, EntityManager, Repository } from 'typeorm';
 import { NewUserDto } from '@/common/dto/user/make-user.dto';
 import { Xe_Reservation_MemberEntity } from '@/entites/xe_reservation_member.entity';
 import * as bcrypt from 'bcrypt';
@@ -28,6 +28,8 @@ export class UserService {
     @InjectRepository(Xe_Reservation_PreEntity)
     private preReservationRepository: Repository<Xe_Reservation_PreEntity>,
     private dataSource: DataSource,
+    private connection: Connection,
+
     @InjectEntityManager()
      private readonly entityManager: EntityManager
   ) {}
@@ -68,7 +70,7 @@ async hashPassword(password:string):Promise<string>
       ]);
     }
 
-    const { member_srl, user_id, regdate, user_password, permission, ...userInfoWithoutPassword } = user;
+    const { user_id, regdate, user_password, permission, ...userInfoWithoutPassword } = user;
     return userInfoWithoutPassword;
   }
 
@@ -145,42 +147,42 @@ async hashPassword(password:string):Promise<string>
     throw new BadRequestException('알 수 없는 에러가 발생했습니다');
   }
 
-  async registerPreReservation(
-    userId: string, 
-    reservationDate: string, 
-    reservationTime: number
-  ){
-    console.log("register Pre Res");
-    console.log(userId, reservationDate, reservationTime);
-
-    const user = await this.findUserByUserId(userId);
-
-    const targetReservationSlot = await this.preReservationRepository.findOne({
-      where: {date: reservationDate, time: reservationTime}
-    });
-
-    if(!targetReservationSlot){
-     throw new NotFoundException('해당 예약 시간대가 없습니다. ');
+  
+    async registerPreReservation(
+      userId: string,
+      reservationDate: string,
+      reservationTime: number,
+    ) {
+      const user = await this.findUserByUserId(userId); 
+      return await this.connection.transaction(async (manager) => {
+        const targetReservationSlot = await manager.findOne(Xe_Reservation_PreEntity, {
+          where: { date: reservationDate, time: reservationTime },
+          lock: { mode: 'pessimistic_write' },
+        });
+  
+        if (!targetReservationSlot) {
+          throw new NotFoundException('해당 예약 시간대가 없습니다.');
+        }
+        if (targetReservationSlot.delete_date) {
+          throw new NotFoundException('해당 내역은 존재하지 않습니다.');
+        }
+        if (targetReservationSlot.is_able === 'N') {
+          throw new BadRequestException('예약이 가능하지 않습니다.');
+        }
+        if (targetReservationSlot.member_srl) {
+          throw new BadRequestException('해당 시간은 이미 예약되었습니다.');
+        }
+  
+        targetReservationSlot.member_srl = user.member_srl;
+        targetReservationSlot.place_srl = 0;
+        targetReservationSlot.circle = (await manager.findOne(Xe_Reservation_CricleEntity, { where: { circle_srl: user.circle_srl } })).circle_name;
+        targetReservationSlot.major = (await manager.findOne(Xe_Reservation_MajorEntity, { where: { major_srl: user.major_srl } })).major_name;
+        
+        await manager.save(targetReservationSlot);
+  
+        return reservationDate + " " + reservationTime + " 예약 완료";
+      });
     }
-    if(targetReservationSlot.delete_date){ 
-      throw new NotFoundException( '해당 내역은 존재하지 않습니다.' )
-    }
-    if(targetReservationSlot.is_able === 'N'){
-      throw new BadRequestException('예약이 가능하지 않습니다.');
-    }
-    if(targetReservationSlot.member_srl){
-       throw new BadRequestException('해당 시간은 이미 예약되었습니다.');
-      }
-
-    targetReservationSlot.member_srl = user.member_srl;
-    targetReservationSlot.place_srl = 0;
-    targetReservationSlot.circle = (await this.circleRepository.findOne({ where: { circle_srl: user.circle_srl } })).circle_name;
-    console.log(targetReservationSlot.circle)
-    targetReservationSlot.major = (await this.majorRepository.findOne({ where: { major_srl: user.major_srl } })).major_name;
-    console.log(targetReservationSlot.major)
-    await this.preReservationRepository.save(targetReservationSlot);  
-    return reservationDate + " " + reservationTime + " 예약 완료";
-  }
   
 
   async registerOfficalReservation(
@@ -190,35 +192,27 @@ async hashPassword(password:string):Promise<string>
 ){
     const user = await this.findUserByUserId(userId);
   
-    console.log(user);
-    const targetReservationSlot = await this.officialReservationRepository.findOne({
-        where: {
-            date: reservationDate, 
-            time: reservationTime
-        },
-        lock: { mode: "pessimistic_write" }
-    });
-
-    if(!targetReservationSlot){
-        throw new NotFoundException('해당 예약 시간대가 없습니다. ');
-    }
-    if(targetReservationSlot.is_able === 'N'){
-        throw new BadRequestException('해당 시간대의 예약은 불가능합니다.');
-    }
-    if(targetReservationSlot.member_srl){
+    return await this.connection.transaction(async (manager) => {
+      const targetReservationSlot = await manager.findOne(Xe_ReservationEntity, {
+        where: { date: reservationDate, time: reservationTime },
+        lock: { mode: 'pessimistic_write' },
+      });
+      if (!targetReservationSlot) {
+        throw new NotFoundException('해당 예약 시간대가 없습니다.');
+      }
+      if (targetReservationSlot.is_able === 'N') {
+        throw new BadRequestException('예약이 가능하지 않습니다.');
+      }
+      if (targetReservationSlot.member_srl) {
         throw new BadRequestException('해당 시간은 이미 예약되었습니다.');
-    }
-
-    try{
-        targetReservationSlot.member_srl = user.major_srl;
-        targetReservationSlot.place_srl = 0;
-        targetReservationSlot.circle = (await this.circleRepository.findOne({ where: { circle_srl: user.circle_srl } })).circle_name;
-        targetReservationSlot.major = (await this.majorRepository.findOne({ where: { major_srl: user.major_srl } })).major_name;
-        await this.officialReservationRepository.save(targetReservationSlot);  
-        return reservationDate + reservationTime + "예약 완료";
-    }catch(error){
-        throw new RequestTimeoutException(error);
-    }
+      }
+      targetReservationSlot.member_srl = user.member_srl;
+      targetReservationSlot.place_srl = 0;
+      targetReservationSlot.circle = (await manager.findOne(Xe_Reservation_CricleEntity, { where: { circle_srl: user.circle_srl } })).circle_name;
+      targetReservationSlot.major = (await manager.findOne(Xe_Reservation_MajorEntity, { where: { major_srl: user.major_srl } })).major_name;
+      await manager.save(targetReservationSlot);
+      return reservationDate + " " + reservationTime + " 예약 완료";
+    });
 }
 
 
@@ -263,8 +257,30 @@ async hashPassword(password:string):Promise<string>
   userId: string, 
   reservationDate: string, 
   reservationTime: number
-  ){
+  ):Promise<{ success: boolean, message: string }>{
+    const memberSrl = await this.findMemberSrlByUserId(userId);
+    const targetReservationSlot = await this.preReservationRepository.findOne({
+      where: {
+          date: reservationDate, 
+          time: reservationTime,
+          member_srl: memberSrl,
+          delete_date: null
+      },
+    });
 
+    if(!targetReservationSlot){
+      throw new BadRequestException('옳지 않은 접근입니다.');
+    }
+    try{
+      targetReservationSlot.circle = null;
+      targetReservationSlot.major = null;
+      targetReservationSlot.member_srl = null;
+      targetReservationSlot.place_srl = null;
+      await this.preReservationRepository.save(targetReservationSlot);
+      return { success: true, message: '해당 예약을 삭제하였습니다.' }  
+    }catch(error){
+      throw new BadRequestException(error);
+    }
   }
 
   async deleteOfficalReservation(
@@ -272,6 +288,28 @@ async hashPassword(password:string):Promise<string>
     reservationDate: string, 
     reservationTime: number
   ){
+    const memberSrl = await this.findMemberSrlByUserId(userId);
+    const targetReservationSlot = await this.officialReservationRepository.findOne({
+      where: {
+          date: reservationDate, 
+          time: reservationTime,
+          member_srl: memberSrl
+      },
+    });
 
-  }
+    if(!targetReservationSlot){
+      throw new BadRequestException('옳지 않은 접근입니다.');
+    }
+    try{
+      targetReservationSlot.circle = null;
+      targetReservationSlot.major = null;
+      targetReservationSlot.member_srl = null;
+      targetReservationSlot.place_srl = null;
+      await this.officialReservationRepository.save(targetReservationSlot);
+      return { success: true, message: '해당 예약을 삭제하였습니다.' }  
+    }catch(error){
+      throw new BadRequestException(error);
+    }
+   }
+
 }

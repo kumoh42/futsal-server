@@ -48,14 +48,15 @@ export class UserController {
   }
 
   
-  // @Delete('/reservation')
-  // @UseGuards(JwtAuthGuard, CheckPermission('user'))
-  // async deleteReservation(
-  //   @User() usser: User,
-  //   @Body() reservationTimeDto: RegisterReservationDto
-  // ){
-    
-  // }
+  @Delete('/reservation')
+  @UseGuards(JwtAuthGuard, CheckPermission('user'))
+  async deleteReservation(
+    @User() user: User,
+    @Body() reservationTimeDto: RegisterReservationDto
+  ){
+    const { userId } = user;
+    return await this.userService.deleteUserReservation(userId, reservationTimeDto);
+  }
 
   @Get('/test')
   @UseGuards(JwtAuthGuard, CheckPermission('user'))
