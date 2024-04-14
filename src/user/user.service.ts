@@ -1,4 +1,4 @@
-import { BadRequestException, HttpException, HttpStatus, Injectable, NotFoundException, RequestTimeoutException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, HttpException, HttpStatus, Injectable, NotFoundException, RequestTimeoutException, UnauthorizedException } from '@nestjs/common';
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import { Connection, DataSource, EntityManager, Repository } from 'typeorm';
 import { NewUserDto } from '@/common/dto/user/make-user.dto';
@@ -63,7 +63,6 @@ async hashPassword(password:string):Promise<string>
 
   async getUserInfo(userId: string): Promise<any> {
     const user = await this.findUserByUserId(userId);
-
     if (!user) {
       throw new UnauthorizedException([
         '해당 토큰을 발급한 유저를 찾을 수 없습니다',
@@ -149,11 +148,10 @@ async hashPassword(password:string):Promise<string>
 
   
     async registerPreReservation(
-      userId: string,
+      userInfo: Xe_Reservation_MemberEntity,
       reservationDate: string,
       reservationTime: number,
     ) {
-      const user = await this.findUserByUserId(userId); 
       return await this.connection.transaction(async (manager) => {
         const targetReservationSlot = await manager.findOne(Xe_Reservation_PreEntity, {
           where: { date: reservationDate, time: reservationTime },
@@ -173,10 +171,10 @@ async hashPassword(password:string):Promise<string>
           throw new BadRequestException('해당 시간은 이미 예약되었습니다.');
         }
   
-        targetReservationSlot.member_srl = user.member_srl;
+        targetReservationSlot.member_srl = userInfo.member_srl;
         targetReservationSlot.place_srl = 0;
-        targetReservationSlot.circle = (await manager.findOne(Xe_Reservation_CricleEntity, { where: { circle_srl: user.circle_srl } })).circle_name;
-        targetReservationSlot.major = (await manager.findOne(Xe_Reservation_MajorEntity, { where: { major_srl: user.major_srl } })).major_name;
+        targetReservationSlot.circle = (await manager.findOne(Xe_Reservation_CricleEntity, { where: { circle_srl: userInfo.circle_srl } })).circle_name;
+        targetReservationSlot.major = (await manager.findOne(Xe_Reservation_MajorEntity, { where: { major_srl: userInfo.major_srl } })).major_name;
         
         await manager.save(targetReservationSlot);
   
@@ -186,12 +184,10 @@ async hashPassword(password:string):Promise<string>
   
 
   async registerOfficalReservation(
-    userId: string, 
+    userInfo:Xe_Reservation_MemberEntity , 
     reservationDate: string, 
     reservationTime: number
 ){
-    const user = await this.findUserByUserId(userId);
-  
     return await this.connection.transaction(async (manager) => {
       const targetReservationSlot = await manager.findOne(Xe_ReservationEntity, {
         where: { date: reservationDate, time: reservationTime },
@@ -206,10 +202,10 @@ async hashPassword(password:string):Promise<string>
       if (targetReservationSlot.member_srl) {
         throw new BadRequestException('해당 시간은 이미 예약되었습니다.');
       }
-      targetReservationSlot.member_srl = user.member_srl;
+      targetReservationSlot.member_srl = userInfo.member_srl;
       targetReservationSlot.place_srl = 0;
-      targetReservationSlot.circle = (await manager.findOne(Xe_Reservation_CricleEntity, { where: { circle_srl: user.circle_srl } })).circle_name;
-      targetReservationSlot.major = (await manager.findOne(Xe_Reservation_MajorEntity, { where: { major_srl: user.major_srl } })).major_name;
+      targetReservationSlot.circle = (await manager.findOne(Xe_Reservation_CricleEntity, { where: { circle_srl: userInfo.circle_srl } })).circle_name;
+      targetReservationSlot.major = (await manager.findOne(Xe_Reservation_MajorEntity, { where: { major_srl: userInfo.major_srl } })).major_name;
       await manager.save(targetReservationSlot);
       return reservationDate + " " + reservationTime + " 예약 완료";
     });
@@ -227,11 +223,16 @@ async hashPassword(password:string):Promise<string>
        throw new BadRequestException("현재 예약이 중지된 상태입니다.") 
     }
 
+    const user = await this.findUserByUserId(userId);
+    if(user.is_denied === 'Y'){ 
+      throw new ForbiddenException(' 예약 권한을 받지 않았습니다. ')
+    }
+
     if(isPre){
-      return await this.registerPreReservation(userId, date, time);
+      return await this.registerPreReservation(user, date, time);
     }
     else if(!isPre){
-      return await this.registerOfficalReservation(userId, date, time);
+      return await this.registerOfficalReservation(user, date, time);
     }
 
     throw new BadRequestException("알 수 없는 오류가 발생했습니다.");
