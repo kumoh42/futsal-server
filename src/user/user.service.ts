@@ -146,12 +146,12 @@ async hashPassword(password:string):Promise<string>
     throw new BadRequestException('알 수 없는 에러가 발생했습니다');
   }
 
-  
-    async registerPreReservation(
-      userInfo: Xe_Reservation_MemberEntity,
-      reservationDate: string,
-      reservationTime: number,
-    ) {
+  async registerPreReservation(
+    userInfo: Xe_Reservation_MemberEntity,
+    reservationDate: string,
+    reservationTime: number,
+  ) {
+    try{
       return await this.connection.transaction(async (manager) => {
         const targetReservationSlot = await manager.findOne(Xe_Reservation_PreEntity, {
           where: { date: reservationDate, time: reservationTime },
@@ -180,7 +180,10 @@ async hashPassword(password:string):Promise<string>
   
         return reservationDate + " " + reservationTime + " 예약 완료";
       });
+    }catch(error){
+      throw new BadRequestException('error');
     }
+  }
   
 
   async registerOfficalReservation(
@@ -188,6 +191,7 @@ async hashPassword(password:string):Promise<string>
     reservationDate: string, 
     reservationTime: number
 ){
+  try{
     return await this.connection.transaction(async (manager) => {
       const targetReservationSlot = await manager.findOne(Xe_ReservationEntity, {
         where: { date: reservationDate, time: reservationTime },
@@ -207,11 +211,13 @@ async hashPassword(password:string):Promise<string>
       targetReservationSlot.circle = (await manager.findOne(Xe_Reservation_CricleEntity, { where: { circle_srl: userInfo.circle_srl } })).circle_name;
       targetReservationSlot.major = (await manager.findOne(Xe_Reservation_MajorEntity, { where: { major_srl: userInfo.major_srl } })).major_name;
       await manager.save(targetReservationSlot);
-      return reservationDate + " " + reservationTime + " 예약 완료";
+      return reservationDate + " " + reservationTime + "일 예약 완료";
     });
-}
-
-
+    }catch(error){
+      throw new BadRequestException(error);
+    }
+  }
+   
   async registerUserReservation(
     userId: string,
     reservationInfo: RegisterReservationDto
@@ -237,7 +243,6 @@ async hashPassword(password:string):Promise<string>
 
     throw new BadRequestException("알 수 없는 오류가 발생했습니다.");
   }
-
 
   async deleteUserReservation(
     userId: string,
@@ -312,5 +317,5 @@ async hashPassword(password:string):Promise<string>
       throw new BadRequestException(error);
     }
    }
-
+   
 }
