@@ -33,7 +33,7 @@ export class AuthController {
       .status(200)
       .header('access_token', `Bearer ${access_token}`)
       .header('refresh_token', `Bearer ${refresh_token}`)
-      .json({ message: ['로그인 성공'] });
+      .json({ message: '로그인 성공' });
   }
 
   @Get('/testToken')
