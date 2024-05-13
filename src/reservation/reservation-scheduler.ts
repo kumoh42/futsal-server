@@ -51,7 +51,7 @@ export class ReservationScheduler {
     await this.resetScheduleTime();     
   }
 
-  @Cron('0 0 0 1 * *', {
+  @Cron('10 0 0 1 * *', {
     timeZone: 'Asia/Seoul',
     name: 'Open Official Reservation',
   })
