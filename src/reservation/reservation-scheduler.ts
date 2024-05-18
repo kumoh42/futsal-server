@@ -22,7 +22,7 @@ export class ReservationScheduler {
   ) {}
 
 
-  @Cron('0 0 20 28-31 * *', {             
+  @Cron('0 0 20 28-31 * *', {
     timeZone: 'Asia/Seoul',
     name: 'Create Pre Reservation Slot',
   })
