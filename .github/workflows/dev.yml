@@ -32,9 +32,12 @@ jobs:
       id: ip
       uses: haythem/public-ip@v1.2
 
+    - name: Remove existing .env file
+      run: rm .env || true
+
     - name: Create .env file
       run: |
-        echo "DATABASE_TYPE=${{ secrets.DATABASE_TYPE }}" >> .env
+        echo "DATABASE_TYPE=${{ secrets.DATABASE_TYPE }}" > .env
         echo "DATABASE_PORT=${{ secrets.DATABASE_PORT }}" >> .env
         echo "DATABASE_HOST=${{ secrets.DEV_DATABASE_HOST }}" >> .env
         echo "DATABASE_USERNAME=${{ secrets.DEV_DATABASE_USERNAME }}" >> .env
@@ -48,6 +51,7 @@ jobs:
         echo "CACHE_MAX=${{ secrets.CACHE_MAX }}" >> .env
         echo "SLACK_URL=${{ secrets.SLACK_URL }}" >> .env
         echo "SLACK_MESSAGE_TEMPLETE=${{ secrets.DEV_SLACK_MESSAGE_TEMPLETE }}" >> .env
+        echo "create complete"
 
     - name: Install dependencies
       run: npm install
