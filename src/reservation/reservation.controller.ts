@@ -4,7 +4,6 @@ import {
   Controller,
   Get,
   HttpCode,
-  Inject,
   Param,
   Patch,
   Post,
@@ -23,6 +22,7 @@ import { ReservationTimeService } from './time/reservation-time.service';
 import { BlockReservationDto } from '@/common/dto/reservation/block-reservation.dto';
 import { getReservationPipe } from '@/common/get-reservation.pipe';
 import { ReservationScheduler } from './reservation-scheduler';
+import { CheckPermission } from '@/common/decorators/permission.guard';
 
 @ApiTags('시설 예약')
 @Controller('reservation')
@@ -68,7 +68,7 @@ export class ReservationController {
     name: 'state',
     description: '사전 예약 활성화 상태입니다. (open = 시작, close = 중지)',
   })
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, CheckPermission('admin'))
   async reservationPreStart(@Query('state') state: string) {
     if (state === 'open') await this.reservationService.openReservation(false);
     else if (state === 'close')
@@ -83,7 +83,7 @@ export class ReservationController {
     description:
       '사전 예약 중단, 재개, 초기화 기능입니다. (stop = 중단, reopen = 재개, reset = 초기화)',
   })
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, CheckPermission('admin'))
   async preReservationStop(@Query('state') state: string) {
     if (state === 'stop') {
       await this.reservationService.stopPreReservation();
@@ -104,6 +104,7 @@ export class ReservationController {
     type: [PreReservationSetDto],
     description: '사전예약 시간을 설정하는 DTO입니다.',
   })
+  @UseGuards(JwtAuthGuard, CheckPermission('admin'))
   async getPreReservationTimeInfo(@Body() body: PreReservationSetDto) {
     const { date, time, isPre } = body;
 
@@ -122,6 +123,7 @@ export class ReservationController {
     type: [PreReservationSetDto],
     description: '사전예약 시간을 설정하는 DTO입니다.',
   })
+  @UseGuards(JwtAuthGuard, CheckPermission('admin'))
   async deletePreReservationList(@Body() body: PreReservationSetDto) {
     const { date, time, isPre } = body;
 
@@ -134,6 +136,7 @@ export class ReservationController {
 
   @Patch('/delete-month')
   @ApiOperation({ description: '해당 월 전체 예약 삭제' })
+  @UseGuards(JwtAuthGuard, CheckPermission('admin'))
   async deleteMonthReservation(@Body() body: MonthReservationDeleteDto) {
     const { date, isPre } = body;
     if (isPre) {
@@ -147,7 +150,7 @@ export class ReservationController {
 
   @Patch('/delete-one')
   @ApiOperation({ description: '해당하는 날짜의 특정 시간대 예약 삭제' })
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, CheckPermission('admin'))
   async deleteOneReservation(@Body() body: OneReservationDeleteDto) {
     const { date, times, isPre } = body;
     if (isPre) {
@@ -168,6 +171,7 @@ export class ReservationController {
     name: 'state',
     description: '예약 활성화 상태입니다. (open = 시작, close = 중지)',
   })
+  @UseGuards(JwtAuthGuard, CheckPermission('admin'))
   async reservationStart(@Query('state') state: string) {
     if (state === 'open')
       return await this.reservationService.openReservation(true);
@@ -177,6 +181,7 @@ export class ReservationController {
 
   @Post('/block')
   @HttpCode(200)
+  @UseGuards(JwtAuthGuard, CheckPermission('admin'))
   async blockRes(@Body() body: BlockReservationDto) {
     const { startDate, endDate } = body;
     return await this.reservationService.blockReservation(startDate, endDate);
