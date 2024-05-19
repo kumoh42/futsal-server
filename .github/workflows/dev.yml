@@ -94,7 +94,7 @@ jobs:
           docker pull ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
           docker stop ${{ env.ECR_REPOSITORY }} || true
           docker rm ${{ env.ECR_REPOSITORY }} || true
-          docker run -d --name ${{ env.ECR_REPOSITORY }} --restart on-failure -p 3000:3000 -v  ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+          docker run -d --name ${{ env.ECR_REPOSITORY }} --restart on-failure -p 3000:3000  ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
 
     - name: Remove Github Actions IP from security group
       run: |
