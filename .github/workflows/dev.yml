@@ -32,9 +32,6 @@ jobs:
       id: ip
       uses: haythem/public-ip@v1.2
 
-    - name: Remove existing .env file
-      run: rm .env || true
-
     - name: Create .env file
       run: |
         echo "DATABASE_TYPE=${{ secrets.DATABASE_TYPE }}" > .env
@@ -51,7 +48,6 @@ jobs:
         echo "CACHE_MAX=${{ secrets.CACHE_MAX }}" >> .env
         echo "SLACK_URL=${{ secrets.SLACK_URL }}" >> .env
         echo "SLACK_MESSAGE_TEMPLETE=${{ secrets.DEV_SLACK_MESSAGE_TEMPLETE }}" >> .env
-        echo "create complete"
 
     - name: Install dependencies
       run: npm install
@@ -93,11 +89,12 @@ jobs:
         script: |
           # Pull and run the Docker image on EC2
           aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}
+          docker rmi $(docker images -q --filter "dangling=true" | tail -1)
           echo "${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}"
           docker pull ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
           docker stop ${{ env.ECR_REPOSITORY }} || true
           docker rm ${{ env.ECR_REPOSITORY }} || true
-          docker run -d --name ${{ env.ECR_REPOSITORY }} -p 3000:3000 ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+          docker run -d --name ${{ env.ECR_REPOSITORY }} —restart on-failure -p 3000:3000 -v ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
 
     - name: Remove Github Actions IP from security group
       run: |
