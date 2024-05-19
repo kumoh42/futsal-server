@@ -37,9 +37,9 @@ jobs:
       run: |
         echo "DATABASE_TYPE=${{ secrets.DATABASE_TYPE }}" >> .env
         echo "DATABASE_PORT=${{ secrets.DATABASE_PORT }}" >> .env
-        echo "DATABASE_HOST=${{ secrets.DATABASE_HOST }}" >> .env
-        echo "DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }}" >> .env
-        echo "DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}" >> .env
+        echo "DATABASE_HOST=${{ secrets.DEV_DATABASE_HOST }}" >> .env
+        echo "DATABASE_USERNAME=${{ secrets.DEV_DATABASE_USERNAME }}" >> .env
+        echo "DATABASE_PASSWORD=${{ secrets.DEV_DATABASE_PASSWORD }}" >> .env
         echo "DATABASE_NAME=${{ secrets.DEV_DATABASE_NAME }}" >> .env
         echo "JWT_ACCESS_SECRET_KEY=${{ secrets.JWT_ACCESS_SECRET_KEY }}" >> .env
         echo "JWT_ACCESS_EXPIRATION_TIME=${{ secrets.JWT_ACCESS_EXPIRATION_TIME }}" >> .env
