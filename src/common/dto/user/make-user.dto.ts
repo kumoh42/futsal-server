@@ -1,5 +1,21 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsNotEmpty, IsNumber, IsString, Matches } from 'class-validator';
+import { registerDecorator, ValidationOptions, ValidationArguments, IsNotEmpty, IsNumber, IsString, Matches, Max, Min } from 'class-validator';
+
+export function IsEightDigits(validationOptions?: ValidationOptions) {
+  return function (object: any, propertyName: string) {
+    registerDecorator({
+      name: 'isEightDigits',
+      target: object.constructor,
+      propertyName: propertyName,
+      constraints: [],
+      options: validationOptions,
+      validator: {
+        validate(value: any, args: ValidationArguments) {
+          return typeof value === 'number' && value >= 10000000 && value <= 99999999;
+        },
+      },
+    });
+  };
+}
 
 export class NewUserDto {
   @IsString()
@@ -8,6 +24,9 @@ export class NewUserDto {
 
   @IsNumber()
   @IsNotEmpty()
+  @IsEightDigits(
+    { message: '학번은 8자리로 입력해야 합니다' }
+  )
   sNumber: number;
 
   @IsString()
