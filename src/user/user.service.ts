@@ -43,6 +43,8 @@ export class UserService {
   if(!user){ throw new NotFoundException('해당 아이디의 유저가 존재하지 않습니다.')}
   return user;
 }
+  
+
 
 async findMemberSrlByUserId(userId: string)
 : Promise<number>
@@ -113,10 +115,20 @@ async hashPassword(password:string):Promise<string>
     changedInfo: ChangedUserInfo
   ): Promise<string>{
     const { name, phoneNumber, sNumber } = changedInfo;
-
+    
     const user = await this.findUserByUserId(userId);
+    const existingUserBySNumber = await this.memberRepository.findOne({ 
+      where:{user_student_number:sNumber}
+     });
+
     if (!user) {
       throw new NotFoundException('해당 사용자가 존재하지 않습니다.');
+    }
+
+    if (user.user_student_number !== sNumber) {
+      if (existingUserBySNumber) {
+        throw new ForbiddenException('이미 존재하는 학번입니다.');
+      }
     }
     user.user_name = name;
     user.phone_number = phoneNumber;
