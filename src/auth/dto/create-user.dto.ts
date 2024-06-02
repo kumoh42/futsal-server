@@ -33,7 +33,6 @@ export class CreateUserDto {
   @ApiProperty()
   user_id: string;
 
-  @Validate(NotContainsValueConstraint)
   @IsString()
   @Matches(/^(?=.*[a-zA-Z])(?=.*[!@#$%^&*])(?=.*[0-9])\S{8,20}$/, {
     message:
