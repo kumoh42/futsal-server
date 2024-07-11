@@ -10,6 +10,8 @@ import dayjs from 'dayjs';
 export class ReservationScheduler {
 
   private userSetTime = false;
+ 
+  
 
   constructor(
     @Inject(PreReservationTransactionRepository)
@@ -28,9 +30,12 @@ export class ReservationScheduler {
     const now = dayjs();
     const lastDayOfMonth = now.daysInMonth();
     
+    
     if (!this.userSetTime && now.date() != lastDayOfMonth){
       return; //이 달의 마지막 날이 아니면 종료
     }
+
+    
 
     const today = getToday();
     
@@ -43,10 +48,10 @@ export class ReservationScheduler {
       nextMonth: after2Month,
     });
 
-    await this.resetScheduleTime();
+    await this.resetScheduleTime();     
   }
 
-  @Cron('0 0 0 1 * *', {
+  @Cron('10 0 0 1 * *', {
     timeZone: 'Asia/Seoul',
     name: 'Open Official Reservation',
   })
