@@ -28,7 +28,8 @@ export class OfficialReservationService {
       throw new ConflictException('이미 예약 진행 중입니다.');
     }
 
-    const thisMonth = dayjs();
+
+    const thisMonth = dayjs().add(9, 'hours');
     const nextMonth = dayjs().add(1, 'months');
 
     await this.repo.updateReservation({ isOpen: true, thisMonth, nextMonth });
@@ -56,3 +57,4 @@ export class OfficialReservationService {
     return ['완료'];
   }
 }
+
