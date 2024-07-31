@@ -73,11 +73,6 @@ export class UserController {
   async realtestRouter(
   ){    
     const thisMonth = dayjs()
-    console.log("dayjs instance: " + thisMonth.date);
-    console.log(thisMonth);
-    console.log("dayjs instance + format method: " + thisMonth.format('YYYY-MM-DD'));
-
-    return thisMonth.format('YYYY-MM-DD');
+    return thisMonth.format('YYYY-MM-DD hh:mm:ss');
     }
-
 }
