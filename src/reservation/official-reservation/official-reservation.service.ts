@@ -29,7 +29,7 @@ export class OfficialReservationService {
     }
 
 
-    const thisMonth = dayjs().add(9, 'hours');
+    const thisMonth = dayjs()
     const nextMonth = dayjs().add(1, 'months');
 
     await this.repo.updateReservation({ isOpen: true, thisMonth, nextMonth });
