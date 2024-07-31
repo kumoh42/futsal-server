@@ -89,11 +89,13 @@ jobs:
         script: |
           # Pull and run the Docker image on EC2
           aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}
+          docker rmi $(docker images -q --filter "dangling=true" | tail -1)
           echo "${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}"
           docker pull ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
           docker stop ${{ env.ECR_REPOSITORY }} || true
           docker rm ${{ env.ECR_REPOSITORY }} || true
-          docker run -d --name ${{ env.ECR_REPOSITORY }} -p 3000:3000 ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+          docker run -d --name ${{ env.ECR_REPOSITORY }} --restart on-failure -p 3000:3000 -e TZ=Asia/Seoul  ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+
 
     - name: Remove Github Actions IP from security group
       run: |
