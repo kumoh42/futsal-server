@@ -7,6 +7,7 @@ import { NewUserDto } from '@/common/dto/user/make-user.dto';
 import { ChangedUserInfo } from '@/common/dto/user/change-user.dto';
 import { CheckPermission } from '@/common/decorators/permission.guard';
 import { RegisterReservationDto } from '@/common/dto/reservation/register-reservation.dto';
+import dayjs from 'dayjs';
 
 @ApiTags('유저 정보 조회')
 @Controller('user')
@@ -67,7 +68,13 @@ export class UserController {
     const { userId } = user;
     return await this.userService.registerUserReservation(userId, reservationTimeDto)
   }
-  
 
-  
+  @Get('/timezone')
+  async realtestRouter(
+  ){    
+    const thisMonth = dayjs()
+    console.log("dayjs instance: " + thisMonth);
+    console.log("dayjs instance + format method: " + thisMonth.format('YYYY-MM-DD'));
+    }
+
 }
