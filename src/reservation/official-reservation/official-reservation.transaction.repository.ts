@@ -110,7 +110,7 @@ export class OfficialReservationTransactionRepository {
     await this.updateSetting({ isOpen });
 
     let reservationSlot = await this.preRepo.find({
-      where: { date: Like(`${thisMonth.format('YYYY-MM')}%`) },
+      where: { date: Like(`${thisMonth.subtract(1, 'months').format('YYYY-MM')}%`) },
       select: ['reservation_srl', 'member_srl', 'place_srl', 'circle', 'major', 'date', 'time', 'is_able', 'is_holiday', 'regdate']
     });
 
