@@ -40,8 +40,6 @@ export class ReservationTimeTransactionRepository {
 
       const updatedSettings = allSettings.map((setting) => {
         switch (setting.key) {
-          case 'is_pre_reservation_period':
-            return { ...setting, value: 'Y' };
           case 'start_date':
             return {
               ...setting,
