@@ -1,165 +1,187 @@
-# futsal-server
-풋살장 예약 시스템 - 서버
-
-</br>
-
-## 👨‍💻프로젝트 소개
-기존 풋살장 예약체계 시스템을 어드민 관점으로 리팩토링을 진행합니다.
 
 
-본 레포지토리는 서버를 담당합니다.
+# 금오공과대학교 공식 풋살장 예약 서비스
 
-</br>
+<img src="https://private-user-images.githubusercontent.com/98962864/365073953-c72b7000-e9d8-40e5-b972-47d66f49b560.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MjU4MDMwMjcsIm5iZiI6MTcyNTgwMjcyNywicGF0aCI6Ii85ODk2Mjg2NC8zNjUwNzM5NTMtYzcyYjcwMDAtZTlkOC00MGU1LWI5NzItNDdkNjZmNDliNTYwLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDA5MDglMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQwOTA4VDEzMzg0N1omWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTYwMjRhYjliYWZkMWNjYTFmMTMzODdhYTc2Y2ViMjc0OTVhNjY3MDc2NjljNjE2NTQ2MzA2NTBjMjk0NDI2Y2UmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JmFjdG9yX2lkPTAma2V5X2lkPTAmcmVwb19pZD0wIn0.1uSt5-o8zgllBvg1Sg1qcnCWvKnJaIsF-EUAyUSuoBg">
 
-## ⏲개발 기간
-+ 2023.07.11 ~ 2023.08.26.(예정)
+## ❗프로젝트 소개
 
-</br>
+- 금오공과대학교 개발 동아리 '금오사이'에서 개발한 교내 공식 풋살장 예약 관리 서비스입니다.
+- 기존에 사용하던 교내 예약 서비스는  불편한 예약 프로세스를 가지고 있었기에, 이를 간편하고 빠르게 예약하고 싶다는 요구사항에서 시작되었습니다.
+- 총학생회 측에서 용이한 체육시설 관리, 각 동아리 사용자의 공평한 예약을 위해 개발되었습니다.
+- 본 레포지토리는 기존 금오사이 풋살장 서비스를 리팩토링한 서버를 명세합니다.
+  
+<br>
 
-## 🧑‍🤝‍🧑팀원 구성
-+ 프로젝트장 - 이지현
-+ 팀원 - 김현진
-+ 팀원 - 노현이
-+ 멘토 - 김선진
-+ 멘토 - 최혜민
+## 👨🏻‍💻Backend 팀원 구성
 
-</br>
+<div align="center">
 
+| **이지현** | **김현진** | **노현이** |**최주혁** | **김선진** |
+| :------: |  :------: | :------: | :------: |:------: |
+| [<img src="https://avatars.githubusercontent.com/u/77794756?v=4" height=150 width=150> <br/> @journeybongbong](https://github.com/journeybongbong)| [<img src="https://avatars.githubusercontent.com/u/98962864?v=4" height=150 width=150> <br/> @badasskim](https://github.com/badasskim)| [<img src="https://avatars.githubusercontent.com/u/122597763?v=4" height=150 width=150> <br/> @hyunoi](https://github.com/Hyunoi) | [<img src="https://avatars.githubusercontent.com/u/96466824?v=4" height=150 width=150> <br/> @Juhye0k](https://github.com/Juhye0k) | [<img src="https://avatars.githubusercontent.com/u/66009926?v=4" height=150 width=150> <br/> @gimseonjin](https://github.com/gimseonjin) | 
+
+
+</div>
+
+<br>
 
 ## 🔨개발 환경
+
   + Node.js (18.x)
   + Framework : Nest.js (10.x)
   + IDE : Vscode
   + Database : Mysql 8.0
-  + Deployment : AWS EC2
+  + Deployment : AWS EC2, ECR, Docker
   + Static Analysis Tool : SonarLint
   + Jira, Notion, Slack
+<br>
 
-</br>
+## ⚙️채택한 개발 기술과 브랜치 전략
 
-## 🤳주요 기능
-+ 추후 재작성하겠습니다.
-
-</br>
+### Nest.js
+  - typescript 기반 웹 프레임워크로 타입 검사, 의존성 주입 등으로 코드 재사용성을 꾀했습니다.
     
-## ⚙️How to Run
+### 브랜치 전략
+- Git-flow 전략을 기반으로 main, develop 브랜치와 feature 기능 브랜치로 간소화 하여 사용했습니다.
+- main, develop, Feat 브랜치로 나누어 개발을 하였습니다.
+    - **Main** 브랜치는 최종 배포 단계에서만 사용하는 브랜치입니다. dev 브랜치에서 병합 시 github action으로 ci/cd 가 이루어집니다.
+    - **Dev** 브랜치는 개발 단계의 Feature 브랜치들의 집합 브랜치입니다.
+    - **Feat** 브랜치는 기능 단위로 독립적인 개발 환경을 위하여 사용하였습니다. Feature 브랜치명은 Jira Service의 각 ticket에 부여되는 고유 id로 작성하였습니다.
+
+<br>
+
+## 📜프로젝트 구조
+
+### System Diagram
+<img src="https://private-user-images.githubusercontent.com/98962864/365072568-86c19c05-e11b-486c-9827-9111089efd68.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MjU4MDMwNjAsIm5iZiI6MTcyNTgwMjc2MCwicGF0aCI6Ii85ODk2Mjg2NC8zNjUwNzI1NjgtODZjMTljMDUtZTExYi00ODZjLTk4MjctOTExMTA4OWVmZDY4LnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDA5MDglMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQwOTA4VDEzMzkyMFomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTRiOGFlOWVhYTRjNjYyZTU3MmE2ZGU3ZTEyNTgxNzUyZTk5M2M3ODRiNjUzMWZlYTZjOWQzYjJhNTFmMjdjNzMmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JmFjdG9yX2lkPTAma2V5X2lkPTAmcmVwb19pZD0wIn0.Bh5Gi1UtJv0grdcJjCPQGqvrYbOZJ_zBraVIJJvab2I">
 
 
-### 0 프로젝트 세팅
+
+### Class Diagram
+<img src="https://private-user-images.githubusercontent.com/98962864/363934167-3f35e771-9917-4062-b3cc-619c8af9c100.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MjU4MDMwODcsIm5iZiI6MTcyNTgwMjc4NywicGF0aCI6Ii85ODk2Mjg2NC8zNjM5MzQxNjctM2YzNWU3NzEtOTkxNy00MDYyLWIzY2MtNjE5YzhhZjljMTAwLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDA5MDglMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQwOTA4VDEzMzk0N1omWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTdjOTY1OTE2Yzk3OGZjNmVhZjIzNmI1NjM3MzRhM2IxZGUxYmU0NmI2M2RmYmNiYTVmZDAzY2FiMTRlYTFkN2ImWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JmFjdG9yX2lkPTAma2V5X2lkPTAmcmVwb19pZD0wIn0.CkcFu57ywe-MyOtTaa0mEXYgp0hY0_X05JYbxePOLn4">
+
+<br>
+
 
 ```
-node version : v18.16.1
-```
- 
-#### nvm 사용 방법
-nvm을 통해 node.js 버전을 설정합니다.
-
-##### 1. nvm 설치 방법
-```
-1. curl을 사용해서 nvm 설치를 진행합니다.
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
-
-2. 아래 명령어를 통해 nvm 파일을 global 하게 쓸 수 있도록 세팅합니다.
-export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
-```
-
-##### 2. nvm 사용 방법
-- 해당 버전 설치 </br>
-```nvm install 만약 본인의 nvm에 해당 버전이 없다면 실행 ``` </br>
-위 명령어를 입력하면 .nvmrc를 읽어서 v18.16.1을 설치합니다. 만약 missing 이 뜬다면 node 버전을 명시해서 실행해주세요.</br>
-```nvm install {node version} ``` </br>
-
-
-</br>
-
-- 해당 버전 사용 </br>
-```nvm use // 필수 실행 ``` </br>
-위 명령어를 입력하면 .nvmrc를 읽어서 v18.16.1버전으로 변경합니다.
-
-
-##### 3. nvm for window
-[nvm github](https://github.com/coreybutler/nvm-windows/releases)</br>
-상단 url을 통해 nvm-setup.exe를 설치하여 실행합니다.
-
-완료하면 명시한 명령어를 차레대로 입력하시면 됩니다.
-```
-nvm list //현재 nodejs 버전을 보여줍니다.
-nvm install 18.16.1 //해당 버전을 설치합니다.
-nvm use 18.16.1 //설치한 버전을 사용합니다.
-
-nvm list //설치된 버전을 사용하고 있는지 확인합니다!
-```
-
->윈도우에서 현재 .nvmrc 를 사용한 nvm install || nvm use 명령어가 사용되지 않습니다.(인자가 부족하다고 함.) </br>따라서 명시되어있는 버전을 일일이 확인한 후 직접 cli command를 입력해야 합니다.
-
-
-
-#### .env 설정 
-
-프로젝트 루트 폴더에 아래 정보를 가진 .env 파일을 만들어주세요.
-데이터베이스 정보는 아래 도커 명령어에서 확인해주세요.
-
-```
-DATABASE_TYPE= 데이터베이스 종류
-DATABASE_PORT= 데이터베이스 port 번호
-DATABASE_HOST= 데이터베이스 주소
-DATABASE_USERNAME= 데이터베이스 유저 이름
-DATABASE_PASSWORD= 데이터베이스 비밀번호
-DATABASE_NAME= 데이터베이스 스키마 이름
-
-JWT_ACCESS_SECRET_KEY= AT 시크릿 키
-JWT_ACCESS_EXPIRATION_TIME= AT 유효기간
-
-JWT_REFRESH_SECRET_KEY= RT 시크릿 키
-JWT_REFRESH_EXPIRATION_TIME= RT 유효기간
-CACHE_TTL=캐시 유효기간
-CACHE_MAX=캐시 최대갯수
-
-```
-
-
-</br>
-
-#### 데이터베이스 설정
-아래 명령어를 통해 3306 포트에 mysql을 설정합니다.
-```
-
-docker run -p 3306:3306 --name kumoh42 -e MYSQL_ROOT_PASSWORD='원하는 비밀번호' -e MYSQL_DATABASE=futsal -d mysql:8.0 
-```
-</br>
-이때 서버 실행 시, 해당 데이터베이스를 찾지 못 한다면 도커 설정 포트를 변경(다른 포트를 사용)하여 다시 데이터베이스를 설정해주세요.
-</br>또는 대기 한 후 서버를 재실행해보세요. 
-
-```
-[예시 : 포트 번호를 13306으로 변경]
-docker run -p 13306:3306 --name kumoh42 -e MYSQL_ROOT_PASSWORD='원하는 비밀번호' -e MYSQL_DATABASE=futsal -d mysql:8.0 
-```
-비밀번호 입력 시 따옴표 생략해주세요.
-
-
-</br>
-
-### 프로젝트 시작
-
-```
-1. 개발 모드로 실행
-npm run start:dev
-
-2. 실제 서버 모드로 실행
-npm run start
+  src
+	├── app.controller.ts
+	├── app.module.ts
+	├── app.service.ts
+	├── auth
+	│   ├── auth.controller.ts
+	│   ├── auth.module.ts
+	│   ├── auth.service.ts
+	│   ├── dto
+	│   │   └── create-user.dto.ts
+	│   └── jwt
+	│       ├── jwt.guard.ts
+	│       └── jwt.payload.ts
+	├── cache
+	│   ├── cache.module.ts
+	│   └── cache.service.ts
+	├── common
+	│   ├── decorators
+	│   │   ├── permission.guard.ts
+	│   │   └── user.decorator.ts
+	│   ├── dto
+	│   │   ├── inquiry-message.dto.ts
+	│   │   ├── members
+	│   │   │   └── members.dto.ts
+	│   │   ├── reservation
+	│   │   │   ├── block-reservation.dto.ts
+	│   │   │   ├── month-reservation-delete.dto.ts
+	│   │   │   ├── one-reservation-delete.dto.ts
+	│   │   │   ├── pre-reservation-set.dto.ts
+	│   │   │   └── register-reservation.dto.ts
+	│   │   └── user
+	│   │       ├── change-user.dto.ts
+	│   │       └── make-user.dto.ts
+	│   └── get-reservation.pipe.ts
+	├── config
+	│   └── swagger.config.ts
+	├── entites
+	│   ├── xe_member.entity.ts
+	│   ├── xe_member.futsal.entity.ts
+	│   ├── xe_reservation.entity.ts
+	│   ├── xe_reservation_config.entity.ts
+	│   ├── xe_reservation_cricle.entity.ts
+	│   ├── xe_reservation_major.entity.ts
+	│   ├── xe_reservation_member.entity.ts
+	│   ├── xe_reservation_pre.entity.ts
+	│   └── xe_reservation_time.entity.ts
+	├── main.ts
+	├── members
+	│   ├── members.controller.ts
+	│   ├── members.module.ts
+	│   └── members.service.ts
+	├── pipe
+	│   └── parse-int.pipe.ts
+	├── reservation
+	│   ├── official-reservation
+	│   │   ├── official-reservation.service.ts
+	│   │   └── official-reservation.transaction.repository.ts
+	│   ├── pre-reservation
+	│   │   ├── pre-reservation.service.ts
+	│   │   └── pre-reservation.transaction.repository.ts
+	│   ├── reservation-scheduler.ts
+	│   ├── reservation-slot.builder.ts
+	│   ├── reservation.controller.ts
+	│   ├── reservation.module.ts
+	│   ├── reservation.service.ts
+	│   └── time
+	│       ├── reservation-time.service.ts
+	│       └── reservation-time.transaction.repository.ts
+	├── serverless.ts
+	├── slack
+	│   ├── slack.controller.ts
+	│   ├── slack.module.ts
+	│   └── slack.service.ts
+	├── user
+	│   ├── user.controller.ts
+	│   ├── user.module.ts
+	│   └── user.service.ts
+	└── util
+	    └── date-util.ts
 ```
 
-</br>
 
-## 📜컨벤션
 
-+ 모듈 이름은 명사로 한다.
-+ 변수명은 카멜케이스를 사용한다.</br>
-+ env 변수는 메서드 | 함수 내에 작성하지 않는다.</br>
-+ if문은 가능하면 {}로 묶는다.</br>
-+ 배열 보단 명시적으로 변수 두 개를 만드는 것이 좋다.</br>
-+ typescript에서는 _는 사용하지 않는 변수라는 것을 의미한다.</br>
-+ 가능한 promise를 반환하는 것들은 모두 await를 붙인다.</br>
-+ 예외처리할 때 던져주는 message는 배열로 반환한다.</br>
+<br>
+
+## 🤝역할 분담
+
+### 🐸김현진
+- **기능**
+    - 로그인 및 유효성 검사
+    - 슬랙 연동
+    - 유저 crud
+    - 예약 삭제, 예약자 조회, 사용자 조회/삭제
+    
+### 🐷이지현
+- **기능**
+    - lambda 환경 세팅
+    - 도커 빌드 및 배포
+    - git CI/CD
+    - 스케줄러 설정
+    - 공휴일 구분
+
+### 🐨노현이
+- **기능**
+    - 정식/우선 예약 시작
+    - 우선 예약 재개/중지
+    - 우선 예약 시간 설정
+    - 예약 현황 조회
+    - 스웨거 연동
+    
+### 🐻채주혁
+- **기능**
+    - 로그인 해시 리팩토링
+    - 사전예약 재호출금지 구현
+     
+### 🐭김선진
+- **멘토**
+    - 코드 리뷰
+    
 
