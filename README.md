@@ -1,9 +1,7 @@
-![image](https://github.com/user-attachments/assets/b682ac8d-cebf-455c-9da1-2d77cb9c90cc)
 
 # 금오공과대학교 공식 풋살장 예약 서비스
 
-<img src="https://private-user-images.githubusercontent.com/98962864/371168346-a7fe6f32-4cd2-4aea-a18b-93e5e362478b.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MjczNTg0ODMsIm5iZiI6MTcyNzM1ODE4MywicGF0aCI6Ii85ODk2Mjg2NC8zNzExNjgzNDYtYTdmZTZmMzItNGNkMi00YWVhLWExOGItOTNlNWUzNjI0NzhiLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDA5MjYlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQwOTI2VDEzNDMwM1omWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPWQ1NGVmYzBhMzMxMGQ1ODA3MGU4YjkzNDIyNDE2YWYyNzNjZmRiNTAyMzNkZjE4ODUzMTA0MDE1M2FkMzkwZjkmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0._bBfX5GZyuRC5o_3Mb6lCbsNW7iFdl9n63SIHQWWztk![image](https://github.com/user-attachments/assets/0b80b839-8ebf-465f-b8dc-714b3bc10c61)
-">
+![image](https://github.com/user-attachments/assets/b682ac8d-cebf-455c-9da1-2d77cb9c90cc)
 
 ## ❗프로젝트 소개
 
