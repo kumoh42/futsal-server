@@ -1,4 +1,3 @@
-
 # 금오공과대학교 공식 풋살장 예약 서비스
 
 ![image](https://github.com/user-attachments/assets/b682ac8d-cebf-455c-9da1-2d77cb9c90cc)
@@ -53,12 +52,12 @@
 ## 📜프로젝트 구조
 
 ### System Diagram
-<img src="https://private-user-images.githubusercontent.com/98962864/371168515-8b52f606-86fa-4fac-94a2-70a08f7bdd36.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MjczNTg0OTgsIm5iZiI6MTcyNzM1ODE5OCwicGF0aCI6Ii85ODk2Mjg2NC8zNzExNjg1MTUtOGI1MmY2MDYtODZmYS00ZmFjLTk0YTItNzBhMDhmN2JkZDM2LnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDA5MjYlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQwOTI2VDEzNDMxOFomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTE1YzFkZjM3MjQ5ZWEzMTZkZjViOWM3ZTg1MTc5OWZmYzAzZDVmMTc2YTE1MjAwYTFjYmQ3N2E1NWE0ZWRiNDkmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.hNC_msKvJ3_BLxVF4z6qsEEw36afz6c56iI9idbZ20s">
-
+![image](https://github.com/user-attachments/assets/11f4dd45-756e-458e-bd69-825733b19c29)
 
 
 ### Class Diagram
-<img src="https://private-user-images.githubusercontent.com/98962864/371168616-af08da62-9976-4711-a759-a9e4316a5788.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MjczNTg1MTMsIm5iZiI6MTcyNzM1ODIxMywicGF0aCI6Ii85ODk2Mjg2NC8zNzExNjg2MTYtYWYwOGRhNjItOTk3Ni00NzExLWE3NTktYTllNDMxNmE1Nzg4LnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDA5MjYlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQwOTI2VDEzNDMzM1omWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTdhNjkyZGE3NDY3MDc4MDkwMGE2ODU0MjhjODk0NjJlNzQ2OGE1NjRmYzkyOTE5MTdhNzRkMDBhNmUzMmIyODAmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.iuojaSU5DCj-8d2A_H1JT_fU5xFhoaLhJjdJDXfSuHc">
+![image](https://github.com/user-attachments/assets/7ce608ad-a28e-475e-a51c-9353af7519a3)
+
 
 <br>
 
