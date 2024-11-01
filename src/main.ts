@@ -14,7 +14,7 @@ export async function bootstrap() {
   console.log(process.env);
   const app = await NestFactory.create(AppModule, { cors: true });
   app.enableCors({
-    origin: true,
+    origin: ['https://futsal-kumoh.kro.kr', 'http://kumoh-futsal.kro.kr'],
     exposedHeaders: ['Access_token', 'Refresh_token'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
