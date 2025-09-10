@@ -2,13 +2,15 @@ import axios from 'axios';
 import dayjs, { Dayjs } from 'dayjs';
 
 export class ReservationSlotBuilder {
+  private readonly ServiceKey =
+  process.env.HOLIDAY_SERVICE_KEY;
   constructor(private nextMonth: Dayjs, private today: Dayjs) {}
 
   async getPublicHolidays(year: number, month: number) {
     const publicList: string[] = [];
 
     try {
-      const url = `http://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getHoliDeInfo?ServiceKey=sPWOL4v2MOAE7sUq055%2BwdPT7voiyC2O97JQXNOnraKoP1hYApVuDOdnqZo9Q%2Bvz7olpXweaxcfSUJW1euhSGA%3D%3D&solYear=${year}&solMonth=${
+      const url = `http://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getHoliDeInfo?ServiceKey=${this.ServiceKey}&solYear=${year}&solMonth=${
         month + 1
       }`;
       const response = await axios.get(url);
